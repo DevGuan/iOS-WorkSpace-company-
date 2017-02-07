@@ -1,0 +1,689 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4EF82F0C1E4835AB00054DDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F0B1E4835AB00054DDE /* AppDelegate.swift */; };
+		4EF82F131E4835AB00054DDE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4EF82F121E4835AB00054DDE /* Assets.xcassets */; };
+		4EF82F161E4835AB00054DDE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4EF82F141E4835AB00054DDE /* LaunchScreen.storyboard */; };
+		4EF82F211E4835AB00054DDE /* LotteryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F201E4835AB00054DDE /* LotteryTests.swift */; };
+		4EF82F2C1E4835AC00054DDE /* LotteryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F2B1E4835AC00054DDE /* LotteryUITests.swift */; };
+		4EF82F3B1E4835BC00054DDE /* LotteryNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F391E4835BC00054DDE /* LotteryNavController.swift */; };
+		4EF82F3C1E4835BC00054DDE /* MainLotteryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F3A1E4835BC00054DDE /* MainLotteryController.swift */; };
+		4EF82F601E483A1A00054DDE /* Constraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F3E1E483A1A00054DDE /* Constraint.swift */; };
+		4EF82F611E483A1A00054DDE /* ConstraintAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F3F1E483A1A00054DDE /* ConstraintAttributes.swift */; };
+		4EF82F621E483A1A00054DDE /* ConstraintConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F401E483A1A00054DDE /* ConstraintConfig.swift */; };
+		4EF82F631E483A1A00054DDE /* ConstraintConstantTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F411E483A1A00054DDE /* ConstraintConstantTarget.swift */; };
+		4EF82F641E483A1A00054DDE /* ConstraintDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F421E483A1A00054DDE /* ConstraintDescription.swift */; };
+		4EF82F651E483A1A00054DDE /* ConstraintDSL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F431E483A1A00054DDE /* ConstraintDSL.swift */; };
+		4EF82F661E483A1A00054DDE /* ConstraintInsets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F441E483A1A00054DDE /* ConstraintInsets.swift */; };
+		4EF82F671E483A1A00054DDE /* ConstraintInsetTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F451E483A1A00054DDE /* ConstraintInsetTarget.swift */; };
+		4EF82F681E483A1A00054DDE /* ConstraintItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F461E483A1A00054DDE /* ConstraintItem.swift */; };
+		4EF82F691E483A1A00054DDE /* ConstraintLayoutGuide+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F471E483A1A00054DDE /* ConstraintLayoutGuide+Extensions.swift */; };
+		4EF82F6A1E483A1A00054DDE /* ConstraintLayoutGuide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F481E483A1A00054DDE /* ConstraintLayoutGuide.swift */; };
+		4EF82F6B1E483A1A00054DDE /* ConstraintLayoutGuideDSL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F491E483A1A00054DDE /* ConstraintLayoutGuideDSL.swift */; };
+		4EF82F6C1E483A1A00054DDE /* ConstraintLayoutSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F4A1E483A1A00054DDE /* ConstraintLayoutSupport.swift */; };
+		4EF82F6D1E483A1A00054DDE /* ConstraintLayoutSupportDSL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F4B1E483A1A00054DDE /* ConstraintLayoutSupportDSL.swift */; };
+		4EF82F6E1E483A1A00054DDE /* ConstraintMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F4C1E483A1A00054DDE /* ConstraintMaker.swift */; };
+		4EF82F6F1E483A1A00054DDE /* ConstraintMakerEditable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F4D1E483A1A00054DDE /* ConstraintMakerEditable.swift */; };
+		4EF82F701E483A1A00054DDE /* ConstraintMakerExtendable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F4E1E483A1A00054DDE /* ConstraintMakerExtendable.swift */; };
+		4EF82F711E483A1A00054DDE /* ConstraintMakerFinalizable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F4F1E483A1A00054DDE /* ConstraintMakerFinalizable.swift */; };
+		4EF82F721E483A1A00054DDE /* ConstraintMakerPriortizable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F501E483A1A00054DDE /* ConstraintMakerPriortizable.swift */; };
+		4EF82F731E483A1A00054DDE /* ConstraintMakerRelatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F511E483A1A00054DDE /* ConstraintMakerRelatable.swift */; };
+		4EF82F741E483A1A00054DDE /* ConstraintMultiplierTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F521E483A1A00054DDE /* ConstraintMultiplierTarget.swift */; };
+		4EF82F751E483A1A00054DDE /* ConstraintOffsetTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F531E483A1A00054DDE /* ConstraintOffsetTarget.swift */; };
+		4EF82F761E483A1A00054DDE /* ConstraintPriorityTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F541E483A1A00054DDE /* ConstraintPriorityTarget.swift */; };
+		4EF82F771E483A1A00054DDE /* ConstraintRelatableTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F551E483A1A00054DDE /* ConstraintRelatableTarget.swift */; };
+		4EF82F781E483A1A00054DDE /* ConstraintRelation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F561E483A1A00054DDE /* ConstraintRelation.swift */; };
+		4EF82F791E483A1A00054DDE /* ConstraintView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F571E483A1A00054DDE /* ConstraintView+Extensions.swift */; };
+		4EF82F7A1E483A1A00054DDE /* ConstraintView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F581E483A1A00054DDE /* ConstraintView.swift */; };
+		4EF82F7B1E483A1A00054DDE /* ConstraintViewDSL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F591E483A1A00054DDE /* ConstraintViewDSL.swift */; };
+		4EF82F7C1E483A1A00054DDE /* Debugging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F5A1E483A1A00054DDE /* Debugging.swift */; };
+		4EF82F7D1E483A1A00054DDE /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4EF82F5B1E483A1A00054DDE /* Info.plist */; };
+		4EF82F7E1E483A1A00054DDE /* LayoutConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F5C1E483A1A00054DDE /* LayoutConstraint.swift */; };
+		4EF82F7F1E483A1A00054DDE /* LayoutConstraintItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F5D1E483A1A00054DDE /* LayoutConstraintItem.swift */; };
+		4EF82F801E483A1A00054DDE /* UILayoutSupport+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F5F1E483A1A00054DDE /* UILayoutSupport+Extensions.swift */; };
+		4EF82F821E48440800054DDE /* WheelBtn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F811E48440800054DDE /* WheelBtn.swift */; };
+		4EF82F851E48744200054DDE /* AnimationTransitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F841E48744200054DDE /* AnimationTransitioning.swift */; };
+		4EF82F891E495AEE00054DDE /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF82F881E495AEE00054DDE /* MessageView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4EF82F1D1E4835AB00054DDE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EF82F001E4835AB00054DDE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EF82F071E4835AB00054DDE;
+			remoteInfo = Lottery;
+		};
+		4EF82F281E4835AC00054DDE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4EF82F001E4835AB00054DDE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EF82F071E4835AB00054DDE;
+			remoteInfo = Lottery;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4EF82F081E4835AB00054DDE /* Lottery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lottery.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EF82F0B1E4835AB00054DDE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		4EF82F121E4835AB00054DDE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4EF82F151E4835AB00054DDE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4EF82F171E4835AB00054DDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EF82F1C1E4835AB00054DDE /* LotteryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LotteryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EF82F201E4835AB00054DDE /* LotteryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotteryTests.swift; sourceTree = "<group>"; };
+		4EF82F221E4835AB00054DDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EF82F271E4835AC00054DDE /* LotteryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LotteryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EF82F2B1E4835AC00054DDE /* LotteryUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotteryUITests.swift; sourceTree = "<group>"; };
+		4EF82F2D1E4835AC00054DDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EF82F391E4835BC00054DDE /* LotteryNavController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LotteryNavController.swift; sourceTree = "<group>"; };
+		4EF82F3A1E4835BC00054DDE /* MainLotteryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainLotteryController.swift; sourceTree = "<group>"; };
+		4EF82F3E1E483A1A00054DDE /* Constraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constraint.swift; sourceTree = "<group>"; };
+		4EF82F3F1E483A1A00054DDE /* ConstraintAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintAttributes.swift; sourceTree = "<group>"; };
+		4EF82F401E483A1A00054DDE /* ConstraintConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintConfig.swift; sourceTree = "<group>"; };
+		4EF82F411E483A1A00054DDE /* ConstraintConstantTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintConstantTarget.swift; sourceTree = "<group>"; };
+		4EF82F421E483A1A00054DDE /* ConstraintDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintDescription.swift; sourceTree = "<group>"; };
+		4EF82F431E483A1A00054DDE /* ConstraintDSL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintDSL.swift; sourceTree = "<group>"; };
+		4EF82F441E483A1A00054DDE /* ConstraintInsets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintInsets.swift; sourceTree = "<group>"; };
+		4EF82F451E483A1A00054DDE /* ConstraintInsetTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintInsetTarget.swift; sourceTree = "<group>"; };
+		4EF82F461E483A1A00054DDE /* ConstraintItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintItem.swift; sourceTree = "<group>"; };
+		4EF82F471E483A1A00054DDE /* ConstraintLayoutGuide+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ConstraintLayoutGuide+Extensions.swift"; sourceTree = "<group>"; };
+		4EF82F481E483A1A00054DDE /* ConstraintLayoutGuide.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintLayoutGuide.swift; sourceTree = "<group>"; };
+		4EF82F491E483A1A00054DDE /* ConstraintLayoutGuideDSL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintLayoutGuideDSL.swift; sourceTree = "<group>"; };
+		4EF82F4A1E483A1A00054DDE /* ConstraintLayoutSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintLayoutSupport.swift; sourceTree = "<group>"; };
+		4EF82F4B1E483A1A00054DDE /* ConstraintLayoutSupportDSL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintLayoutSupportDSL.swift; sourceTree = "<group>"; };
+		4EF82F4C1E483A1A00054DDE /* ConstraintMaker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMaker.swift; sourceTree = "<group>"; };
+		4EF82F4D1E483A1A00054DDE /* ConstraintMakerEditable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMakerEditable.swift; sourceTree = "<group>"; };
+		4EF82F4E1E483A1A00054DDE /* ConstraintMakerExtendable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMakerExtendable.swift; sourceTree = "<group>"; };
+		4EF82F4F1E483A1A00054DDE /* ConstraintMakerFinalizable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMakerFinalizable.swift; sourceTree = "<group>"; };
+		4EF82F501E483A1A00054DDE /* ConstraintMakerPriortizable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMakerPriortizable.swift; sourceTree = "<group>"; };
+		4EF82F511E483A1A00054DDE /* ConstraintMakerRelatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMakerRelatable.swift; sourceTree = "<group>"; };
+		4EF82F521E483A1A00054DDE /* ConstraintMultiplierTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintMultiplierTarget.swift; sourceTree = "<group>"; };
+		4EF82F531E483A1A00054DDE /* ConstraintOffsetTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintOffsetTarget.swift; sourceTree = "<group>"; };
+		4EF82F541E483A1A00054DDE /* ConstraintPriorityTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintPriorityTarget.swift; sourceTree = "<group>"; };
+		4EF82F551E483A1A00054DDE /* ConstraintRelatableTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintRelatableTarget.swift; sourceTree = "<group>"; };
+		4EF82F561E483A1A00054DDE /* ConstraintRelation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintRelation.swift; sourceTree = "<group>"; };
+		4EF82F571E483A1A00054DDE /* ConstraintView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ConstraintView+Extensions.swift"; sourceTree = "<group>"; };
+		4EF82F581E483A1A00054DDE /* ConstraintView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintView.swift; sourceTree = "<group>"; };
+		4EF82F591E483A1A00054DDE /* ConstraintViewDSL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConstraintViewDSL.swift; sourceTree = "<group>"; };
+		4EF82F5A1E483A1A00054DDE /* Debugging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Debugging.swift; sourceTree = "<group>"; };
+		4EF82F5B1E483A1A00054DDE /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4EF82F5C1E483A1A00054DDE /* LayoutConstraint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutConstraint.swift; sourceTree = "<group>"; };
+		4EF82F5D1E483A1A00054DDE /* LayoutConstraintItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutConstraintItem.swift; sourceTree = "<group>"; };
+		4EF82F5E1E483A1A00054DDE /* SnapKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SnapKit.h; sourceTree = "<group>"; };
+		4EF82F5F1E483A1A00054DDE /* UILayoutSupport+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UILayoutSupport+Extensions.swift"; sourceTree = "<group>"; };
+		4EF82F811E48440800054DDE /* WheelBtn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WheelBtn.swift; sourceTree = "<group>"; };
+		4EF82F841E48744200054DDE /* AnimationTransitioning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationTransitioning.swift; sourceTree = "<group>"; };
+		4EF82F881E495AEE00054DDE /* MessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4EF82F051E4835AB00054DDE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF82F191E4835AB00054DDE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF82F241E4835AC00054DDE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4EF82EFF1E4835AB00054DDE = {
+			isa = PBXGroup;
+			children = (
+				4EF82F0A1E4835AB00054DDE /* Lottery */,
+				4EF82F1F1E4835AB00054DDE /* LotteryTests */,
+				4EF82F2A1E4835AC00054DDE /* LotteryUITests */,
+				4EF82F091E4835AB00054DDE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4EF82F091E4835AB00054DDE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4EF82F081E4835AB00054DDE /* Lottery.app */,
+				4EF82F1C1E4835AB00054DDE /* LotteryTests.xctest */,
+				4EF82F271E4835AC00054DDE /* LotteryUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4EF82F0A1E4835AB00054DDE /* Lottery */ = {
+			isa = PBXGroup;
+			children = (
+				4EF82F831E48742700054DDE /* animationTransitioning */,
+				4EF82F3D1E483A1A00054DDE /* snapKit */,
+				4EF82F0B1E4835AB00054DDE /* AppDelegate.swift */,
+				4EF82F121E4835AB00054DDE /* Assets.xcassets */,
+				4EF82F141E4835AB00054DDE /* LaunchScreen.storyboard */,
+				4EF82F171E4835AB00054DDE /* Info.plist */,
+				4EF82F391E4835BC00054DDE /* LotteryNavController.swift */,
+				4EF82F3A1E4835BC00054DDE /* MainLotteryController.swift */,
+				4EF82F811E48440800054DDE /* WheelBtn.swift */,
+				4EF82F881E495AEE00054DDE /* MessageView.swift */,
+			);
+			path = Lottery;
+			sourceTree = "<group>";
+		};
+		4EF82F1F1E4835AB00054DDE /* LotteryTests */ = {
+			isa = PBXGroup;
+			children = (
+				4EF82F201E4835AB00054DDE /* LotteryTests.swift */,
+				4EF82F221E4835AB00054DDE /* Info.plist */,
+			);
+			path = LotteryTests;
+			sourceTree = "<group>";
+		};
+		4EF82F2A1E4835AC00054DDE /* LotteryUITests */ = {
+			isa = PBXGroup;
+			children = (
+				4EF82F2B1E4835AC00054DDE /* LotteryUITests.swift */,
+				4EF82F2D1E4835AC00054DDE /* Info.plist */,
+			);
+			path = LotteryUITests;
+			sourceTree = "<group>";
+		};
+		4EF82F3D1E483A1A00054DDE /* snapKit */ = {
+			isa = PBXGroup;
+			children = (
+				4EF82F3E1E483A1A00054DDE /* Constraint.swift */,
+				4EF82F3F1E483A1A00054DDE /* ConstraintAttributes.swift */,
+				4EF82F401E483A1A00054DDE /* ConstraintConfig.swift */,
+				4EF82F411E483A1A00054DDE /* ConstraintConstantTarget.swift */,
+				4EF82F421E483A1A00054DDE /* ConstraintDescription.swift */,
+				4EF82F431E483A1A00054DDE /* ConstraintDSL.swift */,
+				4EF82F441E483A1A00054DDE /* ConstraintInsets.swift */,
+				4EF82F451E483A1A00054DDE /* ConstraintInsetTarget.swift */,
+				4EF82F461E483A1A00054DDE /* ConstraintItem.swift */,
+				4EF82F471E483A1A00054DDE /* ConstraintLayoutGuide+Extensions.swift */,
+				4EF82F481E483A1A00054DDE /* ConstraintLayoutGuide.swift */,
+				4EF82F491E483A1A00054DDE /* ConstraintLayoutGuideDSL.swift */,
+				4EF82F4A1E483A1A00054DDE /* ConstraintLayoutSupport.swift */,
+				4EF82F4B1E483A1A00054DDE /* ConstraintLayoutSupportDSL.swift */,
+				4EF82F4C1E483A1A00054DDE /* ConstraintMaker.swift */,
+				4EF82F4D1E483A1A00054DDE /* ConstraintMakerEditable.swift */,
+				4EF82F4E1E483A1A00054DDE /* ConstraintMakerExtendable.swift */,
+				4EF82F4F1E483A1A00054DDE /* ConstraintMakerFinalizable.swift */,
+				4EF82F501E483A1A00054DDE /* ConstraintMakerPriortizable.swift */,
+				4EF82F511E483A1A00054DDE /* ConstraintMakerRelatable.swift */,
+				4EF82F521E483A1A00054DDE /* ConstraintMultiplierTarget.swift */,
+				4EF82F531E483A1A00054DDE /* ConstraintOffsetTarget.swift */,
+				4EF82F541E483A1A00054DDE /* ConstraintPriorityTarget.swift */,
+				4EF82F551E483A1A00054DDE /* ConstraintRelatableTarget.swift */,
+				4EF82F561E483A1A00054DDE /* ConstraintRelation.swift */,
+				4EF82F571E483A1A00054DDE /* ConstraintView+Extensions.swift */,
+				4EF82F581E483A1A00054DDE /* ConstraintView.swift */,
+				4EF82F591E483A1A00054DDE /* ConstraintViewDSL.swift */,
+				4EF82F5A1E483A1A00054DDE /* Debugging.swift */,
+				4EF82F5B1E483A1A00054DDE /* Info.plist */,
+				4EF82F5C1E483A1A00054DDE /* LayoutConstraint.swift */,
+				4EF82F5D1E483A1A00054DDE /* LayoutConstraintItem.swift */,
+				4EF82F5E1E483A1A00054DDE /* SnapKit.h */,
+				4EF82F5F1E483A1A00054DDE /* UILayoutSupport+Extensions.swift */,
+			);
+			path = snapKit;
+			sourceTree = "<group>";
+		};
+		4EF82F831E48742700054DDE /* animationTransitioning */ = {
+			isa = PBXGroup;
+			children = (
+				4EF82F841E48744200054DDE /* AnimationTransitioning.swift */,
+			);
+			name = animationTransitioning;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4EF82F071E4835AB00054DDE /* Lottery */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EF82F301E4835AC00054DDE /* Build configuration list for PBXNativeTarget "Lottery" */;
+			buildPhases = (
+				4EF82F041E4835AB00054DDE /* Sources */,
+				4EF82F051E4835AB00054DDE /* Frameworks */,
+				4EF82F061E4835AB00054DDE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Lottery;
+			productName = Lottery;
+			productReference = 4EF82F081E4835AB00054DDE /* Lottery.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4EF82F1B1E4835AB00054DDE /* LotteryTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EF82F331E4835AC00054DDE /* Build configuration list for PBXNativeTarget "LotteryTests" */;
+			buildPhases = (
+				4EF82F181E4835AB00054DDE /* Sources */,
+				4EF82F191E4835AB00054DDE /* Frameworks */,
+				4EF82F1A1E4835AB00054DDE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4EF82F1E1E4835AB00054DDE /* PBXTargetDependency */,
+			);
+			name = LotteryTests;
+			productName = LotteryTests;
+			productReference = 4EF82F1C1E4835AB00054DDE /* LotteryTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4EF82F261E4835AC00054DDE /* LotteryUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4EF82F361E4835AC00054DDE /* Build configuration list for PBXNativeTarget "LotteryUITests" */;
+			buildPhases = (
+				4EF82F231E4835AC00054DDE /* Sources */,
+				4EF82F241E4835AC00054DDE /* Frameworks */,
+				4EF82F251E4835AC00054DDE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4EF82F291E4835AC00054DDE /* PBXTargetDependency */,
+			);
+			name = LotteryUITests;
+			productName = LotteryUITests;
+			productReference = 4EF82F271E4835AC00054DDE /* LotteryUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4EF82F001E4835AB00054DDE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0820;
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = GARY;
+				TargetAttributes = {
+					4EF82F071E4835AB00054DDE = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 8WBSNNM3Z6;
+						ProvisioningStyle = Automatic;
+					};
+					4EF82F1B1E4835AB00054DDE = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 8WBSNNM3Z6;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 4EF82F071E4835AB00054DDE;
+					};
+					4EF82F261E4835AC00054DDE = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 8WBSNNM3Z6;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 4EF82F071E4835AB00054DDE;
+					};
+				};
+			};
+			buildConfigurationList = 4EF82F031E4835AB00054DDE /* Build configuration list for PBXProject "Lottery" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4EF82EFF1E4835AB00054DDE;
+			productRefGroup = 4EF82F091E4835AB00054DDE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4EF82F071E4835AB00054DDE /* Lottery */,
+				4EF82F1B1E4835AB00054DDE /* LotteryTests */,
+				4EF82F261E4835AC00054DDE /* LotteryUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4EF82F061E4835AB00054DDE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EF82F161E4835AB00054DDE /* LaunchScreen.storyboard in Resources */,
+				4EF82F131E4835AB00054DDE /* Assets.xcassets in Resources */,
+				4EF82F7D1E483A1A00054DDE /* Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF82F1A1E4835AB00054DDE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF82F251E4835AC00054DDE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4EF82F041E4835AB00054DDE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EF82F601E483A1A00054DDE /* Constraint.swift in Sources */,
+				4EF82F6D1E483A1A00054DDE /* ConstraintLayoutSupportDSL.swift in Sources */,
+				4EF82F3B1E4835BC00054DDE /* LotteryNavController.swift in Sources */,
+				4EF82F701E483A1A00054DDE /* ConstraintMakerExtendable.swift in Sources */,
+				4EF82F7B1E483A1A00054DDE /* ConstraintViewDSL.swift in Sources */,
+				4EF82F721E483A1A00054DDE /* ConstraintMakerPriortizable.swift in Sources */,
+				4EF82F751E483A1A00054DDE /* ConstraintOffsetTarget.swift in Sources */,
+				4EF82F731E483A1A00054DDE /* ConstraintMakerRelatable.swift in Sources */,
+				4EF82F771E483A1A00054DDE /* ConstraintRelatableTarget.swift in Sources */,
+				4EF82F711E483A1A00054DDE /* ConstraintMakerFinalizable.swift in Sources */,
+				4EF82F821E48440800054DDE /* WheelBtn.swift in Sources */,
+				4EF82F691E483A1A00054DDE /* ConstraintLayoutGuide+Extensions.swift in Sources */,
+				4EF82F791E483A1A00054DDE /* ConstraintView+Extensions.swift in Sources */,
+				4EF82F781E483A1A00054DDE /* ConstraintRelation.swift in Sources */,
+				4EF82F651E483A1A00054DDE /* ConstraintDSL.swift in Sources */,
+				4EF82F3C1E4835BC00054DDE /* MainLotteryController.swift in Sources */,
+				4EF82F801E483A1A00054DDE /* UILayoutSupport+Extensions.swift in Sources */,
+				4EF82F761E483A1A00054DDE /* ConstraintPriorityTarget.swift in Sources */,
+				4EF82F7A1E483A1A00054DDE /* ConstraintView.swift in Sources */,
+				4EF82F6B1E483A1A00054DDE /* ConstraintLayoutGuideDSL.swift in Sources */,
+				4EF82F631E483A1A00054DDE /* ConstraintConstantTarget.swift in Sources */,
+				4EF82F741E483A1A00054DDE /* ConstraintMultiplierTarget.swift in Sources */,
+				4EF82F851E48744200054DDE /* AnimationTransitioning.swift in Sources */,
+				4EF82F611E483A1A00054DDE /* ConstraintAttributes.swift in Sources */,
+				4EF82F6C1E483A1A00054DDE /* ConstraintLayoutSupport.swift in Sources */,
+				4EF82F7C1E483A1A00054DDE /* Debugging.swift in Sources */,
+				4EF82F7E1E483A1A00054DDE /* LayoutConstraint.swift in Sources */,
+				4EF82F621E483A1A00054DDE /* ConstraintConfig.swift in Sources */,
+				4EF82F7F1E483A1A00054DDE /* LayoutConstraintItem.swift in Sources */,
+				4EF82F6E1E483A1A00054DDE /* ConstraintMaker.swift in Sources */,
+				4EF82F891E495AEE00054DDE /* MessageView.swift in Sources */,
+				4EF82F0C1E4835AB00054DDE /* AppDelegate.swift in Sources */,
+				4EF82F671E483A1A00054DDE /* ConstraintInsetTarget.swift in Sources */,
+				4EF82F661E483A1A00054DDE /* ConstraintInsets.swift in Sources */,
+				4EF82F641E483A1A00054DDE /* ConstraintDescription.swift in Sources */,
+				4EF82F6F1E483A1A00054DDE /* ConstraintMakerEditable.swift in Sources */,
+				4EF82F681E483A1A00054DDE /* ConstraintItem.swift in Sources */,
+				4EF82F6A1E483A1A00054DDE /* ConstraintLayoutGuide.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF82F181E4835AB00054DDE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EF82F211E4835AB00054DDE /* LotteryTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4EF82F231E4835AC00054DDE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EF82F2C1E4835AC00054DDE /* LotteryUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4EF82F1E1E4835AB00054DDE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4EF82F071E4835AB00054DDE /* Lottery */;
+			targetProxy = 4EF82F1D1E4835AB00054DDE /* PBXContainerItemProxy */;
+		};
+		4EF82F291E4835AC00054DDE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4EF82F071E4835AB00054DDE /* Lottery */;
+			targetProxy = 4EF82F281E4835AC00054DDE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		4EF82F141E4835AB00054DDE /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4EF82F151E4835AB00054DDE /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4EF82F2E1E4835AC00054DDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4EF82F2F1E4835AC00054DDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4EF82F311E4835AC00054DDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				INFOPLIST_FILE = Lottery/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.Lottery";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		4EF82F321E4835AC00054DDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				INFOPLIST_FILE = Lottery/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.Lottery";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+		4EF82F341E4835AC00054DDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				INFOPLIST_FILE = LotteryTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.LotteryTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lottery.app/Lottery";
+			};
+			name = Debug;
+		};
+		4EF82F351E4835AC00054DDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				INFOPLIST_FILE = LotteryTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.LotteryTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lottery.app/Lottery";
+			};
+			name = Release;
+		};
+		4EF82F371E4835AC00054DDE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				INFOPLIST_FILE = LotteryUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.LotteryUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_TARGET_NAME = Lottery;
+			};
+			name = Debug;
+		};
+		4EF82F381E4835AC00054DDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				INFOPLIST_FILE = LotteryUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.LotteryUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+				TEST_TARGET_NAME = Lottery;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4EF82F031E4835AB00054DDE /* Build configuration list for PBXProject "Lottery" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EF82F2E1E4835AC00054DDE /* Debug */,
+				4EF82F2F1E4835AC00054DDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4EF82F301E4835AC00054DDE /* Build configuration list for PBXNativeTarget "Lottery" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EF82F311E4835AC00054DDE /* Debug */,
+				4EF82F321E4835AC00054DDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4EF82F331E4835AC00054DDE /* Build configuration list for PBXNativeTarget "LotteryTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EF82F341E4835AC00054DDE /* Debug */,
+				4EF82F351E4835AC00054DDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		4EF82F361E4835AC00054DDE /* Build configuration list for PBXNativeTarget "LotteryUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4EF82F371E4835AC00054DDE /* Debug */,
+				4EF82F381E4835AC00054DDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4EF82F001E4835AB00054DDE /* Project object */;
+}
