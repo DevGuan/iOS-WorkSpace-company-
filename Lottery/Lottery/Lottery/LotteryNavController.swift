@@ -15,8 +15,6 @@ class LotteryNavController: UINavigationController {
         print("hyf")
         print("cyl")
         
-        
-        print("333")
-        print("444")
+    
     }
 }
