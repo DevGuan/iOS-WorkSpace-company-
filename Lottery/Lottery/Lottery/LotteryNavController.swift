@@ -17,5 +17,6 @@ class LotteryNavController: UINavigationController {
         
         
         print("333")
+        print("444")
     }
 }
