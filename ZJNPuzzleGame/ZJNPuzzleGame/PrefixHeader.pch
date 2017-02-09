@@ -8,3 +8,4 @@
 
 #import <Masonry.h>
 #import "UIImage+YFImage.h"
+#define ScreenSize [UIScreen mainScreen].bounds.size

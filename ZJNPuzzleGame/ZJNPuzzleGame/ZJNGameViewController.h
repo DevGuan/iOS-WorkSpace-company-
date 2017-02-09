@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface ZJNGameViewController : UIViewController
-
+@property (nonatomic, strong) UIImage *mainImage;
 @end

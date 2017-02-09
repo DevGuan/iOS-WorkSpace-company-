@@ -12,7 +12,7 @@
 #import "ZJNMainViewController.h"
 #import "ZJNGameViewController.h"
 #define marge 20
-#define ScreenSize [UIScreen mainScreen].bounds.size
+
 @interface ZJNMainViewController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 @property (nonatomic, strong) UIImageView *mainImageV;
 @property (nonatomic, strong) UIButton *selPicBtn;
@@ -61,7 +61,7 @@
 - (void)startGame
 {
     ZJNGameViewController *gameVC = [[ZJNGameViewController alloc] init];
-#warning TODO
+    gameVC.mainImage = self.mainImageV.image;
     [self presentViewController:gameVC animated:YES completion:nil];
 }
 
