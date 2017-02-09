@@ -12,9 +12,12 @@ class LotteryNavController: UINavigationController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+<<<<<<< HEAD
         print("hyf")
         print("cyl")
         
     
+=======
+>>>>>>> long0133/master
     }
 }

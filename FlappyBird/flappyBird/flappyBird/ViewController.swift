@@ -77,7 +77,7 @@ class ViewController: UIViewController {
         bird = UIImageView.init(frame: CGRect(x: 50, y: 200, width: 35, height: 35));
         bird?.animationImages = images
         bird?.animationRepeatCount = 0
-        bird?.animationDuration = 0.03
+        bird?.animationDuration = 0.07
         bird?.startAnimating()
         self.view.addSubview(bird!)
         
@@ -92,10 +92,10 @@ class ViewController: UIViewController {
         
         for i in 1 ... 3 {
             
-            let upPipe = UIImageView.init(frame: CGRect(x: SCREENW/2 * CGFloat(i), y: -SCREENH, width: 54, height: SCREENH))
+            let upPipe = UIImageView.init(frame: CGRect(x: SCREENW/2 * CGFloat(i)-500, y: -SCREENH, width: 54, height: SCREENH))
             upPipe.image = up
             
-            let downPipe = UIImageView.init(frame: CGRect(x: SCREENW/2 * CGFloat(i), y: SCREENH, width: 54, height: SCREENH))
+            let downPipe = UIImageView.init(frame: CGRect(x: SCREENW/2 * CGFloat(i)-500, y: SCREENH, width: 54, height: SCREENH))
             downPipe.image = down
             
             self.view.addSubview(upPipe)

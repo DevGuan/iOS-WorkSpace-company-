@@ -1,0 +1,4 @@
+target :ZJNPuzzleGame do
+
+pod 'Masonry'
+end
