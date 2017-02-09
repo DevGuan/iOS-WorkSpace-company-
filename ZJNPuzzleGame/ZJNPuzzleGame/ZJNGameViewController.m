@@ -32,6 +32,22 @@
     
 }
 
+- (NSMutableArray *)changeArrayOrderWithArray:(NSArray*)imageArray {
+    NSMutableArray *tempArry = [NSMutableArray arrayWithArray:imageArray];
+    int n = (int)imageArray.count/3;
+
+    for (int i = 0 ; i < n*n; i++) {
+        NSInteger random = arc4random_uniform((int)tempArry.count-2);
+        UIImage *temp = tempArry[random];
+        tempArry[random] = tempArry[random+1];
+        tempArry[random+1] = tempArry[random+2];
+        tempArry[random+2] = temp;
+        
+    }
+    
+    return tempArry;
+}
+
 #pragma mark - IBAction
 - (IBAction)settingButtonAction:(UIButton *)sender {
 }
