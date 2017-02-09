@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		104AC1A91E4C31380078001F /* UIImage+YFImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 104AC1A81E4C31380078001F /* UIImage+YFImage.m */; };
+		104AC1AB1E4C32CF0078001F /* ZJNGameViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 104AC1AA1E4C32CF0078001F /* ZJNGameViewController.xib */; };
 		4E0B7EB81E4C191400F51387 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EB71E4C191400F51387 /* main.m */; };
 		4E0B7EBB1E4C191400F51387 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EBA1E4C191400F51387 /* AppDelegate.m */; };
 		4E0B7EC41E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EC21E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld */; };
@@ -21,6 +22,7 @@
 /* Begin PBXFileReference section */
 		104AC1A71E4C31380078001F /* UIImage+YFImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+YFImage.h"; sourceTree = "<group>"; };
 		104AC1A81E4C31380078001F /* UIImage+YFImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YFImage.m"; sourceTree = "<group>"; };
+		104AC1AA1E4C32CF0078001F /* ZJNGameViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ZJNGameViewController.xib; sourceTree = "<group>"; };
 		4E0B7EB31E4C191400F51387 /* ZJNPuzzleGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZJNPuzzleGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E0B7EB71E4C191400F51387 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4E0B7EB91E4C191400F51387 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 			children = (
 				4E0B7ED31E4C197B00F51387 /* ZJNGameViewController.h */,
 				4E0B7ED41E4C197B00F51387 /* ZJNGameViewController.m */,
+				104AC1AA1E4C32CF0078001F /* ZJNGameViewController.xib */,
 				4E0B7ED01E4C196700F51387 /* ZJNMainViewController.h */,
 				4E0B7ED11E4C196700F51387 /* ZJNMainViewController.m */,
 				4E0B7EB91E4C191400F51387 /* AppDelegate.h */,
@@ -188,6 +191,7 @@
 			files = (
 				4E0B7EC91E4C191400F51387 /* LaunchScreen.storyboard in Resources */,
 				4E0B7EC61E4C191400F51387 /* Assets.xcassets in Resources */,
+				104AC1AB1E4C32CF0078001F /* ZJNGameViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
