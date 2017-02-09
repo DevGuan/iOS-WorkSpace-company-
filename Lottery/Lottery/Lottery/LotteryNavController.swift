@@ -12,11 +12,5 @@ class LotteryNavController: UINavigationController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("hyf")
-        print("cyl")
-        
-        
-        print("333")
-        print("444")
     }
 }

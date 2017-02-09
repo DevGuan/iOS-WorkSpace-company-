@@ -1,0 +1,415 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4E0B7EB81E4C191400F51387 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EB71E4C191400F51387 /* main.m */; };
+		4E0B7EBB1E4C191400F51387 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EBA1E4C191400F51387 /* AppDelegate.m */; };
+		4E0B7EC41E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EC21E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld */; };
+		4E0B7EC61E4C191400F51387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E0B7EC51E4C191400F51387 /* Assets.xcassets */; };
+		4E0B7EC91E4C191400F51387 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4E0B7EC71E4C191400F51387 /* LaunchScreen.storyboard */; };
+		4E0B7ED21E4C196700F51387 /* ZJNMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7ED11E4C196700F51387 /* ZJNMainViewController.m */; };
+		4E0B7ED51E4C197B00F51387 /* ZJNGameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7ED41E4C197B00F51387 /* ZJNGameViewController.m */; };
+		D8FA8F1D989C7DB63C4EF6CB /* libPods-ZJNPuzzleGame.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0110700DF2021103D4A06C /* libPods-ZJNPuzzleGame.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4E0B7EB31E4C191400F51387 /* ZJNPuzzleGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZJNPuzzleGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E0B7EB71E4C191400F51387 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4E0B7EB91E4C191400F51387 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		4E0B7EBA1E4C191400F51387 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		4E0B7EC31E4C191400F51387 /* ZJNPuzzleGame.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ZJNPuzzleGame.xcdatamodel; sourceTree = "<group>"; };
+		4E0B7EC51E4C191400F51387 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4E0B7EC81E4C191400F51387 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4E0B7ECA1E4C191400F51387 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4E0B7ED01E4C196700F51387 /* ZJNMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZJNMainViewController.h; sourceTree = "<group>"; };
+		4E0B7ED11E4C196700F51387 /* ZJNMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZJNMainViewController.m; sourceTree = "<group>"; };
+		4E0B7ED31E4C197B00F51387 /* ZJNGameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZJNGameViewController.h; sourceTree = "<group>"; };
+		4E0B7ED41E4C197B00F51387 /* ZJNGameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZJNGameViewController.m; sourceTree = "<group>"; };
+		4E0B7ED61E4C1A8300F51387 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		5A0110700DF2021103D4A06C /* libPods-ZJNPuzzleGame.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZJNPuzzleGame.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		75867A1308E5B118E77B53C8 /* Pods-ZJNPuzzleGame.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZJNPuzzleGame.release.xcconfig"; path = "Pods/Target Support Files/Pods-ZJNPuzzleGame/Pods-ZJNPuzzleGame.release.xcconfig"; sourceTree = "<group>"; };
+		8E3E2B28EA4C6033E100C145 /* Pods-ZJNPuzzleGame.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZJNPuzzleGame.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ZJNPuzzleGame/Pods-ZJNPuzzleGame.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4E0B7EB01E4C191400F51387 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8FA8F1D989C7DB63C4EF6CB /* libPods-ZJNPuzzleGame.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4E0B7EAA1E4C191400F51387 = {
+			isa = PBXGroup;
+			children = (
+				4E0B7EB51E4C191400F51387 /* ZJNPuzzleGame */,
+				4E0B7EB41E4C191400F51387 /* Products */,
+				915196AD19C582001CE1E14A /* Pods */,
+				B0C4219354C1B91FACB14C4B /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		4E0B7EB41E4C191400F51387 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4E0B7EB31E4C191400F51387 /* ZJNPuzzleGame.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4E0B7EB51E4C191400F51387 /* ZJNPuzzleGame */ = {
+			isa = PBXGroup;
+			children = (
+				4E0B7ED31E4C197B00F51387 /* ZJNGameViewController.h */,
+				4E0B7ED41E4C197B00F51387 /* ZJNGameViewController.m */,
+				4E0B7ED01E4C196700F51387 /* ZJNMainViewController.h */,
+				4E0B7ED11E4C196700F51387 /* ZJNMainViewController.m */,
+				4E0B7EB91E4C191400F51387 /* AppDelegate.h */,
+				4E0B7EBA1E4C191400F51387 /* AppDelegate.m */,
+				4E0B7EB61E4C191400F51387 /* Supporting Files */,
+			);
+			path = ZJNPuzzleGame;
+			sourceTree = "<group>";
+		};
+		4E0B7EB61E4C191400F51387 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4E0B7EC51E4C191400F51387 /* Assets.xcassets */,
+				4E0B7EC71E4C191400F51387 /* LaunchScreen.storyboard */,
+				4E0B7ECA1E4C191400F51387 /* Info.plist */,
+				4E0B7EC21E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld */,
+				4E0B7EB71E4C191400F51387 /* main.m */,
+				4E0B7ED61E4C1A8300F51387 /* PrefixHeader.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		915196AD19C582001CE1E14A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8E3E2B28EA4C6033E100C145 /* Pods-ZJNPuzzleGame.debug.xcconfig */,
+				75867A1308E5B118E77B53C8 /* Pods-ZJNPuzzleGame.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		B0C4219354C1B91FACB14C4B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5A0110700DF2021103D4A06C /* libPods-ZJNPuzzleGame.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4E0B7EB21E4C191400F51387 /* ZJNPuzzleGame */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E0B7ECD1E4C191400F51387 /* Build configuration list for PBXNativeTarget "ZJNPuzzleGame" */;
+			buildPhases = (
+				FDD58192700702DA4141EFEA /* 📦 Check Pods Manifest.lock */,
+				4E0B7EAF1E4C191400F51387 /* Sources */,
+				4E0B7EB01E4C191400F51387 /* Frameworks */,
+				4E0B7EB11E4C191400F51387 /* Resources */,
+				E145751559BC35BF8AD67E84 /* 📦 Embed Pods Frameworks */,
+				4174B4D81FD1CE77F08ADA94 /* 📦 Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ZJNPuzzleGame;
+			productName = ZJNPuzzleGame;
+			productReference = 4E0B7EB31E4C191400F51387 /* ZJNPuzzleGame.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4E0B7EAB1E4C191400F51387 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = ZJN;
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = GARY;
+				TargetAttributes = {
+					4E0B7EB21E4C191400F51387 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 8WBSNNM3Z6;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4E0B7EAE1E4C191400F51387 /* Build configuration list for PBXProject "ZJNPuzzleGame" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4E0B7EAA1E4C191400F51387;
+			productRefGroup = 4E0B7EB41E4C191400F51387 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E0B7EB21E4C191400F51387 /* ZJNPuzzleGame */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4E0B7EB11E4C191400F51387 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E0B7EC91E4C191400F51387 /* LaunchScreen.storyboard in Resources */,
+				4E0B7EC61E4C191400F51387 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4174B4D81FD1CE77F08ADA94 /* 📦 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ZJNPuzzleGame/Pods-ZJNPuzzleGame-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E145751559BC35BF8AD67E84 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ZJNPuzzleGame/Pods-ZJNPuzzleGame-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FDD58192700702DA4141EFEA /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E0B7EAF1E4C191400F51387 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E0B7ED21E4C196700F51387 /* ZJNMainViewController.m in Sources */,
+				4E0B7EC41E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld in Sources */,
+				4E0B7ED51E4C197B00F51387 /* ZJNGameViewController.m in Sources */,
+				4E0B7EBB1E4C191400F51387 /* AppDelegate.m in Sources */,
+				4E0B7EB81E4C191400F51387 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		4E0B7EC71E4C191400F51387 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4E0B7EC81E4C191400F51387 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4E0B7ECB1E4C191400F51387 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		4E0B7ECC1E4C191400F51387 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4E0B7ECE1E4C191400F51387 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8E3E2B28EA4C6033E100C145 /* Pods-ZJNPuzzleGame.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ZJNPuzzleGame/PrefixHeader.pch;
+				INFOPLIST_FILE = ZJNPuzzleGame/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.ZJNPuzzleGame";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4E0B7ECF1E4C191400F51387 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 75867A1308E5B118E77B53C8 /* Pods-ZJNPuzzleGame.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = ZJNPuzzleGame/PrefixHeader.pch;
+				INFOPLIST_FILE = ZJNPuzzleGame/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "-01.ZJNPuzzleGame";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4E0B7EAE1E4C191400F51387 /* Build configuration list for PBXProject "ZJNPuzzleGame" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E0B7ECB1E4C191400F51387 /* Debug */,
+				4E0B7ECC1E4C191400F51387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E0B7ECD1E4C191400F51387 /* Build configuration list for PBXNativeTarget "ZJNPuzzleGame" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E0B7ECE1E4C191400F51387 /* Debug */,
+				4E0B7ECF1E4C191400F51387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		4E0B7EC21E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				4E0B7EC31E4C191400F51387 /* ZJNPuzzleGame.xcdatamodel */,
+			);
+			currentVersion = 4E0B7EC31E4C191400F51387 /* ZJNPuzzleGame.xcdatamodel */;
+			path = ZJNPuzzleGame.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 4E0B7EAB1E4C191400F51387 /* Project object */;
+}
