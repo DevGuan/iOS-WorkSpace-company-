@@ -11,25 +11,82 @@
  */
 #import "ZJNGameViewController.h"
 
-@interface ZJNGameViewController ()
+#pragma mark - gameCell
+@interface GameCell :UICollectionViewCell
+@property (nonatomic, strong) UIImageView *cellImage;
+@property (nonatomic, assign) NSInteger index;
+@end
+
+@implementation GameCell
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+        _cellImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+    }
+    return self;
+}
+@end
+
+
+@interface ZJNGameViewController ()<UINavigationControllerDelegate,UICollectionViewDelegate,UICollectionViewDataSource>
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UILabel *timeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *stepLabel;
+@property (weak,nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
+@property (nonatomic,strong) NSMutableArray *imageArr;
+@property (nonatomic, strong) NSMutableArray *shuffleArr;
+@property (nonatomic, strong) GameCell *emptyCell;
 @end
 
 @implementation ZJNGameViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    _imageView.image = _mainImage;
+    _imageArr = [UIImage clipImageWithImage:_mainImage withConuntM:3 withCountN:3];
+    
+    [self setUpCollectionView];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)setUpCollectionView
+{
+    [_collectionView registerClass:[GameCell class] forCellWithReuseIdentifier:@"gameCell"];
     
+    _collectionView.contentSize = _collectionView.frame.size;
+    _collectionView.backgroundColor = [UIColor colorWithRed:82.0/255 green:139.0/255 blue:139.0/255 alpha:1];
+    CGFloat imageSize = (_collectionView.frame.size.width - 4*1)/3;
+    _flowLayout.itemSize = CGSizeMake(imageSize, imageSize);
+    _flowLayout.minimumLineSpacing = 1;
+    _flowLayout.minimumInteritemSpacing =1;
+    _collectionView.delegate = self;
+    _collectionView.dataSource = self;
+}
+
+
+#pragma mark - CollectionView Delegate/Datasource
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    return _imageArr.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    GameCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"gameCell" forIndexPath:indexPath];
+    
+    //确保emptyCell上的图片为最后一张图
+    if (indexPath.item == _imageArr.count-1) {
+        _emptyCell = cell;
+    }
+    else
+    {
+        cell.cellImage.image = _imageArr[indexPath.item];
+    }
+    
+    return cell;
 }
 
 - (NSMutableArray *)changeArrayOrderWithArray:(NSArray*)imageArray {
@@ -50,11 +107,11 @@
 
 #pragma mark - IBAction
 - (IBAction)settingButtonAction:(UIButton *)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 - (IBAction)restartButtonAction:(UIButton *)sender {
 }
 - (IBAction)rankButtonAction:(UIButton *)sender {
 }
-
-
 @end
+
