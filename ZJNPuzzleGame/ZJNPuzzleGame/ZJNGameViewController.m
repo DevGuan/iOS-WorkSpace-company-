@@ -133,6 +133,16 @@
         if (iscomplete) {
             [_timer invalidate];
             _emptyCell.cellImage.image = _imageArr.lastObject;
+            collectionView.userInteractionEnabled = NO;
+            
+            UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"恭喜！！" message:nil preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction *diff1 = [UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDefault handler:nil];
+            
+            [alertC addAction:diff1];
+            
+            [self presentViewController:alertC animated:YES completion:nil];
+            
         }
     }
     
@@ -161,6 +171,8 @@
 }
 
 - (IBAction)restartButtonAction:(UIButton *)sender {
+    _collectionView.userInteractionEnabled = YES;
+    
     [_timer invalidate];
     _time = 0;
     _timer = [NSTimer scheduledTimerWithTimeInterval:0.95 target:self
