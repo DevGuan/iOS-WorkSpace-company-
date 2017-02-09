@@ -35,12 +35,14 @@
 @property (weak, nonatomic) IBOutlet UILabel *stepLabel;
 @property (weak,nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
+
 @property (nonatomic, strong) NSMutableArray *imageArr;
 @property (nonatomic, strong) NSMutableArray *shuffleArr;
 @property (nonatomic, strong) GameCell *emptyCell;
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic) NSInteger time;
 @property (nonatomic) NSInteger stepNum;
+
 @end
 
 @implementation ZJNGameViewController
@@ -52,6 +54,7 @@
     _imageArr = [UIImage clipImageWithImage:_mainImage withConuntM:3 withCountN:3];
     
     [self setUpCollectionView];
+
 }
 
 - (void)setUpCollectionView
@@ -68,11 +71,28 @@
     _collectionView.dataSource = self;
 }
 
-
 #pragma mark - CollectionView Delegate/Datasource
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
     return _imageArr.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    GameCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"gameCell" forIndexPath:indexPath];
+    
+    //确保emptyCell上的图片为最后一张图
+    if (indexPath.item == _imageArr.count-1) {
+        _emptyCell = cell;
+    }
+    else
+    {
+        cell.cellImage.image = _imageArr[indexPath.item];
+    }
+    
+    return cell;
+
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -126,6 +146,7 @@
     _shuffleArr = [self changeArrayOrderWithArray:_imageArr];
     [_collectionView reloadData];
 }
+
 
 - (void)changeTime {
     NSInteger mintue = _time / 60;
