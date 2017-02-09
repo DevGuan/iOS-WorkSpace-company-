@@ -22,6 +22,8 @@
 {
     if (self = [super initWithFrame:frame]) {
         _cellImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        
+        [self.contentView addSubview:_cellImage];
     }
     return self;
 }
