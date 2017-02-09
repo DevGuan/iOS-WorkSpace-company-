@@ -35,9 +35,14 @@
 @property (weak, nonatomic) IBOutlet UILabel *stepLabel;
 @property (weak,nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
-@property (nonatomic,strong) NSMutableArray *imageArr;
+
+@property (nonatomic, strong) NSMutableArray *imageArr;
 @property (nonatomic, strong) NSMutableArray *shuffleArr;
 @property (nonatomic, strong) GameCell *emptyCell;
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic) NSInteger time;
+@property (nonatomic) NSInteger stepNum;
+
 @end
 
 @implementation ZJNGameViewController
@@ -49,6 +54,7 @@
     _imageArr = [UIImage clipImageWithImage:_mainImage withConuntM:3 withCountN:3];
     
     [self setUpCollectionView];
+
 }
 
 - (void)setUpCollectionView
@@ -64,7 +70,6 @@
     _collectionView.delegate = self;
     _collectionView.dataSource = self;
 }
-
 
 #pragma mark - CollectionView Delegate/Datasource
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -87,7 +92,26 @@
     }
     
     return cell;
+
 }
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    GameCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"gameCell" forIndexPath:indexPath];
+    
+    //确保emptyCell上的图片为最后一张图
+    if (indexPath.item == _imageArr.count-1) {
+        _emptyCell = cell;
+    }
+    else
+    {
+        cell.cellImage.image = _imageArr[indexPath.item];
+    }
+    
+    return cell;
+}
+
 
 - (NSMutableArray *)changeArrayOrderWithArray:(NSArray*)imageArray {
     NSMutableArray *tempArry = [NSMutableArray arrayWithArray:imageArray];
@@ -106,12 +130,38 @@
 }
 
 #pragma mark - IBAction
+
 - (IBAction)settingButtonAction:(UIButton *)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
 - (IBAction)restartButtonAction:(UIButton *)sender {
+    [_timer invalidate];
+    _time = 0;
+    _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self
+                                            selector:@selector(changeTime) userInfo:nil repeats:true];
+    
+    _stepNum = 0;
+    _stepLabel.text = @"0";
+    _shuffleArr = [self changeArrayOrderWithArray:_imageArr];
+    [_collectionView reloadData];
 }
+
+
+- (void)changeTime {
+    NSInteger mintue = _time / 60;
+    NSInteger second = _time % 60;
+    _timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", mintue, second];
+    _time ++;
+}
+
 - (IBAction)rankButtonAction:(UIButton *)sender {
+    // 数据库真的不想写了 有问题可以交流
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"牛人榜" message:@"这个码农太懒，不想写数据库，还是自己截图完成的时候记得截图吧" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *alertAction1 = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    }];
+    [alertC addAction:alertAction1];
+    [self presentViewController:alertC animated:YES completion:nil];
 }
 @end
 
