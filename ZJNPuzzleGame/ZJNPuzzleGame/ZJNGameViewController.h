@@ -10,4 +10,5 @@
 
 @interface ZJNGameViewController : UIViewController
 @property (nonatomic, strong) UIImage *mainImage;
+@property (nonatomic, assign) NSInteger diffCount;
 @end

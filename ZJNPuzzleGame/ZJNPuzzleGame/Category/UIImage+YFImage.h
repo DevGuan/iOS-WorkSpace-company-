@@ -27,6 +27,6 @@
  *  将图片 平分成m行 n列的 m*n个小图片
  */
 + (NSMutableArray *)clipImageWithImage:(UIImage *)image
-                    withConuntM:(int)countM
-                     withCountN:(int)countN;
+                    withConuntM:(NSInteger)countM
+                     withCountN:(NSInteger)countN;
 @end
