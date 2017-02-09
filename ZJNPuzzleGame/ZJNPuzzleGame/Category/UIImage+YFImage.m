@@ -34,7 +34,7 @@
     return imageB;
 }
 
-+ (NSMutableArray *)clipImageWithImage:(UIImage *)image withConuntM:(int)countM withCountN:(int)countN {
++ (NSMutableArray *)clipImageWithImage:(UIImage *)image withConuntM:(NSInteger)countM withCountN:(NSInteger)countN {
     NSMutableArray *array = [NSMutableArray array];
     CGFloat imageSizeWidth = image.size.width / (CGFloat)countM;
     CGFloat imageSizeHeigh = image.size.height / (CGFloat)countN;
