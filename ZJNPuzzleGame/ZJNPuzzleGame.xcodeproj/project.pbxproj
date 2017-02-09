@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		104AC1A91E4C31380078001F /* UIImage+YFImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 104AC1A81E4C31380078001F /* UIImage+YFImage.m */; };
 		4E0B7EB81E4C191400F51387 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EB71E4C191400F51387 /* main.m */; };
 		4E0B7EBB1E4C191400F51387 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EBA1E4C191400F51387 /* AppDelegate.m */; };
 		4E0B7EC41E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4E0B7EC21E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld */; };
@@ -18,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		104AC1A71E4C31380078001F /* UIImage+YFImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+YFImage.h"; sourceTree = "<group>"; };
+		104AC1A81E4C31380078001F /* UIImage+YFImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YFImage.m"; sourceTree = "<group>"; };
 		4E0B7EB31E4C191400F51387 /* ZJNPuzzleGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZJNPuzzleGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E0B7EB71E4C191400F51387 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4E0B7EB91E4C191400F51387 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -48,6 +51,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		104AC1A61E4C31380078001F /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				104AC1A71E4C31380078001F /* UIImage+YFImage.h */,
+				104AC1A81E4C31380078001F /* UIImage+YFImage.m */,
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
 		4E0B7EAA1E4C191400F51387 = {
 			isa = PBXGroup;
 			children = (
@@ -75,6 +87,7 @@
 				4E0B7ED11E4C196700F51387 /* ZJNMainViewController.m */,
 				4E0B7EB91E4C191400F51387 /* AppDelegate.h */,
 				4E0B7EBA1E4C191400F51387 /* AppDelegate.m */,
+				104AC1A61E4C31380078001F /* Category */,
 				4E0B7EB61E4C191400F51387 /* Supporting Files */,
 			);
 			path = ZJNPuzzleGame;
@@ -235,6 +248,7 @@
 			files = (
 				4E0B7ED21E4C196700F51387 /* ZJNMainViewController.m in Sources */,
 				4E0B7EC41E4C191400F51387 /* ZJNPuzzleGame.xcdatamodeld in Sources */,
+				104AC1A91E4C31380078001F /* UIImage+YFImage.m in Sources */,
 				4E0B7ED51E4C197B00F51387 /* ZJNGameViewController.m in Sources */,
 				4E0B7EBB1E4C191400F51387 /* AppDelegate.m in Sources */,
 				4E0B7EB81E4C191400F51387 /* main.m in Sources */,
