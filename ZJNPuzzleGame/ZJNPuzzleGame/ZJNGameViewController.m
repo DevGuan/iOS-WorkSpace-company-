@@ -37,7 +37,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *stepLabel;
 @property (weak,nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 
-
 @property (nonatomic, strong) NSMutableArray *imageArr;
 @property (nonatomic, strong) NSMutableArray *shuffleArr;
 @property (nonatomic, strong) GameCell *emptyCell;
@@ -54,10 +53,10 @@
     
     _imageView.image = _mainImage;
     _imageArr = [UIImage clipImageWithImage:_mainImage withConuntM:_diffCount withCountN:_diffCount];
-    
     _shuffleArr = [self changeArrayOrderWithArray:_imageArr];
     
     [self setUpCollectionView];
+    [self restartButtonAction:nil];
 
 }
 
@@ -67,7 +66,7 @@
     
     _collectionView.contentSize = _collectionView.frame.size;
     _collectionView.backgroundColor = [UIColor whiteColor];
-    CGFloat imageSize = (_collectionView.frame.size.width - (_diffCount+1)*1)/_diffCount;
+    CGFloat imageSize = (ScreenSize.width - 2*40 - (_diffCount+1)*1)/_diffCount;
     _flowLayout.itemSize = CGSizeMake(imageSize, imageSize);
     _flowLayout.minimumLineSpacing = 1;
     _flowLayout.minimumInteritemSpacing =1;
@@ -85,10 +84,12 @@
 {
     
     GameCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"gameCell" forIndexPath:indexPath];
-    
+    cell.cellImage.image = nil;
+    cell.index = indexPath.item;
     //确保emptyCell上的图片为最后一张图
     if (_shuffleArr[indexPath.item] == _imageArr[_imageArr.count-1]) {
         _emptyCell = cell;
+        _emptyCell.index = indexPath.item;
     }
     else
     {
@@ -99,30 +100,46 @@
 
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    GameCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"gameCell" forIndexPath:indexPath];
-    
-    //确保emptyCell上的图片为最后一张图
-    if (indexPath.item == _imageArr.count-1) {
+    _stepNum += 1;
+    GameCell *cell = (GameCell*)[collectionView cellForItemAtIndexPath:indexPath];
+    NSInteger value = labs(cell.index - _emptyCell.index);
+    if (value == _diffCount || (value == 1 && cell.index/_diffCount == _emptyCell.index/_diffCount)) {
+        _emptyCell.cellImage.image = cell.cellImage.image;
         _emptyCell = cell;
-    }
-    else
-    {
-        cell.cellImage.image = _imageArr[indexPath.item];
+        cell.cellImage.image = nil;
     }
     
-    return cell;
+    if (_emptyCell.index == _imageArr.count-1) {
+        
+        BOOL iscomplete = YES;
+        for (int i = 0; i < _imageArr.count - 1; i++) {
+            
+            NSIndexPath *index = [NSIndexPath indexPathForItem:i inSection:0];
+            GameCell *cell = (GameCell*)[collectionView cellForItemAtIndexPath:index];
+            BOOL isSame = cell.cellImage.image == _imageArr[i];
+            iscomplete = iscomplete == isSame;
+            
+            if (!iscomplete) {
+                break;
+            }
+        }
+        
+        if (iscomplete) {
+            [_timer invalidate];
+            _emptyCell.cellImage.image = _imageArr.lastObject;
+        }
+    }
+    
 }
-
 
 - (NSMutableArray *)changeArrayOrderWithArray:(NSArray*)imageArray {
     NSMutableArray *tempArry = [NSMutableArray arrayWithArray:imageArray];
     int n = (int)imageArray.count/3;
 
     for (int i = 0 ; i < n*n; i++) {
-        NSInteger random = arc4random_uniform((int)tempArry.count-2);
+        NSInteger random = arc4random_uniform((int)tempArry.count-3);
         UIImage *temp = tempArry[random];
         tempArry[random] = tempArry[random+1];
         tempArry[random+1] = tempArry[random+2];
@@ -134,7 +151,6 @@
 }
 
 #pragma mark - IBAction
-
 - (IBAction)settingButtonAction:(UIButton *)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -142,7 +158,7 @@
 - (IBAction)restartButtonAction:(UIButton *)sender {
     [_timer invalidate];
     _time = 0;
-    _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self
+    _timer = [NSTimer scheduledTimerWithTimeInterval:0.95 target:self
                                             selector:@selector(changeTime) userInfo:nil repeats:true];
     
     _stepNum = 0;
@@ -157,6 +173,8 @@
     NSInteger second = _time % 60;
     _timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", mintue, second];
     _time ++;
+    
+    _stepLabel.text = [NSString stringWithFormat:@"%ld",(long)_stepNum];
 }
 
 - (IBAction)rankButtonAction:(UIButton *)sender {

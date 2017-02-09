@@ -31,7 +31,7 @@
 
 - (void)initUI
 {
-    _diffCount = 3;
+    _diffCount = 2;
     self.view.backgroundColor = [UIColor whiteColor];
     
     _mainImageV = [[UIImageView alloc] init];
