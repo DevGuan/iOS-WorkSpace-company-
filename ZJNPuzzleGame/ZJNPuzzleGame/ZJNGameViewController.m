@@ -44,6 +44,8 @@
 @property (nonatomic) NSInteger time;
 @property (nonatomic) NSInteger stepNum;
 
+@property (nonatomic, strong) UIButton *rankViewButton;
+
 @end
 
 @implementation ZJNGameViewController
@@ -100,6 +102,8 @@
 
 }
 
+
+
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     _stepNum += 1;
@@ -133,6 +137,7 @@
     }
     
 }
+
 
 - (NSMutableArray *)changeArrayOrderWithArray:(NSArray*)imageArray {
     NSMutableArray *tempArry = [NSMutableArray arrayWithArray:imageArray];
@@ -178,12 +183,32 @@
 }
 
 - (IBAction)rankButtonAction:(UIButton *)sender {
-    // 数据库真的不想写了 有问题可以交流
-    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"牛人榜" message:@"这个码农太懒，不想写数据库，还是自己截图完成的时候记得截图吧" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *alertAction1 = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-    }];
-    [alertC addAction:alertAction1];
-    [self presentViewController:alertC animated:YES completion:nil];
+    
+    [self showRankView];
 }
+
+-(UIButton *)rankViewButton{
+    if (!_rankViewButton) {
+        _rankViewButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _rankViewButton.frame = self.view.frame;
+        _rankViewButton.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
+        
+        [_rankViewButton addTarget:self action:@selector(dismissRankView) forControlEvents:UIControlEventTouchUpInside];
+        
+        UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, 0.6*ScreenSize.width, 0.6*ScreenSize.height)];
+        tableView.center = self.view.center;
+        [_rankViewButton addSubview:tableView];
+    }
+    return _rankViewButton;
+}
+
+-(void)showRankView{
+    [self.view addSubview:self.rankViewButton];
+}
+
+-(void)dismissRankView{
+    [self.rankViewButton removeFromSuperview];
+}
+
 @end
 
