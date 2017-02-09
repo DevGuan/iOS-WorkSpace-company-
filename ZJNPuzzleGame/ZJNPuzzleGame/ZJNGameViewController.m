@@ -22,6 +22,8 @@
 {
     if (self = [super initWithFrame:frame]) {
         _cellImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        
+        [self.contentView addSubview:_cellImage];
     }
     return self;
 }
@@ -51,7 +53,9 @@
     [super viewDidLoad];
     
     _imageView.image = _mainImage;
-    _imageArr = [UIImage clipImageWithImage:_mainImage withConuntM:3 withCountN:3];
+    _imageArr = [UIImage clipImageWithImage:_mainImage withConuntM:_diffCount withCountN:_diffCount];
+    
+    _shuffleArr = [self changeArrayOrderWithArray:_imageArr];
     
     [self setUpCollectionView];
 
@@ -62,8 +66,8 @@
     [_collectionView registerClass:[GameCell class] forCellWithReuseIdentifier:@"gameCell"];
     
     _collectionView.contentSize = _collectionView.frame.size;
-    _collectionView.backgroundColor = [UIColor colorWithRed:82.0/255 green:139.0/255 blue:139.0/255 alpha:1];
-    CGFloat imageSize = (_collectionView.frame.size.width - 4*1)/3;
+    _collectionView.backgroundColor = [UIColor whiteColor];
+    CGFloat imageSize = (_collectionView.frame.size.width - (_diffCount+1)*1)/_diffCount;
     _flowLayout.itemSize = CGSizeMake(imageSize, imageSize);
     _flowLayout.minimumLineSpacing = 1;
     _flowLayout.minimumInteritemSpacing =1;
@@ -83,12 +87,12 @@
     GameCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"gameCell" forIndexPath:indexPath];
     
     //确保emptyCell上的图片为最后一张图
-    if (indexPath.item == _imageArr.count-1) {
+    if (_shuffleArr[indexPath.item] == _imageArr[_imageArr.count-1]) {
         _emptyCell = cell;
     }
     else
     {
-        cell.cellImage.image = _imageArr[indexPath.item];
+        cell.cellImage.image = _shuffleArr[indexPath.item];
     }
     
     return cell;
