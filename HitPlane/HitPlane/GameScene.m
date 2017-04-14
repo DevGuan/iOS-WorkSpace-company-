@@ -217,7 +217,6 @@ typedef NS_ENUM(uint32_t, SKRoleCategory){
         case SKTextureTypeBigFoePlane:
             speed = 7.0;
             break;
-            
         default:
             break;
     }
