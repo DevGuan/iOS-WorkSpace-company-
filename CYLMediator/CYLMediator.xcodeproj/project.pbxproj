@@ -135,7 +135,7 @@
 				TargetAttributes = {
 					4E0C27D41E9DE03B00FB0405 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 8WBSNNM3Z6;
+						DevelopmentTeam = T8ZN3T2999;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -291,7 +291,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				DEVELOPMENT_TEAM = T8ZN3T2999;
 				INFOPLIST_FILE = CYLMediator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "-01.CYLMediator";
@@ -303,7 +303,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = 8WBSNNM3Z6;
+				DEVELOPMENT_TEAM = T8ZN3T2999;
 				INFOPLIST_FILE = CYLMediator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "-01.CYLMediator";

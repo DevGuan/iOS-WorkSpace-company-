@@ -12,6 +12,7 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *uid;
 @property (nonatomic, strong) NSString *password;
+@property (nonatomic, strong) NSDictionary *dict;
 @end
 
 @implementation AModel
@@ -21,6 +22,7 @@
         self.name = name;
         self.uid = uid;
         self.password = passwoord;
+        self.dict = @{@"key":@(22),@"key2":@"cool"};
     }
     return self;
 }
