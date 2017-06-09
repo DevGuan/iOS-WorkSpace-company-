@@ -17,7 +17,7 @@ class CYLPageController: UIView {
     let animBallScale : CGFloat = 1.75
     var animBall : CYLGooeyBall? = nil
     var currentPage : NSInteger = 0
-    let factorScale : CGFloat = 0.66 * 0.7 * 0.8
+    let factorScale : CGFloat = 0.66 * 0.9
     var circleArr : Array<CAShapeLayer> = [CAShapeLayer]()
     var damping : CGFloat = 3
     var velosity : CGFloat = 20
@@ -74,6 +74,7 @@ class CYLPageController: UIView {
     func scrollToPage(page:NSInteger, offSetX:CGFloat , isDrag:Bool, direction:ScrollDirection) {
         
         if isAnimateStart {
+            //屏幕过半 由动画完成indicator变化，用户此时继续同方向滑动屏幕时不生产新动画
             return
         }
         
@@ -116,6 +117,7 @@ class CYLPageController: UIView {
         //变形动画
         if factor > 0.5 * factorScale
         {
+            //屏幕滑动过半时，indicator动画至下一个点
             isAnimateStart = true
             
             if dir == ScrollDirection.toRight {
@@ -129,17 +131,18 @@ class CYLPageController: UIView {
         }
         else
         {
+            //未过半时，在原点进行变形
             atPosition = circleArr[locatePage].position
             replaceWithNewBall(at: atPosition, factor: factor, dir: dir)
             return
         }
         
-//        replaceWithNewBall(at: atPosition, factor: factor, dir: dir)
         factor != 0 ? restoreWithSpringAnimation(at: atPosition, factor: factor, dir: dir) : ()
         
         currentPage = page
     }
     
+    //仅仅进行变形
     func replaceWithNewBall(at Position:CGPoint, factor:CGFloat, dir : ScrollDirection) {
         
         animBall?.removeFromSuperlayer()
@@ -151,6 +154,7 @@ class CYLPageController: UIView {
         
     }
     
+    //当前形变到圆形的动画效果实现
     func restoreWithSpringAnimation(at Position:CGPoint, factor:CGFloat, dir : ScrollDirection) {
         
         animBall?.removeFromSuperlayer()
