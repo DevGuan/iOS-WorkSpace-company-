@@ -71,7 +71,14 @@ class CYLRefereshHeader: UIView {
         
         //refereshBar的动画效果
         if fabs(offset.y) <= eventBeginHeight {
+            switch refereshType {
+            case .gooeyType:
             
+                break
+                
+            default: break
+                
+            }
         }
         
     }

@@ -16,6 +16,7 @@
 		2D491A771EEA78EE001FF97B /* AnimateRefereshUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A761EEA78EE001FF97B /* AnimateRefereshUITests.swift */; };
 		2D491A891EEA798E001FF97B /* ScrollViewEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A881EEA798E001FF97B /* ScrollViewEx.swift */; };
 		2D491A8B1EEA7BEC001FF97B /* CYLRefereshHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A8A1EEA7BEC001FF97B /* CYLRefereshHeader.swift */; };
+		2D491A8E1EEAA2D1001FF97B /* AnimTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A8D1EEAA2D1001FF97B /* AnimTools.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		2D491A781EEA78EE001FF97B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D491A881EEA798E001FF97B /* ScrollViewEx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollViewEx.swift; sourceTree = "<group>"; };
 		2D491A8A1EEA7BEC001FF97B /* CYLRefereshHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CYLRefereshHeader.swift; sourceTree = "<group>"; };
+		2D491A8D1EEAA2D1001FF97B /* AnimTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimTools.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 		2D491A551EEA78EE001FF97B /* AnimateReferesh */ = {
 			isa = PBXGroup;
 			children = (
+				2D491A8C1EEAA2BD001FF97B /* AnimTools */,
 				2D491A851EEA7911001FF97B /* AnimateReferesh */,
 				2D491A561EEA78EE001FF97B /* AppDelegate.swift */,
 				2D491A581EEA78EE001FF97B /* ViewController.swift */,
@@ -137,6 +140,14 @@
 				2D491A8A1EEA7BEC001FF97B /* CYLRefereshHeader.swift */,
 			);
 			path = AnimateReferesh;
+			sourceTree = "<group>";
+		};
+		2D491A8C1EEAA2BD001FF97B /* AnimTools */ = {
+			isa = PBXGroup;
+			children = (
+				2D491A8D1EEAA2D1001FF97B /* AnimTools.swift */,
+			);
+			path = AnimTools;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -277,6 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D491A591EEA78EE001FF97B /* ViewController.swift in Sources */,
+				2D491A8E1EEAA2D1001FF97B /* AnimTools.swift in Sources */,
 				2D491A571EEA78EE001FF97B /* AppDelegate.swift in Sources */,
 				2D491A891EEA798E001FF97B /* ScrollViewEx.swift in Sources */,
 				2D491A8B1EEA7BEC001FF97B /* CYLRefereshHeader.swift in Sources */,
@@ -530,6 +542,7 @@
 				2D491A7D1EEA78EE001FF97B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D491A7E1EEA78EE001FF97B /* Build configuration list for PBXNativeTarget "AnimateRefereshTests" */ = {
 			isa = XCConfigurationList;
@@ -538,6 +551,7 @@
 				2D491A801EEA78EE001FF97B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D491A811EEA78EE001FF97B /* Build configuration list for PBXNativeTarget "AnimateRefereshUITests" */ = {
 			isa = XCConfigurationList;
@@ -546,6 +560,7 @@
 				2D491A831EEA78EE001FF97B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
