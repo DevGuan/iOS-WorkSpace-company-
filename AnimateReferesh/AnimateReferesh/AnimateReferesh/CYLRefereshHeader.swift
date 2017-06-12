@@ -27,13 +27,17 @@ class CYLRefereshHeader: UIView {
     var originalInset : UIEdgeInsets = UIEdgeInsets.zero
     let eventBeginHeight : CGFloat = 80
     var currentStutas : CYLRefereshStatus = .idle
-    var refereshType : CYLRefereshType = .normalType
+    var refereshType : CYLRefereshType = .gooeyType
+    var screenShoot : UIImage? = nil
+    var factor : CGFloat = 0
+    var isAnimation : Bool = false
+    var maskLayer : CAShapeLayer = CAShapeLayer.init()
+    var shapLayer : CALayer? = nil
     
     init(block:@escaping ()->()) {
         super.init(frame: CGRect.init(x: 0, y: 0, width: KScreenW, height: eventBeginHeight))
         self.frame = CGRect.init(x: 0, y: 0, width: KScreenW, height: eventBeginHeight)
         refereshBlock = block
-        self.backgroundColor = UIColor.red
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -46,20 +50,31 @@ class CYLRefereshHeader: UIView {
         scrollView?.alwaysBounceVertical = true
         originalInset = (scrollView?.contentInset)!
         scrollView?.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
+        
+        if (scrollView?.isKind(of: NSClassFromString("UITableView")!))! {
+            //对UITableViewWrapperView进行形变动画
+            for view in (self.scrollView?.subviews)!
+            {
+                if view.isKind(of: NSClassFromString("UITableViewWrapperView")!)
+                {
+                    shapLayer = view.layer
+                }
+            }
+        }
     }
     
     
     //监听contentOffset变化
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+       
         if keyPath != "contentOffset" {
             return
         }
-        
         let offset : CGPoint = change?[NSKeyValueChangeKey.newKey] as! CGPoint
         self.frame = CGRect.init(x: 0, y: offset.y, width: KScreenW, height: eventBeginHeight)
         
         //大于触发点时，进行请求并且更改状态，设置inset
-        if fabs(offset.y) >= eventBeginHeight && currentStutas == .idle && !(scrollView?.isTracking)!{
+        if factor>=1 && currentStutas == .idle && !(scrollView?.isTracking)!{
             
             UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: [], animations: {
                 self.scrollView?.contentInset = UIEdgeInsetsMake(self.eventBeginHeight, 0, 0, 0)
@@ -73,15 +88,36 @@ class CYLRefereshHeader: UIView {
         if fabs(offset.y) <= eventBeginHeight {
             switch refereshType {
             case .gooeyType:
+            let rect = (self.scrollView?.frame)!
+        
+            let point1 = rect.origin
+            let point2 = CGPoint.init(x: rect.maxX, y: rect.minY)
+            let point3 = CGPoint.init(x: (rect.minX), y: rect.maxY)
+            let point4 = CGPoint.init(x: (rect.maxX), y: (rect.maxY))
+            let cp = CGPoint.init(x: (rect.midX), y: eventBeginHeight)
+            factor = fabs(offset.y)/eventBeginHeight*2
+
+            if factor < 1{
+                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(factor))
+            }
+            else
+            {
+                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(1))
+            }
             
+           
+            shapLayer?.mask = maskLayer
                 break
-                
-            default: break
-                
+            
+            case .normalType:
+            factor = fabs(offset.y)/eventBeginHeight*2
+                break
             }
         }
         
     }
+    
+    
     
     //开始刷新
     func beginRefereshing() {
@@ -97,4 +133,6 @@ class CYLRefereshHeader: UIView {
         })
         
     }
+    
 }
+

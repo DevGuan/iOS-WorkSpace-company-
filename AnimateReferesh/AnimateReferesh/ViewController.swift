@@ -15,7 +15,7 @@ class ViewController: UITableViewController {
         self.tableView.register(NSClassFromString("UITableViewCell"), forCellReuseIdentifier: "cell")
         self.tableView.refereshHeader = CYLRefereshHeader.init(block: { 
             
-            print("beginre")
+            print("begine")
             
             DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: { 
                 
