@@ -87,9 +87,9 @@ class CYLGooeyBall: CAShapeLayer {
         
         if toDirection == .toUp || toDirection == .toDown {
             pointA = CGPoint.init(x: rect.width/2 , y: toDirection == .toUp ? -2 * extra : extra)
-            pointB = CGPoint.init(x: rect.width, y: rect.height/2)
+            pointB = CGPoint.init(x: rect.width - extra, y: rect.height/2)
             pointC = CGPoint.init(x: rect.width/2, y: toDirection == .toUp ? rect.height : rect.height + 2*extra)
-            pointD = CGPoint.init(x: 0, y: rect.width/2)
+            pointD = CGPoint.init(x: extra, y: rect.width/2)
         }
 
         c1 = CGPoint.init(x: pointA.x + offSet, y: pointA.y)
@@ -109,7 +109,19 @@ class CYLGooeyBall: CAShapeLayer {
         path.addCurve(to: pointA, controlPoint1: c7, controlPoint2: c8)
         
         return path.cgPath
-    }    
+    }
+    
+    func caculatePathWithin60Frame(fromFactor:CGFloat, toFactor:CGFloat) -> Array<CGPath> {
+        
+        var paths = [CGPath]()
+        
+        for i  in 1 ... 60 {
+            let nextFactor = fromFactor + (toFactor - fromFactor)/60 * CGFloat(i)
+            paths.append(caculateCirclePath(factor: nextFactor))
+        }
+        return paths
+        
+    }
 }
 
 

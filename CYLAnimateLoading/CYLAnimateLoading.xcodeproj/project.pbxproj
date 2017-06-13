@@ -16,6 +16,7 @@
 		2DD8C0CF1EEE653A002ACCCA /* CYLAnimateLoadingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD8C0CE1EEE653A002ACCCA /* CYLAnimateLoadingUITests.swift */; };
 		2DD8C0DE1EEE65CB002ACCCA /* CYLSparkLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD8C0DD1EEE65CB002ACCCA /* CYLSparkLoader.swift */; };
 		2DD8C0E01EEE88B0002ACCCA /* CYLGooeyBall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD8C0DF1EEE88B0002ACCCA /* CYLGooeyBall.swift */; };
+		2DD8C0E21EEF8A18002ACCCA /* AnimTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD8C0E11EEF8A18002ACCCA /* AnimTools.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		2DD8C0D01EEE653A002ACCCA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2DD8C0DD1EEE65CB002ACCCA /* CYLSparkLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CYLSparkLoader.swift; sourceTree = "<group>"; };
 		2DD8C0DF1EEE88B0002ACCCA /* CYLGooeyBall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CYLGooeyBall.swift; sourceTree = "<group>"; };
+		2DD8C0E11EEF8A18002ACCCA /* AnimTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimTools.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +137,7 @@
 			children = (
 				2DD8C0DD1EEE65CB002ACCCA /* CYLSparkLoader.swift */,
 				2DD8C0DF1EEE88B0002ACCCA /* CYLGooeyBall.swift */,
+				2DD8C0E11EEF8A18002ACCCA /* AnimTools.swift */,
 			);
 			path = AnimateLoading;
 			sourceTree = "<group>";
@@ -277,6 +280,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DD8C0B11EEE6539002ACCCA /* ViewController.swift in Sources */,
+				2DD8C0E21EEF8A18002ACCCA /* AnimTools.swift in Sources */,
 				2DD8C0DE1EEE65CB002ACCCA /* CYLSparkLoader.swift in Sources */,
 				2DD8C0AF1EEE6539002ACCCA /* AppDelegate.swift in Sources */,
 				2DD8C0E01EEE88B0002ACCCA /* CYLGooeyBall.swift in Sources */,
