@@ -77,26 +77,21 @@ class CYLGooeyBall: CAShapeLayer {
         extra = (self.bounds.width * 2 / 5) * factor
         let rect = self.frame
         offSet = rect.width / 3.6
+        
+        if toDirection == .toLeft || toDirection == .toRight {
+            pointA = CGPoint.init(x: rect.width/2 , y: extra)
+            pointB = CGPoint.init(x: toDirection == ScrollDirection.toLeft ? rect.width : rect.height + 2 * extra, y: rect.height/2)
+            pointC = CGPoint.init(x: rect.width/2, y: rect.height - extra)
+            pointD = CGPoint.init(x: toDirection == ScrollDirection.toLeft ? 0 - 2 * extra : 0, y: rect.width/2)
+        }
+        
+        if toDirection == .toUp || toDirection == .toDown {
+            pointA = CGPoint.init(x: rect.width/2 , y: toDirection == .toUp ? -2 * extra : extra)
+            pointB = CGPoint.init(x: rect.width, y: rect.height/2)
+            pointC = CGPoint.init(x: rect.width/2, y: toDirection == .toUp ? rect.height : rect.height + 2*extra)
+            pointD = CGPoint.init(x: 0, y: rect.width/2)
+        }
 
-        pointA = CGPoint.init(x: rect.width/2 , y: extra)
-        pointB = CGPoint.init(x: toDirection == ScrollDirection.toLeft ? rect.width : rect.height + 2 * extra, y: rect.height/2)
-        pointC = CGPoint.init(x: rect.width/2, y: rect.height - extra)
-        pointD = CGPoint.init(x: toDirection == ScrollDirection.toLeft ? 0 - 2 * extra : 0, y: rect.width/2)
-        
-//        if toDirection == .toLeft || toDirection == .toRight {
-//            pointA = CGPoint.init(x: rect.width/2 , y: extra)
-//            pointB = CGPoint.init(x: toDirection == ScrollDirection.toLeft ? rect.width : rect.height + 2 * extra, y: rect.height/2)
-//            pointC = CGPoint.init(x: rect.width/2, y: rect.height - extra)
-//            pointD = CGPoint.init(x: toDirection == ScrollDirection.toLeft ? 0 - 2 * extra : 0, y: rect.width/2)
-//        }
-//        
-//        if toDirection == .toUp || toDirection == .toDown {
-//            pointA = CGPoint.init(x: rect.width/2 , y: toDirection == .toUp ? rect.minY - 2 * extra : rect.minY)
-//            pointB = CGPoint.init(x: rect.width, y: rect.height/2)
-//            pointC = CGPoint.init(x: rect.width/2, y: toDirection == .toUp ? rect.height : rect.height + 2*extra)
-//            pointD = CGPoint.init(x: 0, y: rect.width/2)
-//        }
-        
         c1 = CGPoint.init(x: pointA.x + offSet, y: pointA.y)
         c2 = CGPoint.init(x: pointB.x, y: pointB.y - offSet)
         c3 = CGPoint.init(x: pointB.x, y: pointB.y + offSet)
