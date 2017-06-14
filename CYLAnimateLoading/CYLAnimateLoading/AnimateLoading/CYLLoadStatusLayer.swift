@@ -68,6 +68,7 @@ class CYLLoadStatusLayer: CAShapeLayer {
             animOne.duration = showCheckDuration
             animOne.isRemovedOnCompletion = false
             animOne.fillMode = kCAFillModeBoth
+            animOne.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
             lineOne.add(animOne, forKey: nil)
             
             let animTwo = CABasicAnimation.init(keyPath: "strokeStart")
@@ -75,6 +76,7 @@ class CYLLoadStatusLayer: CAShapeLayer {
             animTwo.duration = showCheckDuration
             animTwo.isRemovedOnCompletion = false
             animTwo.fillMode = kCAFillModeBoth
+            animTwo.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
             lineOne.add(animTwo, forKey: nil)
         }
         else

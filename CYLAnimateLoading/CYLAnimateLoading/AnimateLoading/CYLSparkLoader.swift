@@ -18,7 +18,7 @@ let KLoadingAnimPartOne = "loadingAnimPartOne"
 let KLoadingAnimPartTwo = "loadingAnimPartTwo"
 let nameKey = "animName"
 class CYLSparkLoader: UIView {
-
+    
     let canvas : CALayer = CALayer.init()
     let replicateLayer : CAReplicatorLayer = CAReplicatorLayer.init()
     let animBall : CYLGooeyBall = CYLGooeyBall.init(frame: CGRect.zero, color: UIColor.init(red: 252/255.0, green: 157/255.0, blue: 154/255.0, alpha: 1).cgColor)
@@ -43,7 +43,7 @@ class CYLSparkLoader: UIView {
     var curStatus : LoaderStatus = .loading{
         
         didSet{
-             drawInCanvas(loadStatus: curStatus)
+            drawInCanvas(loadStatus: curStatus)
         }
     }
     
@@ -64,7 +64,7 @@ class CYLSparkLoader: UIView {
         positionFour = CGPoint.init(x: radius/3, y: canvas.bounds.height - radius/3)
         
         ballPositions = [positionOne, positionTwo, positionThree, positionFour]
-
+        
         animBall.frame = CGRect.init(x: 0, y: 0, width: 20, height: 20)
         animBall.position = ballPositions[0]
         animBall.circleFactor = 0
@@ -82,10 +82,10 @@ class CYLSparkLoader: UIView {
         
         showLoading()
         
-        DispatchQueue.main.asyncAfter(deadline: .now()+1.7) {
+        DispatchQueue.main.asyncAfter(deadline: .now()+20) {
             self.dismiss(status: .done)
         }
-    
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -105,15 +105,15 @@ class CYLSparkLoader: UIView {
         }
         
     }
-
-//MARK:- 加载完成后的动画（成功+失败）
+    
+    //MARK:- 加载完成后的动画（成功+失败）
     let statusLayerScaleAnim = "statusLayerScaleAnim"
     //加载完成后显示的layer
     var statusLayer : CYLLoadStatusLayer = CYLLoadStatusLayer.init()
     var shouldShowStatusAnim : Bool = true
     var sparkLayers = [CAShapeLayer]()
     let successColor = UIColor.init(red: 76.0/255.0, green: 186.0/255.0, blue: 152.0/255.0, alpha: 1).cgColor
-    let statusLayerBounceDuration : CGFloat = 0.5
+    let statusLayerBounceDuration : CGFloat = 0.4
     
     func dismiss(status:LoaderStatus) {
         curStatus = status
@@ -140,42 +140,81 @@ class CYLSparkLoader: UIView {
         statusLayer.add(springAnim, forKey: nil)
     }
     
+    
     func showSpark() {
         
-        let count : CGFloat = 5
+        let count : CGFloat = 10
         let angle = .pi * 2 / count
         let center = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.width/2)
-        let upPoint = CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2)
+//        let upPoint = CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2)
         
-        for i in 0 ..< NSInteger(count) {
-            
-            let dot = CAShapeLayer.init()
-            dot.strokeColor = successColor
-            dot.lineWidth = 2
-            dot.lineCap = kCALineCapRound
-            
-            canvas.insertSublayer(dot, at: 0)
-//            replicateLayer.addSublayer(dot)
-            
-            let path = UIBezierPath.init()
-            
-            path.move(to: CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2 + 2))
-            path.addLine(to: CGPoint.init(x: center.x , y: center.y - statusLayer.bounds.width/2 - 6))
-//            path.move(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 0))
-//            path.addLine(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 6))
-            dot.path = path.cgPath
-            
-            let anim = CABasicAnimation.init(keyPath: "strokeStart")
-            anim.toValue = 0.9
-            anim.duration = CFTimeInterval(statusLayerBounceDuration)
-            anim.isRemovedOnCompletion = false
-            anim.fillMode = kCAFillModeBoth
-            anim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
-            dot.add(anim, forKey: nil)
-        }
+        
+        
+        let dot = CAShapeLayer.init()
+        dot.strokeColor = successColor
+        dot.lineWidth = 4
+        dot.lineCap = kCALineCapRound
+        
+        replicateLayer.insertSublayer(dot, at: 0)
+        
+        let path = UIBezierPath.init()
+        
+        path.move(to: CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2 + 2))
+        path.addLine(to: CGPoint.init(x: center.x , y: center.y - statusLayer.bounds.width/2 - 6))
+        dot.path = path.cgPath
+        
+        let anim = CABasicAnimation.init(keyPath: "strokeStart")
+        anim.toValue = 0.9
+        anim.duration = CFTimeInterval(statusLayerBounceDuration)
+        anim.isRemovedOnCompletion = false
+        anim.fillMode = kCAFillModeBoth
+        anim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
+        dot.add(anim, forKey: nil)
+        
+        replicateLayer.instanceCount = Int(count)
+        replicateLayer.instanceTransform = CATransform3DMakeRotation(angle, 0, 0, 1)
+        replicateLayer.instanceDelay = 0.03
+        
     }
-
-//MARK:-通用
+    
+    
+    //
+    //    func showSpark() {
+    //
+    //        let count : CGFloat = 5
+    //        let angle = .pi * 2 / count
+    //        let center = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.width/2)
+    //        let upPoint = CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2)
+    //
+    //        for i in 0 ..< NSInteger(count) {
+    //
+    //            let dot = CAShapeLayer.init()
+    //            dot.strokeColor = successColor
+    //            dot.lineWidth = 2
+    //            dot.lineCap = kCALineCapRound
+    //
+    //            canvas.insertSublayer(dot, at: 0)
+    ////            replicateLayer.addSublayer(dot)
+    //
+    //            let path = UIBezierPath.init()
+    //
+    //            path.move(to: CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2 + 2))
+    //            path.addLine(to: CGPoint.init(x: center.x , y: center.y - statusLayer.bounds.width/2 - 6))
+    ////            path.move(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 0))
+    ////            path.addLine(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 6))
+    //            dot.path = path.cgPath
+    //
+    //            let anim = CABasicAnimation.init(keyPath: "strokeStart")
+    //            anim.toValue = 0.9
+    //            anim.duration = CFTimeInterval(statusLayerBounceDuration)
+    //            anim.isRemovedOnCompletion = false
+    //            anim.fillMode = kCAFillModeBoth
+    //            anim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
+    //            dot.add(anim, forKey: nil)
+    //        }
+    //    }
+    
+    //MARK:-通用
     let moveToCenterAnim = "moveToCenter"
     let percent : CGFloat = 3.0 / 5.0
     let moveToCenterDuration = 0.2
@@ -184,7 +223,7 @@ class CYLSparkLoader: UIView {
     func moveToCenterWithGooey(status:LoaderStatus) {
         
         let center = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.height/2)
-
+        
         finalPositionOne = center
         finalPositionTwo = center
         
@@ -226,7 +265,7 @@ class CYLSparkLoader: UIView {
         animBallTwo.add(animGroupTwo, forKey: nil)
     }
     
-//MARK:-加载状态的动画绘制
+    //MARK:-加载状态的动画绘制
     let animNameKey = "animNameKey"
     let moveFormAnimName = "move&form"
     let animLoadDone = "animLoadDone"
@@ -261,7 +300,7 @@ class CYLSparkLoader: UIView {
         
         let formAnim = CAKeyframeAnimation.init(keyPath: "path")
         formAnim.values = animBall.caculatePathWithin60Frame(fromFactor: 0, toFactor: divineFactor)
-
+        
         let animGroup = CAAnimationGroup.init()
         animGroup.animations = [moveAnim,formAnim]
         animGroup.duration = CFTimeInterval(durationPartOne)
@@ -375,7 +414,7 @@ extension CYLSparkLoader : CAAnimationDelegate
             }
             
         }
-
+        
     }
 }
 
