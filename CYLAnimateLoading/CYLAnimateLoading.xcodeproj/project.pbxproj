@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D382B5F1EF1055100A81096 /* CYLLoadStatusLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D382B5E1EF1055100A81096 /* CYLLoadStatusLayer.swift */; };
 		2DD8C0AF1EEE6539002ACCCA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD8C0AE1EEE6539002ACCCA /* AppDelegate.swift */; };
 		2DD8C0B11EEE6539002ACCCA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD8C0B01EEE6539002ACCCA /* ViewController.swift */; };
 		2DD8C0B41EEE6539002ACCCA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2DD8C0B21EEE6539002ACCCA /* Main.storyboard */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D382B5E1EF1055100A81096 /* CYLLoadStatusLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CYLLoadStatusLayer.swift; sourceTree = "<group>"; };
 		2DD8C0AB1EEE6539002ACCCA /* CYLAnimateLoading.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CYLAnimateLoading.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DD8C0AE1EEE6539002ACCCA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2DD8C0B01EEE6539002ACCCA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				2DD8C0DD1EEE65CB002ACCCA /* CYLSparkLoader.swift */,
 				2DD8C0DF1EEE88B0002ACCCA /* CYLGooeyBall.swift */,
 				2DD8C0E11EEF8A18002ACCCA /* AnimTools.swift */,
+				2D382B5E1EF1055100A81096 /* CYLLoadStatusLayer.swift */,
 			);
 			path = AnimateLoading;
 			sourceTree = "<group>";
@@ -283,6 +286,7 @@
 				2DD8C0E21EEF8A18002ACCCA /* AnimTools.swift in Sources */,
 				2DD8C0DE1EEE65CB002ACCCA /* CYLSparkLoader.swift in Sources */,
 				2DD8C0AF1EEE6539002ACCCA /* AppDelegate.swift in Sources */,
+				2D382B5F1EF1055100A81096 /* CYLLoadStatusLayer.swift in Sources */,
 				2DD8C0E01EEE88B0002ACCCA /* CYLGooeyBall.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

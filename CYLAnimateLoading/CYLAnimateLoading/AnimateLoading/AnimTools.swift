@@ -48,4 +48,109 @@ class AnimTools: NSObject {
         }
         return values
     }
+    
+    
+    //layer的粘滞动画
+    
+//    func animateTwoGooeyBallCombineWithin60Frame(circleOne:CALayer, circleTwo:CALayer, wholeDistance:CGFloat) -> Array<CGPoint> {
+//        
+//        
+//        
+//    }
+    
+    func pathWithCircle(bigCircle:CALayer,smallCircle:CALayer,distance:CGFloat) -> UIBezierPath {
+        
+        let bigOrigin = bigCircle.position
+        let bigX = bigOrigin.x
+        let bigY = bigOrigin.y
+        let bigR = bigCircle.bounds.size.width * 0.5
+        let smallOrigin = smallCircle.position
+        let smallX = smallOrigin.x
+        let smallY = smallOrigin.y
+        let smallR = smallCircle.bounds.size.width * 0.5
+        
+        //获取圆心间的距离
+        let sinΘ = (bigX - smallX) / distance
+        let cosΘ = (bigY - smallY) / distance
+        
+        //计算
+        //小圆的AB
+        let A = CGPoint.init(x: smallX - smallR * cosΘ, y: smallY + smallR * sinΘ)
+        let B = CGPoint.init(x: smallX + smallR * cosΘ, y: smallY - smallR * sinΘ)
+        //大圆的CD
+        let C = CGPoint.init(x: bigX + bigR * cosΘ, y:  bigY - bigR * sinΘ)
+        let D = CGPoint.init(x: bigX - bigR * cosΘ, y:  bigY + bigR * sinΘ)
+        
+        //bc的控制点p ad的控制点O
+        let O = CGPoint.init(x: A.x + distance / 2 * sinΘ, y: A.y + distance / 2 * cosΘ)
+        let P = CGPoint.init(x: A.x + distance / 2 * sinΘ, y:  B.y + distance / 2 * cosΘ)
+        
+        let PATH = UIBezierPath.init()
+        
+        //a为起点 划线到b
+        PATH.move(to: A)
+        PATH.addLine(to: B)
+        //绘制bc 经过p 的曲线
+        PATH.addQuadCurve(to: C, controlPoint: P)
+        //cd
+        PATH.addLine(to: D)
+        //da 经过o的曲线
+        PATH.addQuadCurve(to: A, controlPoint: O)
+        return PATH
+    }
+
+    
+    //uiview 的粘滞动画
+    func pathWithbigView(bigView:UIView,smallView:UIView) -> UIBezierPath {
+        
+        let bigOrigin = bigView.center
+        let bigX = bigOrigin.x
+        let bigY = bigOrigin.y
+        let bigR = bigView.bounds.size.width * 0.5
+        let smallOrigin = smallView.center
+        let smallX = smallOrigin.x
+        let smallY = smallOrigin.y
+        let smallR = smallView.bounds.size.width * 0.5
+
+        //获取圆心间的距离
+        let distance = distanceBetween(p1: bigView.center, p2: smallView.center)
+        let sinΘ = (bigX - smallX) / distance
+        let cosΘ = (bigY - smallY) / distance
+        
+        //计算
+        //小圆的AB
+        let A = CGPoint.init(x: smallX - smallR * cosΘ, y: smallY + smallR * sinΘ)
+        let B = CGPoint.init(x: smallX + smallR * cosΘ, y: smallY - smallR * sinΘ)
+        //大圆的CD
+        let C = CGPoint.init(x: bigX + bigR * cosΘ, y:  bigY - bigR * sinΘ)
+        let D = CGPoint.init(x: bigX - bigR * cosΘ, y:  bigY + bigR * sinΘ)
+        
+        //bc的控制点p ad的控制点O
+        let O = CGPoint.init(x: A.x + distance / 2 * sinΘ, y: A.y + distance / 2 * cosΘ)
+        let P = CGPoint.init(x: A.x + distance / 2 * sinΘ, y:  B.y + distance / 2 * cosΘ)
+        
+        let PATH = UIBezierPath.init()
+
+        //a为起点 划线到b
+        PATH.move(to: A)
+        PATH.addLine(to: B)
+        //绘制bc 经过p 的曲线
+        PATH.addQuadCurve(to: C, controlPoint: P)
+        //cd
+        PATH.addLine(to: D)
+        //da 经过o的曲线
+        PATH.addQuadCurve(to: A, controlPoint: O)
+        
+        return PATH
+    }
+    
+    func distanceBetween(p1:CGPoint, p2:CGPoint) -> CGFloat {
+        
+        return sqrt(pow((p1.x - p2.x), 2) + pow((p1.y - p2.y), 2))
+    }
+    
+    func pointAt(percent:CGFloat, fromPoint:CGPoint, toPoint:CGPoint) -> CGPoint {
+        
+        return CGPoint.init(x: (fromPoint.x + (toPoint.x - fromPoint.x)*percent), y: (toPoint.y + (fromPoint.y - toPoint.y)*percent))
+    }
 }
