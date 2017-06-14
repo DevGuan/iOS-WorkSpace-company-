@@ -153,4 +153,34 @@ class AnimTools: NSObject {
         
         return CGPoint.init(x: (fromPoint.x + (toPoint.x - fromPoint.x)*percent), y: (toPoint.y + (fromPoint.y - toPoint.y)*percent))
     }
+    
+    
+    func pointWithRelativeAngleOnCircle(upPoint: CGPoint, angle:CGFloat, radius:CGFloat, offset:CGFloat) -> CGPoint {
+        
+        var aimPoint  = CGPoint.zero
+        let r = radius + offset
+        
+        if angle >= 0 && angle <= .pi/2  {
+            
+            aimPoint.x = upPoint.x + sin(angle)*r
+            aimPoint.y = upPoint.y + r * (1 - cos(angle))
+        }
+        else if angle > .pi/2 && angle <= .pi
+        {
+            aimPoint.x = upPoint.x + sin(.pi - angle)*r
+            aimPoint.y = upPoint.y + r * cos(.pi - angle)
+        }
+        else if angle > .pi && angle <= .pi * 1.5
+        {
+            aimPoint.x = upPoint.x - sin(angle - .pi)*r
+            aimPoint.y = upPoint.y + r * cos(angle - .pi)
+        }
+        else
+        {
+            aimPoint.x = upPoint.x - sin(.pi * 2 - angle)*r
+            aimPoint.y = upPoint.y + r * (1 - cos(.pi * 2 - angle))
+        }
+        
+        return aimPoint
+    }
 }

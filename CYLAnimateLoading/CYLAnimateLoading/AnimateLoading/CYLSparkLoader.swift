@@ -19,8 +19,8 @@ let KLoadingAnimPartTwo = "loadingAnimPartTwo"
 let nameKey = "animName"
 class CYLSparkLoader: UIView {
 
-    let canvas : CAReplicatorLayer = CAReplicatorLayer.init()
-    
+    let canvas : CALayer = CALayer.init()
+    let replicateLayer : CAReplicatorLayer = CAReplicatorLayer.init()
     let animBall : CYLGooeyBall = CYLGooeyBall.init(frame: CGRect.zero, color: UIColor.init(red: 252/255.0, green: 157/255.0, blue: 154/255.0, alpha: 1).cgColor)
     let animBallTwo : CYLGooeyBall = CYLGooeyBall.init(frame: CGRect.zero, color: UIColor.init(red: 245/255.0, green: 209/255.0, blue: 173/255.0, alpha: 1).cgColor)
     var radius : CGFloat = 0
@@ -75,9 +75,14 @@ class CYLSparkLoader: UIView {
         animBallTwo.position = ballPositions[2]
         canvas.addSublayer(animBallTwo)
         
+        replicateLayer.backgroundColor = UIColor.white.cgColor
+        replicateLayer.frame = canvas.bounds
+        replicateLayer.cornerRadius = replicateLayer.bounds.width/8
+        canvas.insertSublayer(replicateLayer, at: 0)
+        
         showLoading()
         
-        DispatchQueue.main.asyncAfter(deadline: .now()+3) {
+        DispatchQueue.main.asyncAfter(deadline: .now()+1.7) {
             self.dismiss(status: .done)
         }
     
@@ -94,7 +99,6 @@ class CYLSparkLoader: UIView {
             drawLoading()
             break
         case .done:
-            drawLoadingSuccess()
             break
         case .failed:
             break
@@ -102,9 +106,14 @@ class CYLSparkLoader: UIView {
         
     }
 
-    //MARK:-加载成功的动画
+//MARK:- 加载完成后的动画（成功+失败）
+    let statusLayerScaleAnim = "statusLayerScaleAnim"
     //加载完成后显示的layer
     var statusLayer : CYLLoadStatusLayer = CYLLoadStatusLayer.init()
+    var shouldShowStatusAnim : Bool = true
+    var sparkLayers = [CAShapeLayer]()
+    let successColor = UIColor.init(red: 76.0/255.0, green: 186.0/255.0, blue: 152.0/255.0, alpha: 1).cgColor
+    let statusLayerBounceDuration : CGFloat = 0.5
     
     func dismiss(status:LoaderStatus) {
         curStatus = status
@@ -113,17 +122,65 @@ class CYLSparkLoader: UIView {
     
     func drawLoadingSuccess() {
         
+        statusLayer.frame = CGRect.init(x: 0, y: 0, width: radius, height: radius)
+        statusLayer.position = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.width/2)
+        statusLayer.cornerRadius = statusLayer.bounds.width/2
+        statusLayer.status = curStatus
+        canvas.addSublayer(statusLayer)
+        
+        let springAnim = CASpringAnimation.init(keyPath: "transform.scale")
+        springAnim.duration = CFTimeInterval(statusLayerBounceDuration)
+        springAnim.damping = 1
+        springAnim.initialVelocity = 0.5
+        springAnim.fromValue = 0.8
+        springAnim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
+        springAnim.toValue = 1
+        springAnim.delegate = self
+        springAnim.setValue(statusLayerScaleAnim, forKey: animNameKey)
+        statusLayer.add(springAnim, forKey: nil)
     }
     
-    //MARK:-加载失败的动画
-    
-    
-    //MARK:-通用
-    //移动至中心
+    func showSpark() {
+        
+        let count : CGFloat = 5
+        let angle = .pi * 2 / count
+        let center = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.width/2)
+        let upPoint = CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2)
+        
+        for i in 0 ..< NSInteger(count) {
+            
+            let dot = CAShapeLayer.init()
+            dot.strokeColor = successColor
+            dot.lineWidth = 2
+            dot.lineCap = kCALineCapRound
+            
+            canvas.insertSublayer(dot, at: 0)
+//            replicateLayer.addSublayer(dot)
+            
+            let path = UIBezierPath.init()
+            
+            path.move(to: CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2 + 2))
+            path.addLine(to: CGPoint.init(x: center.x , y: center.y - statusLayer.bounds.width/2 - 6))
+//            path.move(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 0))
+//            path.addLine(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 6))
+            dot.path = path.cgPath
+            
+            let anim = CABasicAnimation.init(keyPath: "strokeStart")
+            anim.toValue = 0.9
+            anim.duration = CFTimeInterval(statusLayerBounceDuration)
+            anim.isRemovedOnCompletion = false
+            anim.fillMode = kCAFillModeBoth
+            anim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
+            dot.add(anim, forKey: nil)
+        }
+    }
+
+//MARK:-通用
     let moveToCenterAnim = "moveToCenter"
     let percent : CGFloat = 3.0 / 5.0
     let moveToCenterDuration = 0.2
-    
+    var shouldMoveToCenter : Bool = true
+    //移动至中心
     func moveToCenterWithGooey(status:LoaderStatus) {
         
         let center = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.height/2)
@@ -137,8 +194,11 @@ class CYLSparkLoader: UIView {
         let animOneScale = CABasicAnimation.init(keyPath: "transform.scale")
         animOneScale.toValue = 0.2
         
+        let animeOneColor = CABasicAnimation.init(keyPath: "fillColor")
+        animeOneColor.toValue = successColor
+        
         let animGroup = CAAnimationGroup.init()
-        animGroup.animations = [animOne, animOneScale]
+        animGroup.animations = [animOne, animOneScale,animeOneColor]
         animGroup.duration = moveToCenterDuration
         animGroup.fillMode = kCAFillModeBoth
         animGroup.isRemovedOnCompletion = false
@@ -153,8 +213,11 @@ class CYLSparkLoader: UIView {
         let animTwoScale = CABasicAnimation.init(keyPath: "transform.scale")
         animTwoScale.toValue = 0.2
         
+        let animeTwoColor = CABasicAnimation.init(keyPath: "fillColor")
+        animeTwoColor.toValue = successColor
+        
         let animGroupTwo = CAAnimationGroup.init()
-        animGroupTwo.animations = [animTwo, animTwoScale]
+        animGroupTwo.animations = [animTwo, animTwoScale,animeTwoColor]
         animGroupTwo.duration = moveToCenterDuration
         animGroupTwo.fillMode = kCAFillModeBoth
         animGroupTwo.isRemovedOnCompletion = false
@@ -163,7 +226,7 @@ class CYLSparkLoader: UIView {
         animBallTwo.add(animGroupTwo, forKey: nil)
     }
     
-    //MARK:-加载状态的动画绘制
+//MARK:-加载状态的动画绘制
     let animNameKey = "animNameKey"
     let moveFormAnimName = "move&form"
     let animLoadDone = "animLoadDone"
@@ -245,16 +308,32 @@ extension CYLSparkLoader : CAAnimationDelegate
         
         treatLoadingAnim(anim: anim)
         treatLoadingDoneAnim(anim: anim)
+        treatStatusAnim(anim: anim)
     }
     
+    //代理显示加载完毕
+    func treatStatusAnim(anim:CAAnimation) {
+        
+        if anim.value(forKey: animNameKey) as! String == statusLayerScaleAnim {
+            
+            statusLayer.showAnim(canvas: canvas, complete: {
+                self.removeFromSuperview()
+            })
+            
+            showSpark()
+            
+            shouldShowStatusAnim = true
+        }
+        
+    }
     
-    //代理处理加载完毕
+    //代理处理加载完毕过度
     func treatLoadingDoneAnim(anim:CAAnimation) {
         
-        if anim.value(forKey: animNameKey) as! String == moveToCenterAnim {
-            
-            
-            
+        if anim.value(forKey: animNameKey) as! String == moveToCenterAnim && shouldShowStatusAnim{
+            shouldMoveToCenter = true
+            shouldShowStatusAnim = false
+            drawLoadingSuccess()
         }
         
     }
@@ -290,8 +369,8 @@ extension CYLSparkLoader : CAAnimationDelegate
                 animateToPosition(position: finalPositionTwo, direction: ballDir[(dirNumTwo+2)%4], animBall: animBallTwo)
             }
             
-            if isLoadingDone {
-                
+            if isLoadingDone && shouldMoveToCenter{
+                shouldMoveToCenter = false
                 self.moveToCenterWithGooey(status: self.curStatus)
             }
             
