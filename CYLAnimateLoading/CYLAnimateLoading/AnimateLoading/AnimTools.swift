@@ -52,12 +52,6 @@ class AnimTools: NSObject {
     
     //layer的粘滞动画
     
-//    func animateTwoGooeyBallCombineWithin60Frame(circleOne:CALayer, circleTwo:CALayer, wholeDistance:CGFloat) -> Array<CGPoint> {
-//        
-//        
-//        
-//    }
-    
     func pathWithCircle(bigCircle:CALayer,smallCircle:CALayer,distance:CGFloat) -> UIBezierPath {
         
         let bigOrigin = bigCircle.position

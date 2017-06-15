@@ -13,8 +13,12 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let loading = CYLSparkLoader.init(frame: self.view.frame)
-        self.view.addSubview(loading)
+        let loader = CYLSparkLoader.init(frame: UIScreen.main.bounds)
+        self.view.addSubview(loader)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.3) { 
+            loader.dismiss(status: .failed)
+        }
     }
 
     override func didReceiveMemoryWarning() {

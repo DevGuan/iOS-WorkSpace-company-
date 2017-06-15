@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D382BA01EF25AA000A81096 /* AnimTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D382B9F1EF25AA000A81096 /* AnimTools.swift */; };
 		2D491A571EEA78EE001FF97B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A561EEA78EE001FF97B /* AppDelegate.swift */; };
 		2D491A591EEA78EE001FF97B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A581EEA78EE001FF97B /* ViewController.swift */; };
 		2D491A5C1EEA78EE001FF97B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D491A5A1EEA78EE001FF97B /* Main.storyboard */; };
@@ -16,7 +17,6 @@
 		2D491A771EEA78EE001FF97B /* AnimateRefereshUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A761EEA78EE001FF97B /* AnimateRefereshUITests.swift */; };
 		2D491A891EEA798E001FF97B /* ScrollViewEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A881EEA798E001FF97B /* ScrollViewEx.swift */; };
 		2D491A8B1EEA7BEC001FF97B /* CYLRefereshHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A8A1EEA7BEC001FF97B /* CYLRefereshHeader.swift */; };
-		2D491A8E1EEAA2D1001FF97B /* AnimTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D491A8D1EEAA2D1001FF97B /* AnimTools.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D382B9F1EF25AA000A81096 /* AnimTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimTools.swift; sourceTree = "<group>"; };
 		2D491A531EEA78EE001FF97B /* AnimateReferesh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AnimateReferesh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D491A561EEA78EE001FF97B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2D491A581EEA78EE001FF97B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -52,7 +53,6 @@
 		2D491A781EEA78EE001FF97B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D491A881EEA798E001FF97B /* ScrollViewEx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollViewEx.swift; sourceTree = "<group>"; };
 		2D491A8A1EEA7BEC001FF97B /* CYLRefereshHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CYLRefereshHeader.swift; sourceTree = "<group>"; };
-		2D491A8D1EEAA2D1001FF97B /* AnimTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimTools.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,7 +145,7 @@
 		2D491A8C1EEAA2BD001FF97B /* AnimTools */ = {
 			isa = PBXGroup;
 			children = (
-				2D491A8D1EEAA2D1001FF97B /* AnimTools.swift */,
+				2D382B9F1EF25AA000A81096 /* AnimTools.swift */,
 			);
 			path = AnimTools;
 			sourceTree = "<group>";
@@ -288,7 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D491A591EEA78EE001FF97B /* ViewController.swift in Sources */,
-				2D491A8E1EEAA2D1001FF97B /* AnimTools.swift in Sources */,
+				2D382BA01EF25AA000A81096 /* AnimTools.swift in Sources */,
 				2D491A571EEA78EE001FF97B /* AppDelegate.swift in Sources */,
 				2D491A891EEA798E001FF97B /* ScrollViewEx.swift in Sources */,
 				2D491A8B1EEA7BEC001FF97B /* CYLRefereshHeader.swift in Sources */,

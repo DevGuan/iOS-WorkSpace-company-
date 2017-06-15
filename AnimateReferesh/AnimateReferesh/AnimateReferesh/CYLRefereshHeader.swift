@@ -74,7 +74,7 @@ class CYLRefereshHeader: UIView {
         self.frame = CGRect.init(x: 0, y: offset.y, width: KScreenW, height: eventBeginHeight)
         
         //大于触发点时，进行请求并且更改状态，设置inset
-        if factor>=1 && currentStutas == .idle && !(scrollView?.isTracking)!{
+        if factor>=1.5 && currentStutas == .idle && !(scrollView?.isTracking)!{
             
             UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: [], animations: {
                 self.scrollView?.contentInset = UIEdgeInsetsMake(self.eventBeginHeight, 0, 0, 0)
@@ -96,14 +96,14 @@ class CYLRefereshHeader: UIView {
             let point4 = CGPoint.init(x: (rect.maxX), y: (rect.maxY))
             let cp = CGPoint.init(x: (rect.midX), y: eventBeginHeight)
             factor = fabs(offset.y)/eventBeginHeight*2
-
+            print("\(factor)")
             if factor < 1{
-                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(factor))
+                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(factor*0.4))
             }
-            else
-            {
-                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(1))
-            }
+//            else
+//            {
+//                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(1))
+//            }
             
            
             shapLayer?.mask = maskLayer

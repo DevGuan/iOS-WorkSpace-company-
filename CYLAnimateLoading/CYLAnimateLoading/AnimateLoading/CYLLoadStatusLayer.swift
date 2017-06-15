@@ -19,7 +19,7 @@ class CYLLoadStatusLayer: CAShapeLayer {
             }
             else if status == .failed
             {
-                self.backgroundColor = UIColor.red.cgColor
+                self.backgroundColor = UIColor.init(red: 255.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1).cgColor
             }
         }
         
@@ -36,6 +36,17 @@ class CYLLoadStatusLayer: CAShapeLayer {
         return a
         }()
     
+    var lineTwo : CAShapeLayer = {
+        let a = CAShapeLayer.init()
+        a.strokeColor = UIColor.white.cgColor
+        a.fillColor = UIColor.clear.cgColor
+        a.lineWidth = 3
+        a.lineCap = kCALineCapRound
+        a.lineJoin = kCALineJoinRound
+        a.strokeEnd = 0
+        return a
+    }()
+
     
     let showCheckDuration = 0.3
     
@@ -81,6 +92,41 @@ class CYLLoadStatusLayer: CAShapeLayer {
         }
         else
         {
+            let rect = self.frame
+            let offsetX : CGFloat = rect.width/16+1
+            let offSetY : CGFloat = rect.width/16+1
+            
+            let path = UIBezierPath.init()
+            path.move(to: CGPoint.init(x: 0-offsetX, y: 0-offSetY))
+            path.addLine(to: CGPoint.init(x: rect.maxX - offsetX, y: rect.maxY - offSetY))
+            
+            lineOne.path = path.cgPath
+            self.addSublayer(lineOne)
+            
+            let pathTwo = UIBezierPath.init()
+            pathTwo.move(to: CGPoint.init(x: 0 - offsetX, y: rect.maxY - offSetY))
+            pathTwo.addLine(to: CGPoint.init(x: rect.maxX - offsetX, y: 0 - offSetY))
+            
+            lineTwo.path = pathTwo.cgPath
+            self.addSublayer(lineTwo)
+            
+            let animEnd = CABasicAnimation.init(keyPath: "strokeEnd")
+            animEnd.toValue = 0.7
+            animEnd.duration = showCheckDuration
+            animEnd.isRemovedOnCompletion = false
+            animEnd.fillMode = kCAFillModeBoth
+            animEnd.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
+            lineOne.add(animEnd, forKey: nil)
+            lineTwo.add(animEnd, forKey: nil)
+
+            let animStart = CABasicAnimation.init(keyPath: "strokeStart")
+            animStart.toValue = 0.3
+            animStart.duration = showCheckDuration
+            animStart.isRemovedOnCompletion = false
+            animStart.fillMode = kCAFillModeBoth
+            animStart.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
+            lineOne.add(animStart, forKey: nil)
+            lineTwo.add(animStart, forKey: nil)
             
         }
     }

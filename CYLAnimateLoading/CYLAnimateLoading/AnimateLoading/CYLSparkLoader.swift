@@ -17,6 +17,7 @@ enum LoaderStatus {
 let KLoadingAnimPartOne = "loadingAnimPartOne"
 let KLoadingAnimPartTwo = "loadingAnimPartTwo"
 let nameKey = "animName"
+
 class CYLSparkLoader: UIView {
     
     let canvas : CALayer = CALayer.init()
@@ -79,13 +80,18 @@ class CYLSparkLoader: UIView {
         replicateLayer.frame = canvas.bounds
         replicateLayer.cornerRadius = replicateLayer.bounds.width/8
         canvas.insertSublayer(replicateLayer, at: 0)
-        
+    
         showLoading()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now()+20) {
-            self.dismiss(status: .done)
-        }
-        
+    }
+    
+    func showLoading() {
+        shouldLoadingDone = false
+        curStatus = .loading
+    }
+    
+    func dismiss(status:LoaderStatus) {
+        curStatus = status
+        shouldLoadingDone = true
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -113,14 +119,11 @@ class CYLSparkLoader: UIView {
     var shouldShowStatusAnim : Bool = true
     var sparkLayers = [CAShapeLayer]()
     let successColor = UIColor.init(red: 76.0/255.0, green: 186.0/255.0, blue: 152.0/255.0, alpha: 1).cgColor
+    let failColor = UIColor.init(red: 255.0/255.0, green: 102.0/255.0, blue: 102.0/255.0, alpha: 1).cgColor
     let statusLayerBounceDuration : CGFloat = 0.4
     
-    func dismiss(status:LoaderStatus) {
-        curStatus = status
-        shouldLoadingDone = true
-    }
     
-    func drawLoadingSuccess() {
+    func drawLoadingDone() {
         
         statusLayer.frame = CGRect.init(x: 0, y: 0, width: radius, height: radius)
         statusLayer.position = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.width/2)
@@ -151,7 +154,7 @@ class CYLSparkLoader: UIView {
         
         
         let dot = CAShapeLayer.init()
-        dot.strokeColor = successColor
+        dot.strokeColor = curStatus == .done ?  successColor : failColor
         dot.lineWidth = 4
         dot.lineCap = kCALineCapRound
         
@@ -169,50 +172,31 @@ class CYLSparkLoader: UIView {
         anim.isRemovedOnCompletion = false
         anim.fillMode = kCAFillModeBoth
         anim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
-        dot.add(anim, forKey: nil)
+        
+        if curStatus == .done {
+            dot.add(anim, forKey: nil)
+        }
+        else
+        {
+            let fadingAnim = CABasicAnimation.init(keyPath: "opacity")
+            fadingAnim.toValue = 0
+            
+            let animG = CAAnimationGroup.init()
+            animG.animations = [anim, fadingAnim]
+            animG.duration = CFTimeInterval(statusLayerBounceDuration)
+            animG.isRemovedOnCompletion = false
+            animG.fillMode = kCAFillModeBoth
+            animG.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
+            
+            dot.add(animG, forKey: nil)
+
+        }
         
         replicateLayer.instanceCount = Int(count)
         replicateLayer.instanceTransform = CATransform3DMakeRotation(angle, 0, 0, 1)
         replicateLayer.instanceDelay = 0.03
         
     }
-    
-    
-    //
-    //    func showSpark() {
-    //
-    //        let count : CGFloat = 5
-    //        let angle = .pi * 2 / count
-    //        let center = CGPoint.init(x: canvas.bounds.width/2, y: canvas.bounds.width/2)
-    //        let upPoint = CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2)
-    //
-    //        for i in 0 ..< NSInteger(count) {
-    //
-    //            let dot = CAShapeLayer.init()
-    //            dot.strokeColor = successColor
-    //            dot.lineWidth = 2
-    //            dot.lineCap = kCALineCapRound
-    //
-    //            canvas.insertSublayer(dot, at: 0)
-    ////            replicateLayer.addSublayer(dot)
-    //
-    //            let path = UIBezierPath.init()
-    //
-    //            path.move(to: CGPoint.init(x: center.x, y: center.y - statusLayer.bounds.width/2 + 2))
-    //            path.addLine(to: CGPoint.init(x: center.x , y: center.y - statusLayer.bounds.width/2 - 6))
-    ////            path.move(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 0))
-    ////            path.addLine(to: AnimTools.sharedInstance.pointWithRelativeAngleOnCircle(upPoint: upPoint, angle: angle*CGFloat(i), radius: statusLayer.bounds.width/2, offset: 6))
-    //            dot.path = path.cgPath
-    //
-    //            let anim = CABasicAnimation.init(keyPath: "strokeStart")
-    //            anim.toValue = 0.9
-    //            anim.duration = CFTimeInterval(statusLayerBounceDuration)
-    //            anim.isRemovedOnCompletion = false
-    //            anim.fillMode = kCAFillModeBoth
-    //            anim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
-    //            dot.add(anim, forKey: nil)
-    //        }
-    //    }
     
     //MARK:-通用
     let moveToCenterAnim = "moveToCenter"
@@ -234,7 +218,7 @@ class CYLSparkLoader: UIView {
         animOneScale.toValue = 0.2
         
         let animeOneColor = CABasicAnimation.init(keyPath: "fillColor")
-        animeOneColor.toValue = successColor
+        animeOneColor.toValue = curStatus == .done ?  successColor : failColor
         
         let animGroup = CAAnimationGroup.init()
         animGroup.animations = [animOne, animOneScale,animeOneColor]
@@ -253,7 +237,7 @@ class CYLSparkLoader: UIView {
         animTwoScale.toValue = 0.2
         
         let animeTwoColor = CABasicAnimation.init(keyPath: "fillColor")
-        animeTwoColor.toValue = successColor
+        animeTwoColor.toValue = curStatus == .done ?  successColor : failColor
         
         let animGroupTwo = CAAnimationGroup.init()
         animGroupTwo.animations = [animTwo, animTwoScale,animeTwoColor]
@@ -277,11 +261,6 @@ class CYLSparkLoader: UIView {
     //加载停止时两个球的最终位置
     var finalPositionOne = CGPoint.zero
     var finalPositionTwo = CGPoint.zero
-    
-    func showLoading() {
-        shouldLoadingDone = false
-        curStatus = .loading
-    }
     
     //绘制加载时的动画
     func drawLoading()  {
@@ -372,7 +351,7 @@ extension CYLSparkLoader : CAAnimationDelegate
         if anim.value(forKey: animNameKey) as! String == moveToCenterAnim && shouldShowStatusAnim{
             shouldMoveToCenter = true
             shouldShowStatusAnim = false
-            drawLoadingSuccess()
+            drawLoadingDone()
         }
         
     }

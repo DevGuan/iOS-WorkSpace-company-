@@ -17,7 +17,7 @@ class ViewController: UITableViewController {
             
             print("begine")
             
-            DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: { 
+            DispatchQueue.main.asyncAfter(deadline: .now()+4, execute: {
                 
                 self.tableView.refereshHeader?.endRefereshing()
             })
@@ -36,9 +36,12 @@ class ViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        cell?.backgroundColor = UIColor.lightGray
+        cell?.backgroundColor = UIColor.init(white: 0.5, alpha: 0.6)
         return cell!
     }
     
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 44
+    }
 }
 
