@@ -35,8 +35,8 @@ var offSet : CGFloat = 0
 var ballColor = UIColor.clear.cgColor
 let ballLayer = CAShapeLayer()
 var atPosition : NSInteger = 0
-var completeHandler : (()->())? = nil
 var extra : CGFloat = 0
+var completeHandler : (()->())? = nil
 
 class CYLGooeyBall: CAShapeLayer {
     

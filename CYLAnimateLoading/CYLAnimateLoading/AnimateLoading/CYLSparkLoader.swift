@@ -18,7 +18,7 @@ let KLoadingAnimPartOne = "loadingAnimPartOne"
 let KLoadingAnimPartTwo = "loadingAnimPartTwo"
 let nameKey = "animName"
 
-class CYLSparkLoader: UIView {
+class CYLSparkLoading: UIView {
     
     let canvas : CALayer = CALayer.init()
     let replicateLayer : CAReplicatorLayer = CAReplicatorLayer.init()
@@ -52,6 +52,8 @@ class CYLSparkLoader: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = UIColor.init(white: 0.4, alpha: 0.7)
+        self.isUserInteractionEnabled = false
+        
         canvas.position = CGPoint.init(x: frame.width/2, y: frame.height/2)
         canvas.bounds = CGRect.init(x: 0, y: 0, width: 100, height: 100)
         canvas.backgroundColor = UIColor.white.cgColor
@@ -256,8 +258,8 @@ class CYLSparkLoader: UIView {
     let animOfBall = "animOfBall"
     var moveToPoint : CGPoint = CGPoint.zero
     let divineFactor : CGFloat = 0.5 //运动结束时变形的factor
-    let durationPartOne = 0.8
-    let durationPartTwo = 0.2
+    let durationPartOne = 0.3
+    let durationPartTwo = 0.5
     //加载停止时两个球的最终位置
     var finalPositionOne = CGPoint.zero
     var finalPositionTwo = CGPoint.zero
@@ -320,7 +322,7 @@ class CYLSparkLoader: UIView {
 }
 
 //MARK:-动画代理
-extension CYLSparkLoader : CAAnimationDelegate
+extension CYLSparkLoading : CAAnimationDelegate
 {
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         

@@ -43,7 +43,7 @@ class AnimTools: NSObject {
         for i in 1 ... 60
         {
             let x = CGFloat(i) / CGFloat(60);
-            let value = 0 - currentFactor * (pow(CGFloat(M_E), -damping * x) * cos(velosity * x)); // y = 1-e^{-5x} * cos(30x)
+            let value = 0 - currentFactor * (pow(CGFloat(M_E), -damping * x) * sin(velosity * x)); // y = 1-e^{-5x} * cos(30x)
             values.append(value)
         }
         return values

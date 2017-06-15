@@ -76,19 +76,20 @@ class CYLLoadStatusLayer: CAShapeLayer {
             
             let animOne = CABasicAnimation.init(keyPath: "strokeEnd")
             animOne.toValue = 0.7
-            animOne.duration = showCheckDuration
-            animOne.isRemovedOnCompletion = false
-            animOne.fillMode = kCAFillModeBoth
-            animOne.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
-            lineOne.add(animOne, forKey: nil)
             
             let animTwo = CABasicAnimation.init(keyPath: "strokeStart")
             animTwo.toValue = 0.1
-            animTwo.duration = showCheckDuration
-            animTwo.isRemovedOnCompletion = false
-            animTwo.fillMode = kCAFillModeBoth
-            animTwo.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
-            lineOne.add(animTwo, forKey: nil)
+
+            
+            let animG = CAAnimationGroup.init()
+            animG.animations = [animOne,animTwo]
+            animG.duration = showCheckDuration
+            animG.isRemovedOnCompletion = false
+            animG.fillMode = kCAFillModeBoth
+            animG.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
+            animG.setValue(complete, forKey: "complete")
+            animG.delegate = self
+            lineOne.add(animG, forKey: nil)
         }
         else
         {
@@ -112,21 +113,20 @@ class CYLLoadStatusLayer: CAShapeLayer {
             
             let animEnd = CABasicAnimation.init(keyPath: "strokeEnd")
             animEnd.toValue = 0.7
-            animEnd.duration = showCheckDuration
-            animEnd.isRemovedOnCompletion = false
-            animEnd.fillMode = kCAFillModeBoth
-            animEnd.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
-            lineOne.add(animEnd, forKey: nil)
-            lineTwo.add(animEnd, forKey: nil)
 
             let animStart = CABasicAnimation.init(keyPath: "strokeStart")
             animStart.toValue = 0.3
-            animStart.duration = showCheckDuration
-            animStart.isRemovedOnCompletion = false
-            animStart.fillMode = kCAFillModeBoth
-            animStart.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
-            lineOne.add(animStart, forKey: nil)
-            lineTwo.add(animStart, forKey: nil)
+
+            let animG = CAAnimationGroup.init()
+            animG.animations = [animStart,animEnd]
+            animG.duration = showCheckDuration
+            animG.isRemovedOnCompletion = false
+            animG.fillMode = kCAFillModeBoth
+            animG.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
+            animG.setValue(complete, forKey: "complete")
+            animG.delegate = self
+            lineOne.add(animG, forKey: nil)
+            lineTwo.add(animG, forKey: nil)
             
         }
     }
@@ -134,7 +134,17 @@ class CYLLoadStatusLayer: CAShapeLayer {
     
 }
 
-
+extension CYLLoadStatusLayer : CAAnimationDelegate
+{
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        
+       let comp = anim.value(forKey: "complete") as! ()->()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) { 
+            comp()
+        }
+    }
+}
 
 
 

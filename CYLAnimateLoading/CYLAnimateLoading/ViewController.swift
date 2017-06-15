@@ -13,17 +13,22 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let loader = CYLSparkLoader.init(frame: UIScreen.main.bounds)
-        self.view.addSubview(loader)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.3) { 
-            loader.dismiss(status: .failed)
-        }
+        let btn = UIButton.init(frame: CGRect.init(x: 0, y: 0, width: 55, height: 55))
+        btn.tag = 1
+        btn.addTarget(self, action: #selector(showLoading), for: .touchUpInside)
+        self.view.addSubview(btn)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    func showLoading(btn:UIButton) {
+        
+        let loader = CYLSparkLoading.init(frame: UIScreen.main.bounds)
+        self.view.addSubview(loader)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.3) {
+            loader.dismiss(status: btn.tag > 0 ? .failed : .done)
+        }
+        
+        btn.tag *= -1
     }
 
 
