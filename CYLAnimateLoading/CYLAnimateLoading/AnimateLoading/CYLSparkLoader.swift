@@ -53,7 +53,7 @@ class CYLSparkLoading: UIView {
         super.init(frame: frame)
         self.backgroundColor = UIColor.init(white: 0.4, alpha: 0.7)
         self.isUserInteractionEnabled = false
-        
+
         canvas.position = CGPoint.init(x: frame.width/2, y: frame.height/2)
         canvas.bounds = CGRect.init(x: 0, y: 0, width: 100, height: 100)
         canvas.backgroundColor = UIColor.white.cgColor
@@ -305,7 +305,7 @@ class CYLSparkLoading: UIView {
         keyFrameAnim.duration = CFTimeInterval(durationPartTwo)
         keyFrameAnim.isRemovedOnCompletion = false
         keyFrameAnim.fillMode = kCAFillModeForwards
-        keyFrameAnim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseIn)
+        keyFrameAnim.timingFunction = CAMediaTimingFunction.init(name: kCAMediaTimingFunctionEaseOut)
         
         keyFrameAnim.setValue(animLoadDone, forKey: animNameKey)
         keyFrameAnim.setValue(animBall, forKey: animOfBall)

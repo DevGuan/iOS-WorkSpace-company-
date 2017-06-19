@@ -140,7 +140,7 @@ extension CYLLoadStatusLayer : CAAnimationDelegate
         
        let comp = anim.value(forKey: "complete") as! ()->()
         
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.5) { 
+        DispatchQueue.main.asyncAfter(deadline: .now()+1) {
             comp()
         }
     }

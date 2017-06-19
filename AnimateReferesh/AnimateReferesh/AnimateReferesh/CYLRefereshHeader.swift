@@ -101,7 +101,7 @@ class CYLRefereshHeader: UIView {
                 maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(factor*0.4))
             }
 //            else
-//            {
+//            { 
 //                maskLayer.path = AnimTools.sharedInstance.caculateRectQuadCurve(leftTopPoint: point1, rightTopPoint: point2, leftBottomPoint: point3, rightBottomPoint: point4, cp: cp, factot: CGFloat(1))
 //            }
             
