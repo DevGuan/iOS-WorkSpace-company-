@@ -50,6 +50,8 @@ class CYLLoadStatusLayer: CAShapeLayer {
     
     let showCheckDuration = 0.3
     
+    
+    
     func showAnim(canvas:CALayer, complete:()->()) {
         
         if status == .done {

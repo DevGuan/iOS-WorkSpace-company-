@@ -11,5 +11,6 @@
 
 #import "CYLBaseTransitionAnimation.h"
 #import "CYLTansitionManager.h"
+#import "CYLInteractiveTrasition.h"
 
 #endif /* CYLTransitionHeader_h */

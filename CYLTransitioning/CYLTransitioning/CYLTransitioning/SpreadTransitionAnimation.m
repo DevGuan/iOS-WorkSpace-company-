@@ -96,7 +96,7 @@
             CAShapeLayer *mask = [[CAShapeLayer alloc] init];
             mask.path = endPath.CGPath;
             mask.shadowOffset = CGSizeMake(2, 2);
-            toVC.navigationController.view.layer.mask = mask;
+            toVC.view.layer.mask = mask;
             
             CABasicAnimation *anim = [[CABasicAnimation alloc] init];
             anim.keyPath = @"path";

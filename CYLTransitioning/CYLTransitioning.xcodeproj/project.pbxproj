@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D1855941EF8D49F00AA8D0D /* CYLInteractiveTrasition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1855931EF8D49F00AA8D0D /* CYLInteractiveTrasition.m */; };
 		2D382B6E1EF2514C00A81096 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D382B6D1EF2514C00A81096 /* main.m */; };
 		2D382B711EF2514C00A81096 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D382B701EF2514C00A81096 /* AppDelegate.m */; };
 		2D382B741EF2514C00A81096 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D382B731EF2514C00A81096 /* ViewController.m */; };
@@ -40,6 +41,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D1855921EF8D49F00AA8D0D /* CYLInteractiveTrasition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CYLInteractiveTrasition.h; sourceTree = "<group>"; };
+		2D1855931EF8D49F00AA8D0D /* CYLInteractiveTrasition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CYLInteractiveTrasition.m; sourceTree = "<group>"; };
 		2D382B691EF2514C00A81096 /* CYLTransitioning.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CYLTransitioning.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D382B6D1EF2514C00A81096 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2D382B6F1EF2514C00A81096 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -171,6 +174,8 @@
 				2D382BA61EF38E6700A81096 /* CYLTansitionManager.m */,
 				2D382BA81EF3900E00A81096 /* CYLBaseTransitionAnimation.h */,
 				2D382BA91EF3900E00A81096 /* CYLBaseTransitionAnimation.m */,
+				2D1855921EF8D49F00AA8D0D /* CYLInteractiveTrasition.h */,
+				2D1855931EF8D49F00AA8D0D /* CYLInteractiveTrasition.m */,
 			);
 			path = CYLTransitioning;
 			sourceTree = "<group>";
@@ -316,6 +321,7 @@
 				2D382BA71EF38E6700A81096 /* CYLTansitionManager.m in Sources */,
 				2D382C011EF7B43400A81096 /* NavController.m in Sources */,
 				2D382BB01EF3A1E700A81096 /* SpreadTransitionAnimation.m in Sources */,
+				2D1855941EF8D49F00AA8D0D /* CYLInteractiveTrasition.m in Sources */,
 				2D382BAD1EF39E3400A81096 /* ViewControllerTwo.m in Sources */,
 				2D382B711EF2514C00A81096 /* AppDelegate.m in Sources */,
 				2D382B6E1EF2514C00A81096 /* main.m in Sources */,
