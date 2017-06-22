@@ -118,7 +118,6 @@
             [[transitionContext containerView] addSubview:fromVC.view];
             
             CGRect circleFrame = toVC.spreadBtn.frame;
-            
             CGPathRef startPath = ((CAShapeLayer*)fromVC.view.layer.mask).path;
             UIBezierPath *endPath = [UIBezierPath bezierPathWithOvalInRect:circleFrame];
             

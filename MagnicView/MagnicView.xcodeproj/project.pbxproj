@@ -55,7 +55,7 @@
 		2D18560D1EF8EF2100AA8D0D /* SpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpriteKit.framework; path = System/Library/Frameworks/SpriteKit.framework; sourceTree = SDKROOT; };
 		2D18560F1EF8EF4A00AA8D0D /* MagnicView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MagnicView.swift; sourceTree = "<group>"; };
 		2D1856111EF8EFBB00AA8D0D /* MagnicScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MagnicScene.swift; sourceTree = "<group>"; };
-		2D1856131EF8F94400AA8D0D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		2D1856131EF8F94400AA8D0D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Extensions.swift; path = ../Extensions.swift; sourceTree = "<group>"; };
 		2D1856151EF903C300AA8D0D /* MagnicNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MagnicNode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,7 +109,6 @@
 		2D1855DC1EF8EED800AA8D0D /* MagnicView */ = {
 			isa = PBXGroup;
 			children = (
-				2D1856131EF8F94400AA8D0D /* Extensions.swift */,
 				2D18560B1EF8EEFA00AA8D0D /* CYLMagnicView */,
 				2D1855DD1EF8EED800AA8D0D /* AppDelegate.swift */,
 				2D1855DF1EF8EED800AA8D0D /* ViewController.swift */,
@@ -142,6 +141,7 @@
 		2D18560B1EF8EEFA00AA8D0D /* CYLMagnicView */ = {
 			isa = PBXGroup;
 			children = (
+				2D1856131EF8F94400AA8D0D /* Extensions.swift */,
 				2D18560F1EF8EF4A00AA8D0D /* MagnicView.swift */,
 				2D1856111EF8EFBB00AA8D0D /* MagnicScene.swift */,
 				2D1856151EF903C300AA8D0D /* MagnicNode.swift */,
@@ -550,6 +550,7 @@
 				2D1856041EF8EED800AA8D0D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D1856051EF8EED800AA8D0D /* Build configuration list for PBXNativeTarget "MagnicViewTests" */ = {
 			isa = XCConfigurationList;
@@ -558,6 +559,7 @@
 				2D1856071EF8EED800AA8D0D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D1856081EF8EED800AA8D0D /* Build configuration list for PBXNativeTarget "MagnicViewUITests" */ = {
 			isa = XCConfigurationList;
@@ -566,6 +568,7 @@
 				2D18560A1EF8EED800AA8D0D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

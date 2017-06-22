@@ -59,7 +59,7 @@ class MagnicScene: SKScene {
         body.allowsRotation = false
         body.friction = 0
         body.linearDamping = 3
-        body.restitution = 0.8
+        body.restitution = 0
         node.physicsBody = body
     }
     
