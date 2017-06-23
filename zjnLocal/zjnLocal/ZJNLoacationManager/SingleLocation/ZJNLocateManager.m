@@ -12,7 +12,7 @@
 
 @implementation ZJNLocateManager
 static ZJNLocateManager* _instance = nil;
-#warning 此高德框架集成了idfa 上架时需要注意
+
 +(instancetype) shareInstance
 {
     static dispatch_once_t onceToken ;

@@ -15,6 +15,7 @@
 		2D04B17B1EFA6E2200441CC1 /* POIAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D04B1761EFA6E2200441CC1 /* POIAnnotation.m */; };
 		2D04B17C1EFA6E2200441CC1 /* RoutePOIAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D04B1781EFA6E2200441CC1 /* RoutePOIAnnotation.m */; };
 		2D04B1801EFB887F00441CC1 /* ZJNMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D04B17F1EFB887F00441CC1 /* ZJNMapView.m */; };
+		2D04B1821EFB903800441CC1 /* AMapFoundationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D04B1811EFB903800441CC1 /* AMapFoundationKit.framework */; };
 		2D1856EA1EFA4D8E00AA8D0D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1856E91EFA4D8E00AA8D0D /* main.m */; };
 		2D1856ED1EFA4D8E00AA8D0D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1856EC1EFA4D8E00AA8D0D /* AppDelegate.m */; };
 		2D1856F01EFA4D8E00AA8D0D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1856EF1EFA4D8E00AA8D0D /* ViewController.m */; };
@@ -23,7 +24,6 @@
 		2D1856F81EFA4D8E00AA8D0D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D1856F61EFA4D8E00AA8D0D /* LaunchScreen.storyboard */; };
 		2D1857031EFA4D8E00AA8D0D /* zjnLocalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1857021EFA4D8E00AA8D0D /* zjnLocalTests.m */; };
 		2D18570E1EFA4D8E00AA8D0D /* zjnLocalUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D18570D1EFA4D8E00AA8D0D /* zjnLocalUITests.m */; };
-		2D18572A1EFA509C00AA8D0D /* AMapFoundationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D1857281EFA509C00AA8D0D /* AMapFoundationKit.framework */; };
 		2D18572B1EFA509C00AA8D0D /* AMapLocationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D1857291EFA509C00AA8D0D /* AMapLocationKit.framework */; };
 		2D1857311EFA516000AA8D0D /* ZJNLoacationWithMapController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D1857301EFA516000AA8D0D /* ZJNLoacationWithMapController.m */; };
 		2D1857331EFA51DD00AA8D0D /* MAMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D1857321EFA51DD00AA8D0D /* MAMapKit.framework */; };
@@ -70,6 +70,7 @@
 		2D04B1781EFA6E2200441CC1 /* RoutePOIAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoutePOIAnnotation.m; sourceTree = "<group>"; };
 		2D04B17E1EFB887F00441CC1 /* ZJNMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZJNMapView.h; sourceTree = "<group>"; };
 		2D04B17F1EFB887F00441CC1 /* ZJNMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZJNMapView.m; sourceTree = "<group>"; };
+		2D04B1811EFB903800441CC1 /* AMapFoundationKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AMapFoundationKit.framework; path = SingleLocation/AMapFoundationKit.framework; sourceTree = "<group>"; };
 		2D1856E51EFA4D8E00AA8D0D /* zjnLocal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zjnLocal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D1856E91EFA4D8E00AA8D0D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2D1856EB1EFA4D8E00AA8D0D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -86,7 +87,6 @@
 		2D1857091EFA4D8E00AA8D0D /* zjnLocalUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = zjnLocalUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D18570D1EFA4D8E00AA8D0D /* zjnLocalUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = zjnLocalUITests.m; sourceTree = "<group>"; };
 		2D18570F1EFA4D8E00AA8D0D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2D1857281EFA509C00AA8D0D /* AMapFoundationKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AMapFoundationKit.framework; path = SingleLocation/AMapFoundationKit.framework; sourceTree = "<group>"; };
 		2D1857291EFA509C00AA8D0D /* AMapLocationKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AMapLocationKit.framework; path = SingleLocation/AMapLocationKit.framework; sourceTree = "<group>"; };
 		2D18572F1EFA516000AA8D0D /* ZJNLoacationWithMapController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ZJNLoacationWithMapController.h; path = ZJNLoacationManager/SingleLocation/ZJNLoacationWithMapController.h; sourceTree = "<group>"; };
 		2D1857301EFA516000AA8D0D /* ZJNLoacationWithMapController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ZJNLoacationWithMapController.m; path = ZJNLoacationManager/SingleLocation/ZJNLoacationWithMapController.m; sourceTree = "<group>"; };
@@ -109,6 +109,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D04B1671EFA5C8600441CC1 /* GLKit.framework in Frameworks */,
+				2D04B1821EFB903800441CC1 /* AMapFoundationKit.framework in Frameworks */,
 				2DC796961EFA5C200086C1BD /* Security.framework in Frameworks */,
 				2DC796941EFA5C190086C1BD /* libstdc++.6.0.9.tbd in Frameworks */,
 				2DC796921EFA5C0D0086C1BD /* libc++.tbd in Frameworks */,
@@ -118,7 +119,6 @@
 				2DC7968A1EFA5BD50086C1BD /* JavaScriptCore.framework in Frameworks */,
 				2D04B16B1EFA62B200441CC1 /* AMapSearchKit.framework in Frameworks */,
 				2D1857331EFA51DD00AA8D0D /* MAMapKit.framework in Frameworks */,
-				2D18572A1EFA509C00AA8D0D /* AMapFoundationKit.framework in Frameworks */,
 				2D18572B1EFA509C00AA8D0D /* AMapLocationKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -244,9 +244,9 @@
 			isa = PBXGroup;
 			children = (
 				2DC796861EFA57370086C1BD /* AMap.bundle */,
+				2D04B1811EFB903800441CC1 /* AMapFoundationKit.framework */,
 				2D04B16A1EFA62B200441CC1 /* AMapSearchKit.framework */,
 				2D1857321EFA51DD00AA8D0D /* MAMapKit.framework */,
-				2D1857281EFA509C00AA8D0D /* AMapFoundationKit.framework */,
 				2D1857291EFA509C00AA8D0D /* AMapLocationKit.framework */,
 				2D04B17D1EFB884200441CC1 /* ZJNMapView */,
 				2D04B16C1EFA6A0100441CC1 /* POISearch */,
