@@ -10,6 +10,7 @@
 #import "ViewControllerTwo.h"
 #import "CYLTransitionHeader.h"
 #import "SpreadTransitionAnimation.h"
+#import "MagicMoveTransitionAnimation.h"
 
 @interface ViewController ()<UINavigationControllerDelegate>
 
@@ -20,13 +21,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    [self magicMove];
+    self.navigationController.delegate = self;
+//    [self magicMove];
+    [self spread];
 }
 
 - (void)magicMove
 {
     self.smallImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"haiti"]];
-    self.smallImageView.frame = CGRectMake(20, 20, 100, 100);
+    self.smallImageView.frame = CGRectMake(20, 120, 100, 100);
     self.smallImageView.userInteractionEnabled = YES;
     [self.smallImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)]];
     [self.view addSubview:self.smallImageView];
@@ -69,6 +72,13 @@
     [_spreadBtn addTarget:self action:@selector(doThing) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:_spreadBtn];
     
+}
+
+- (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC toViewController:(UIViewController *)toVC
+{
+        return [CYLTansitionManager transitionObjectwithTransitionStyle:operation == UINavigationControllerOperationPush ? CYLTransitionStyle_Push : CYLTransitionStyle_Pop animateDuration:0.5 andTransitionAnimation:[[SpreadTransitionAnimation alloc] init]];
+    
+//    return [CYLTansitionManager transitionObjectwithTransitionStyle:operation == UINavigationControllerOperationPush ? CYLTransitionStyle_Push : CYLTransitionStyle_Pop animateDuration:0.5 andTransitionAnimation:[[MagicMoveTransitionAnimation alloc] init]];
 }
 
 @end

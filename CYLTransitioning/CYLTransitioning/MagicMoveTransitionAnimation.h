@@ -9,6 +9,7 @@
 #import "CYLBaseTransitionAnimation.h"
 
 @interface MagicMoveTransitionAnimation : CYLBaseTransitionAnimation
+@property (nonatomic, assign) CGRect originalRect;
 @property (nonatomic, assign) CYLTransitionStyle style;
 +(instancetype)shareAnimator;
 @end
