@@ -9,7 +9,10 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
+//扩散圆的按钮
 @property (nonatomic, strong) UIButton *spreadBtn;
 
+//缩略图
+@property (nonatomic, strong) UIImageView *smallImageView;
 @end
 

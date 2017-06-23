@@ -25,6 +25,30 @@ static ZJNLocateManager* _instance = nil;
     return _instance ;
 }
 
+- (BOOL)isOpenGpsWithViewController:(UIViewController*)viewController
+{
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    BOOL isOpen = true;
+    
+    if (kCLAuthorizationStatusDenied == status || kCLAuthorizationStatusRestricted == status) {
+        isOpen = false;
+        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"温馨提示" message:@"您的定位尚未开启，是否前去开启定位" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action = [UIAlertAction actionWithTitle:@"设置" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }];
+        
+        UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"再等等" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        
+        [alertC addAction:action];
+        [alertC addAction:cancel];
+        [viewController.navigationController presentViewController:alertC animated:YES completion:nil];
+    }
+    return isOpen;
+}
+
+
 - (void)requestLocationWithCompleteBlock:(AMapLocatingCompletionBlock)completeBlock
 {
     [self.locationManager requestLocationWithReGeocode:YES completionBlock:completeBlock];

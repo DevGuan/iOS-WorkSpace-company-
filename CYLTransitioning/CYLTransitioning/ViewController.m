@@ -20,17 +20,28 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    _spreadBtn = [[UIButton alloc] initWithFrame:CGRectMake(150, 500, 40, 40)];
-    _spreadBtn.backgroundColor = [UIColor purpleColor];
-    _spreadBtn.layer.cornerRadius = 20;
-    [_spreadBtn addTarget:self action:@selector(doThing) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:_spreadBtn];
+    [self magicMove];
+}
+
+- (void)magicMove
+{
+    self.smallImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"haiti"]];
+    self.smallImageView.frame = CGRectMake(20, 20, 100, 100);
+    self.smallImageView.userInteractionEnabled = YES;
+    [self.smallImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap)]];
+    [self.view addSubview:self.smallImageView];
+}
+
+- (void)tap
+{
+    [self doThing];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:YES animated:animated];
     [super viewWillAppear:animated];
 }
+
 
 - (void)viewWillDisappear:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
@@ -43,10 +54,21 @@
     [self.navigationController pushViewController:[[ViewControllerTwo alloc] init] animated:YES];
 }
 
-//- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-//{
-//    UITouch *touch = touches.anyObject;
-//    CGPoint p = [touch preciseLocationInView:self.view];
-//    _spreadBtn.center = p;
-//}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = touches.anyObject;
+    CGPoint p = [touch preciseLocationInView:self.view];
+    _smallImageView.center = p;
+}
+
+- (void)spread
+{
+    _spreadBtn = [[UIButton alloc] initWithFrame:CGRectMake(150, 500, 40, 40)];
+    _spreadBtn.backgroundColor = [UIColor purpleColor];
+    _spreadBtn.layer.cornerRadius = 20;
+    [_spreadBtn addTarget:self action:@selector(doThing) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_spreadBtn];
+    
+}
+
 @end

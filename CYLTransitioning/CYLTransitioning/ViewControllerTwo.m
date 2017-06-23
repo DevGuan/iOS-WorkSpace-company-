@@ -18,22 +18,36 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    self.transitioningDelegate = self;
-////    self.navigationController.delegate = self;
-//    self.modalPresentationStyle = UIModalPresentationCustom;
-    self.view.backgroundColor = [UIColor cyanColor];
-    _spreadBtn = [[UIButton alloc] initWithFrame:CGRectMake(200, 300, 40, 40)];
-    _spreadBtn.backgroundColor = [UIColor redColor];
-    _spreadBtn.layer.cornerRadius = 20;
-    [_spreadBtn addTarget:self action:@selector(doThing) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:_spreadBtn];
+    self.view.backgroundColor = [UIColor lightGrayColor];
+    [self magicMove];
+}
+
+- (void)magicMove
+{
+    self.imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+    self.imageView.center = CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height/2);
+    [self.view addSubview:self.imageView];
 }
 
 - (void)doThing
 {
-//    [self dismissViewControllerAnimated:YES completion:nil];
     [self.navigationController popViewControllerAnimated:YES];
 }
+
+
+//- (void)spead
+//{
+//    //    self.transitioningDelegate = self;
+//    ////    self.navigationController.delegate = self;
+//    //    self.modalPresentationStyle = UIModalPresentationCustom;
+//    
+//    _spreadBtn = [[UIButton alloc] initWithFrame:CGRectMake(200, 300, 40, 40)];
+//    _spreadBtn.backgroundColor = [UIColor redColor];
+//    _spreadBtn.layer.cornerRadius = 20;
+//    [_spreadBtn addTarget:self action:@selector(doThing) forControlEvents:UIControlEventTouchUpInside];
+//    [self.view addSubview:_spreadBtn];
+//
+//}
 
 //- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed
 //{

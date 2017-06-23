@@ -32,4 +32,7 @@
 
 //单次获取当前定位
 - (void)requestLocationWithCompleteBlock:(AMapLocatingCompletionBlock)completeBlock;
+
+//提示是否去开启定位
+- (BOOL)isOpenGpsWithViewController:(UIViewController*)viewController;
 @end

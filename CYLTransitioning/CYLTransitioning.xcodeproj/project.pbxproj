@@ -21,6 +21,8 @@
 		2D382BAD1EF39E3400A81096 /* ViewControllerTwo.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D382BAC1EF39E3400A81096 /* ViewControllerTwo.m */; };
 		2D382BB01EF3A1E700A81096 /* SpreadTransitionAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D382BAF1EF3A1E700A81096 /* SpreadTransitionAnimation.m */; };
 		2D382C011EF7B43400A81096 /* NavController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D382C001EF7B43400A81096 /* NavController.m */; };
+		2D6619721EFCE18E00650177 /* MagicMoveTransitionAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619711EFCE18E00650177 /* MagicMoveTransitionAnimation.m */; };
+		2D6619781EFCE25600650177 /* UIImage+Blur.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619771EFCE25600650177 /* UIImage+Blur.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +72,10 @@
 		2D382BAF1EF3A1E700A81096 /* SpreadTransitionAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SpreadTransitionAnimation.m; path = CYLTransitioning/SpreadTransitionAnimation.m; sourceTree = "<group>"; };
 		2D382BFF1EF7B43400A81096 /* NavController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavController.h; sourceTree = "<group>"; };
 		2D382C001EF7B43400A81096 /* NavController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavController.m; sourceTree = "<group>"; };
+		2D6619701EFCE18E00650177 /* MagicMoveTransitionAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MagicMoveTransitionAnimation.h; sourceTree = "<group>"; };
+		2D6619711EFCE18E00650177 /* MagicMoveTransitionAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MagicMoveTransitionAnimation.m; sourceTree = "<group>"; };
+		2D6619761EFCE25600650177 /* UIImage+Blur.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Blur.h"; sourceTree = "<group>"; };
+		2D6619771EFCE25600650177 /* UIImage+Blur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Blur.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +137,8 @@
 				2D382C001EF7B43400A81096 /* NavController.m */,
 				2D382BAE1EF3A1E700A81096 /* SpreadTransitionAnimation.h */,
 				2D382BAF1EF3A1E700A81096 /* SpreadTransitionAnimation.m */,
+				2D6619701EFCE18E00650177 /* MagicMoveTransitionAnimation.h */,
+				2D6619711EFCE18E00650177 /* MagicMoveTransitionAnimation.m */,
 				2D382B751EF2514C00A81096 /* Main.storyboard */,
 				2D382B781EF2514C00A81096 /* Assets.xcassets */,
 				2D382B7A1EF2514C00A81096 /* LaunchScreen.storyboard */,
@@ -176,6 +184,8 @@
 				2D382BA91EF3900E00A81096 /* CYLBaseTransitionAnimation.m */,
 				2D1855921EF8D49F00AA8D0D /* CYLInteractiveTrasition.h */,
 				2D1855931EF8D49F00AA8D0D /* CYLInteractiveTrasition.m */,
+				2D6619761EFCE25600650177 /* UIImage+Blur.h */,
+				2D6619771EFCE25600650177 /* UIImage+Blur.m */,
 			);
 			path = CYLTransitioning;
 			sourceTree = "<group>";
@@ -324,7 +334,9 @@
 				2D1855941EF8D49F00AA8D0D /* CYLInteractiveTrasition.m in Sources */,
 				2D382BAD1EF39E3400A81096 /* ViewControllerTwo.m in Sources */,
 				2D382B711EF2514C00A81096 /* AppDelegate.m in Sources */,
+				2D6619721EFCE18E00650177 /* MagicMoveTransitionAnimation.m in Sources */,
 				2D382B6E1EF2514C00A81096 /* main.m in Sources */,
+				2D6619781EFCE25600650177 /* UIImage+Blur.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
