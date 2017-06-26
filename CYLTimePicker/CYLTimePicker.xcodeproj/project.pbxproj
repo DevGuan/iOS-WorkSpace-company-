@@ -686,6 +686,7 @@
 				2D04B1BB1EFB9F0F00441CC1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D04B1BC1EFB9F0F00441CC1 /* Build configuration list for PBXNativeTarget "CYLTimePickerTests" */ = {
 			isa = XCConfigurationList;
@@ -694,6 +695,7 @@
 				2D04B1BE1EFB9F0F00441CC1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D04B1BF1EFB9F0F00441CC1 /* Build configuration list for PBXNativeTarget "CYLTimePickerUITests" */ = {
 			isa = XCConfigurationList;
@@ -702,6 +704,7 @@
 				2D04B1C11EFB9F0F00441CC1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

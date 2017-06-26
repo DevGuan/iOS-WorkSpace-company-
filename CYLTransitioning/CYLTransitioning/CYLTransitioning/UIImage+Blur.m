@@ -52,4 +52,14 @@
     CGImageRelease(imageRef);
     return returnImage;
 }
+
++ (UIImage *)getImageViewWithView:(UIView *)view withBlurNum:(CGFloat)blur
+{
+    UIGraphicsBeginImageContext(view.frame.size);
+    [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:NO];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return [UIImage boxblurImage:image withBlurNumber:blur];
+}
 @end

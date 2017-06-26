@@ -10,4 +10,5 @@
 
 @interface UIImage (Blur)
 +(UIImage *)boxblurImage:(UIImage *)image withBlurNumber:(CGFloat)blur;
++ (UIImage *)getImageViewWithView:(UIView *)view withBlurNum:(CGFloat)blur;
 @end
