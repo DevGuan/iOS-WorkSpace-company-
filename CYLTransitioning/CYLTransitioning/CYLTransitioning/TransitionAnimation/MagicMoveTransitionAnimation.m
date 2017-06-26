@@ -7,8 +7,6 @@
 //
 
 #import "MagicMoveTransitionAnimation.h"
-#import "ViewController.h"
-#import "ViewControllerTwo.h"
 
 @interface MagicMoveTransitionAnimation ()
 
@@ -48,30 +46,39 @@ static MagicMoveTransitionAnimation *_instance;
     return _instance;
 }
 
+- (instancetype)initWithFromImageV:(UIImageView *)fromImageV toImageView:(UIImageView *)toImageV
+{
+    if (self = [super init]) {
+        self.fromImageV = fromImageV;
+        self.toImageV = toImageV;
+    }
+    return self;
+}
+
  - (void)showAnimationWithDuration:(CGFloat)duration transitionStyle:(CYLTransitionStyle)style andtransitionContext:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     switch (style) {
         case CYLTransitionStyle_Push:
         {
-            ViewController *fromVC = (ViewController*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-            ViewControllerTwo *toVC = (ViewControllerTwo*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+            UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+            UIViewController *toVC = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
             
             UIView *container = [transitionContext containerView];
-            UIImageView *imageV = fromVC.smallImageView;
+            UIImageView *imageV = _fromImageV;
 
             [container addSubview:fromVC.view];
             [container addSubview:toVC.view];
             [container addSubview:imageV];
-            _originalRect = fromVC.smallImageView.frame;
+            _originalRect = _fromImageV.frame;
             
             [UIView animateWithDuration:duration delay:0 usingSpringWithDamping:0.8 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                
                 fromVC.view.alpha = 0.5;
-                imageV.frame = toVC.imageView.frame;
+                imageV.frame = _toImageV.frame;
                 
             } completion:^(BOOL finished) {
                 
-                toVC.imageView.image = imageV.image;
+                _toImageV.image = imageV.image;
                 [imageV removeFromSuperview];
                 [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
                 
@@ -81,14 +88,14 @@ static MagicMoveTransitionAnimation *_instance;
             
         case CYLTransitionStyle_Pop:
         {
-            ViewController *toVC = (ViewController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-            ViewControllerTwo *fromVC = (ViewControllerTwo*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+            UIViewController *toVC =[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+//            UIViewController *fromVC =[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
             
             UIView *container = [transitionContext containerView];
-            UIImageView *imageV = toVC.smallImageView;
+            UIImageView *imageV = _fromImageV;
             [container addSubview:toVC.view];
             [container addSubview:imageV];
-            fromVC.imageView.image = nil;
+            _toImageV.image = nil;
             
             [UIView animateWithDuration:duration delay:0 usingSpringWithDamping:0.8 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                 imageV.frame = _originalRect;

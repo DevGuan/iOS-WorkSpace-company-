@@ -9,7 +9,10 @@
 #import "CYLBaseTransitionAnimation.h"
 
 @interface MagicMoveTransitionAnimation : CYLBaseTransitionAnimation
+@property (nonatomic, strong) UIImageView *fromImageV;
 @property (nonatomic, assign) CGRect originalRect;
+@property (nonatomic, strong) UIImageView *toImageV;
 @property (nonatomic, assign) CYLTransitionStyle style;
-+(instancetype)shareAnimator;
+
+- (instancetype)initWithFromImageV:(UIImageView*)fromImageV toImageView:(UIImageView*)toImageV;
 @end

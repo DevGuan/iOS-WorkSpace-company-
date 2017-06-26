@@ -7,13 +7,21 @@
 //
 
 #import "SpreadTransitionAnimation.h"
-#import "ViewController.h"
+
 
 @interface SpreadTransitionAnimation ()
 @property (nonatomic, strong) id<UIViewControllerContextTransitioning> transitionContext;
 @end
 
 @implementation SpreadTransitionAnimation
+
+- (instancetype)initWithSpreadBtn:(UIButton *)spreadBtn
+{
+    if (self = [super init]) {
+        self.fromSpreadBtn = spreadBtn;
+    }
+    return self;
+}
 
 - (void)showAnimationWithDuration:(CGFloat)duration transitionStyle:(CYLTransitionStyle)style andtransitionContext:(id<UIViewControllerContextTransitioning>)transitionContext
 {
@@ -23,18 +31,18 @@
     switch (style) {
         case CYLTransitionStyle_Present:
         {
-            ViewController *fromVC = ((UINavigationController*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey]).viewControllers.lastObject;
+            UIViewController *fromVC = ((UINavigationController*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey]).viewControllers.lastObject;
             UIViewController *toVC = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
             
             UIView *containerView = [transitionContext containerView];
             [containerView addSubview:toVC.view];
             
-            CGRect circleFrame = fromVC.spreadBtn.frame;
+            CGRect circleFrame = _fromSpreadBtn.frame;
             CGFloat x = MAX(circleFrame.origin.x, containerView.bounds.size.width - circleFrame.origin.x);
             CGFloat y = MAX(circleFrame.origin.y, containerView.bounds.size.height - circleFrame.origin.y);
             CGFloat radius = sqrtf(pow(x, 2) + pow(y, 2));
             UIBezierPath *startPath = [UIBezierPath bezierPathWithOvalInRect:circleFrame];
-            UIBezierPath * endPath = [UIBezierPath bezierPathWithArcCenter:fromVC.spreadBtn.center radius:radius startAngle:0 endAngle:M_PI * 2 clockwise:YES];
+            UIBezierPath * endPath = [UIBezierPath bezierPathWithArcCenter:_fromSpreadBtn.center radius:radius startAngle:0 endAngle:M_PI * 2 clockwise:YES];
             
             CAShapeLayer *mask = [[CAShapeLayer alloc] init];
             mask.path = endPath.CGPath;
@@ -52,13 +60,13 @@
             break;
         case CYLTransitionStyle_Dismiss:
         {
-            ViewController *toVC = ((UINavigationController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey]).viewControllers.lastObject;
+            UIViewController *toVC = ((UINavigationController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey]).viewControllers.lastObject;
             UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
             
             [[transitionContext containerView] addSubview:[toVC.navigationController.view snapshotViewAfterScreenUpdates:YES]];
             [[transitionContext containerView] addSubview:fromVC.view];
             
-            CGRect circleFrame = toVC.spreadBtn.frame;
+            CGRect circleFrame = _fromSpreadBtn.frame;
             
             CGPathRef startPath = ((CAShapeLayer*)fromVC.view.layer.mask).path;
             UIBezierPath *endPath = [UIBezierPath bezierPathWithOvalInRect:circleFrame];
@@ -79,19 +87,19 @@
             break;
         case CYLTransitionStyle_Push:
         {
-            ViewController *fromVC = ((ViewController*)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey]);
+            UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
             UIViewController *toVC = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
             
             UIView *containerView = [transitionContext containerView];
             [containerView addSubview:[fromVC.view snapshotViewAfterScreenUpdates:YES]];
             [containerView addSubview:toVC.view];
             
-            CGRect circleFrame = fromVC.spreadBtn.frame;
+            CGRect circleFrame = _fromSpreadBtn.frame;
             CGFloat x = MAX(circleFrame.origin.x, containerView.bounds.size.width - circleFrame.origin.x);
             CGFloat y = MAX(circleFrame.origin.y, containerView.bounds.size.height - circleFrame.origin.y);
             CGFloat radius = sqrtf(pow(x, 2) + pow(y, 2)) + 50;
             UIBezierPath *startPath = [UIBezierPath bezierPathWithOvalInRect:circleFrame];
-            UIBezierPath * endPath = [UIBezierPath bezierPathWithArcCenter:fromVC.spreadBtn.center radius:radius startAngle:0 endAngle:M_PI * 2 clockwise:YES];
+            UIBezierPath * endPath = [UIBezierPath bezierPathWithArcCenter:_fromSpreadBtn.center radius:radius startAngle:0 endAngle:M_PI * 2 clockwise:YES];
             
             CAShapeLayer *mask = [[CAShapeLayer alloc] init];
             mask.path = endPath.CGPath;
@@ -111,13 +119,13 @@
             
         case CYLTransitionStyle_Pop:
         {
-            ViewController *toVC = ((ViewController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey]);
+            UIViewController *toVC = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
             UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
             
             [[transitionContext containerView] addSubview:toVC.view];
             [[transitionContext containerView] addSubview:fromVC.view];
             
-            CGRect circleFrame = toVC.spreadBtn.frame;
+            CGRect circleFrame = _fromSpreadBtn.frame;
             CGPathRef startPath = ((CAShapeLayer*)fromVC.view.layer.mask).path;
             UIBezierPath *endPath = [UIBezierPath bezierPathWithOvalInRect:circleFrame];
             

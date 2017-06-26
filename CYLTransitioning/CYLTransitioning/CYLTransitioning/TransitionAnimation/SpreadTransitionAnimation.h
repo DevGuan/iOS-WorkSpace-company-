@@ -10,4 +10,8 @@
 
 @interface SpreadTransitionAnimation : CYLBaseTransitionAnimation<CAAnimationDelegate>
 @property (nonatomic, assign) CYLTransitionStyle style;
+
+@property (nonatomic, strong) UIButton *fromSpreadBtn;
+
+- (instancetype)initWithSpreadBtn:(UIButton*)spreadBtn;
 @end
