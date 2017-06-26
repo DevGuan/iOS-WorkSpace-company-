@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "DateTools.h"
-
+#import "CYLTimePickerHeader.h"
 
 
 @interface CYLTimePicker : UIView
-
+@property (nonatomic, strong) CYLTimePickerHeader *header;
 @end

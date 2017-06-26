@@ -8,7 +8,6 @@
 
 #import "CYLTimePicker.h"
 #import "Masonry.h"
-#import "CYLTimePickerHeader.h"
 #import "CYLDayCollectionView.h"
 #import "CYLDayCell.h"
 
@@ -16,8 +15,6 @@
 static NSString *identifier = @"collctionCell";
 
 @interface CYLTimePicker ()<UICollectionViewDelegate, UICollectionViewDataSource,UIPickerViewDelegate, UIPickerViewDataSource>
-
-@property (nonatomic, strong) CYLTimePickerHeader *header;
 @property (nonatomic, strong) CYLDayCollectionView *dayCollectionView;
 @property (nonatomic, strong) UIView *line;
 @property (nonatomic, strong) UIPickerView *timePicker;
@@ -41,6 +38,7 @@ static NSString *identifier = @"collctionCell";
 
 - (void)setUI
 {
+    self.backgroundColor = [UIColor colorWithRed:240/255.0 green:240/255.0 blue:240/255.0 alpha:1];
     _lastSelected = [NSIndexPath indexPathForRow:0 inSection:0];
     
     _line = [[UIView alloc] init];
@@ -83,14 +81,14 @@ static NSString *identifier = @"collctionCell";
     }];
     
     [_timePicker mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(_dayCollectionView.mas_bottom).offset(5);
+        make.top.equalTo(_dayCollectionView.mas_bottom).offset(-5);
         make.centerX.mas_equalTo(self.mas_centerX);
         make.width.mas_equalTo(self.bounds.size.width/3);
         make.height.mas_equalTo(self.bounds.size.height/10 * 3);
     }];
     
     [_doneBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(_timePicker.mas_bottom).offset(15);
+        make.top.equalTo(_timePicker.mas_bottom).offset(5);
         make.centerX.mas_equalTo(self.mas_centerX);
         make.width.mas_equalTo(self.bounds.size.width/3 * 2);
         make.height.mas_equalTo(self.bounds.size.height/10 * 1.6);

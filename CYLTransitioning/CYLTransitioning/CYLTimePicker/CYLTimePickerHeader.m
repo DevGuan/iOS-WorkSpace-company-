@@ -27,13 +27,14 @@
 {
     _cancleBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [_cancleBtn setTitle:@"取消" forState:UIControlStateNormal];
-    _cancleBtn.titleLabel.font = [UIFont systemFontOfSize:13];
+    _cancleBtn.titleLabel.font = [UIFont systemFontOfSize:14];
     [_cancleBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+    [_cancleBtn addTarget:self action:@selector(cancleClicked) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_cancleBtn];
     
     _todayBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [_todayBtn setTitle:@"今天" forState:UIControlStateNormal];
-    _todayBtn.titleLabel.font = [UIFont systemFontOfSize:13];
+    _todayBtn.titleLabel.font = [UIFont systemFontOfSize:14];
     [_todayBtn addTarget:self action:@selector(todayClicled) forControlEvents:UIControlEventTouchUpInside];
     [_todayBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [self addSubview:_todayBtn];
@@ -53,6 +54,13 @@
 {
     if (self.didClickTodayBtnBlock) {
         self.didClickTodayBtnBlock();
+    }
+}
+
+- (void)cancleClicked
+{
+    if (self.didClickCancleBtnBlock) {
+        self.didClickCancleBtnBlock();
     }
 }
 

@@ -19,6 +19,9 @@
 - (instancetype)initWithDisplayLayer:(UIView*)displayLayer
 {
     if (self = [super init]) {
+        self.view.backgroundColor = [UIColor whiteColor];
+        self.transitioningDelegate = self;
+        self.modalPresentationStyle = UIModalPresentationCustom;
         self.animator = [[CardPopUpTransitionAnimation alloc] initWithHeight:displayLayer.bounds.size.height SpringAnim:YES andRoundCornor:YES];
         self.displayView = displayLayer;
         self.displayView.frame = CGRectMake(0, 0, displayLayer.bounds.size.width, displayLayer.bounds.size.height);

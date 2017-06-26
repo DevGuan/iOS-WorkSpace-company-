@@ -37,7 +37,6 @@
 		2D6619F41F00F18200650177 /* DTTimePeriodCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619CB1F00F18200650177 /* DTTimePeriodCollection.m */; };
 		2D6619F51F00F18200650177 /* DTTimePeriodGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619CD1F00F18200650177 /* DTTimePeriodGroup.m */; };
 		2D6619F61F00F18200650177 /* NSDate+DateTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619CF1F00F18200650177 /* NSDate+DateTools.m */; };
-		2D6619F71F00F18200650177 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D6619D11F00F18200650177 /* Info.plist */; };
 		2D6619F81F00F18200650177 /* MASCompositeConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619D31F00F18200650177 /* MASCompositeConstraint.m */; };
 		2D6619F91F00F18200650177 /* MASConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619D61F00F18200650177 /* MASConstraint.m */; };
 		2D6619FA1F00F18200650177 /* MASConstraintMaker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D6619D81F00F18200650177 /* MASConstraintMaker.m */; };
@@ -129,7 +128,6 @@
 		2D6619CD1F00F18200650177 /* DTTimePeriodGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DTTimePeriodGroup.m; sourceTree = "<group>"; };
 		2D6619CE1F00F18200650177 /* NSDate+DateTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+DateTools.h"; sourceTree = "<group>"; };
 		2D6619CF1F00F18200650177 /* NSDate+DateTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+DateTools.m"; sourceTree = "<group>"; };
-		2D6619D11F00F18200650177 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D6619D21F00F18200650177 /* MASCompositeConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MASCompositeConstraint.h; sourceTree = "<group>"; };
 		2D6619D31F00F18200650177 /* MASCompositeConstraint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MASCompositeConstraint.m; sourceTree = "<group>"; };
 		2D6619D41F00F18200650177 /* MASConstraint+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MASConstraint+Private.h"; sourceTree = "<group>"; };
@@ -333,7 +331,6 @@
 		2D6619D01F00F18200650177 /* Masonry */ = {
 			isa = PBXGroup;
 			children = (
-				2D6619D11F00F18200650177 /* Info.plist */,
 				2D6619D21F00F18200650177 /* MASCompositeConstraint.h */,
 				2D6619D31F00F18200650177 /* MASCompositeConstraint.m */,
 				2D6619D41F00F18200650177 /* MASConstraint+Private.h */,
@@ -475,7 +472,6 @@
 				2D382B7C1EF2514C00A81096 /* LaunchScreen.storyboard in Resources */,
 				2D382B791EF2514C00A81096 /* Assets.xcassets in Resources */,
 				2D382B771EF2514C00A81096 /* Main.storyboard in Resources */,
-				2D6619F71F00F18200650177 /* Info.plist in Resources */,
 				2D6619EF1F00F18200650177 /* DateTools.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

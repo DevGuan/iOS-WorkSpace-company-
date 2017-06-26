@@ -42,6 +42,7 @@
             CGRect frame = ToVc.view.frame;
             ToVc.view.frame = CGRectMake(5, frame.size.height, frame.size.width-10, frame.size.height);
             ToVc.view.layer.cornerRadius = 10;
+            ToVc.view.layer.masksToBounds = YES;
             _imageV = [[FXBlurView alloc] initWithFrame:FromNav.view.frame];
             _imageV.backgroundColor = [UIColor whiteColor];
             _imageV.dynamic = YES;
@@ -49,18 +50,17 @@
             
             UIView *container = [transitionContext containerView];
             container.backgroundColor = [UIColor colorWithRed:244/255.0 green:244/255.0 blue:244/255.0 alpha:1];
-//            [container addSubview:FromNav.view];
+            //            [container addSubview:FromNav.view];
             [container addSubview:_imageV];
             [container addSubview:ToVc.view];
             
-            [UIView animateWithDuration:duration delay:0 usingSpringWithDamping:self.isSpring? 0.8 : 1.0 initialSpringVelocity:0 options:0 animations:^{
-                
+            [UIView animateWithDuration:0.2 animations:^{
                 _imageV.blurRadius = 20;
                 ToVc.view.transform = CGAffineTransformMakeTranslation(0, -_height);
-                
             } completion:^(BOOL finished) {
                 
                 [transitionContext completeTransition:YES];
+                
             }];
         }
             break;
@@ -71,20 +71,20 @@
             UINavigationController *toNav = (UINavigationController*)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
             
             UIView *container = [transitionContext containerView];
-            [container addSubview:_imageV];
             [container addSubview:FromVc.view];
+            [container addSubview:_imageV];
             
-            [UIView animateWithDuration:duration delay:0 usingSpringWithDamping:_isSpring ? 0.8 : 1 initialSpringVelocity:0 options:0 animations:^{
-               
+            [UIView animateWithDuration:0.2 animations:^{
                 FromVc.view.transform = CGAffineTransformIdentity;
                 _imageV.blurRadius = 0;
-                
             } completion:^(BOOL finished) {
                 
                 [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
                 [_imageV removeFromSuperview];
-                toNav.view.hidden = NO;                
+                toNav.view.hidden = NO;
+                
             }];
+            
         }
             break;
             

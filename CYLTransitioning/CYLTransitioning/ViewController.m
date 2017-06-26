@@ -18,6 +18,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
+    [self test];
     
 }
 
@@ -26,6 +28,9 @@
     UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(200, 200, 44, 44)];
     btn.backgroundColor = [UIColor purpleColor];
     [btn addTarget:self action:@selector(push) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIImageView *imagV = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"haiti"]];
+    [self.view addSubview:imagV];
     [self.view addSubview:btn];
 }
 
@@ -33,6 +38,9 @@
 {
     CYLTimePicker *timePicker = [[CYLTimePicker alloc] initWithFrame:CGRectMake(0, 0, 375, 300)];
     CYLCardPopUpController *ccv = [[CYLCardPopUpController alloc] initWithDisplayLayer:timePicker];
-    [self.navigationController pushViewController:ccv animated:YES];
+    timePicker.header.didClickCancleBtnBlock = ^{
+        [ccv dismissViewControllerAnimated:YES completion:nil];
+    };
+    [self.navigationController presentViewController:ccv animated:YES completion:nil];
 }
 @end
