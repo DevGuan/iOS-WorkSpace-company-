@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface CYLCardPopUpController : UIViewController
-
+@property (nonatomic, strong) UIView *displayView;
+- (instancetype)initWithDisplayLayer:(UIView*)displayLayer;
 @end

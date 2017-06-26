@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "NavController.h"
+#import "ViewController.h"
 
 @interface AppDelegate ()
 
@@ -19,7 +20,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    NavController *nav = [[NavController alloc] initWithRootViewController:[[UIViewController alloc] init]];
+    NavController *nav = [[NavController alloc] initWithRootViewController:[[ViewController alloc] init]];
     self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
     return YES;
