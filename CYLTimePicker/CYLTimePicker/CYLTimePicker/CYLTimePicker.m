@@ -224,7 +224,7 @@ static NSString *identifier = @"collctionCell";
         
         if (_selectedDate.day == _todayDate.day)
         {
-            
+            //此处添加分钟的显示
             if (row == 0) {
                 
                 if (_selectedDate.minute < 30) {

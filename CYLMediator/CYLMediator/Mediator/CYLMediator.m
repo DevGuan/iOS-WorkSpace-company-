@@ -120,7 +120,6 @@ static id sharedMediator;
             [vc setValue:params[propertyName] forKeyPath:propertyName];
         }
     }
-    
     [params setValue:vc forKey:ViewControllerKey];
     
     return params;
