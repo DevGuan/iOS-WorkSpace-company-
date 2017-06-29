@@ -43,7 +43,7 @@
             ToVc.view.frame = CGRectMake(5, frame.size.height, frame.size.width-10, frame.size.height);
             ToVc.view.layer.cornerRadius = 10;
             ToVc.view.layer.masksToBounds = YES;
-            _imageV = [[FXBlurView alloc] initWithFrame:FromNav.view.frame];
+            _imageV = [[FXBlurView alloc] initWithFrame:FromNav.view.bounds];
             _imageV.backgroundColor = [UIColor whiteColor];
             _imageV.dynamic = YES;
             _imageV.underlyingView = FromNav.view;

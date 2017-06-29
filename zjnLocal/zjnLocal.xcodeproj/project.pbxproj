@@ -248,6 +248,7 @@
 				2D04B16A1EFA62B200441CC1 /* AMapSearchKit.framework */,
 				2D1857321EFA51DD00AA8D0D /* MAMapKit.framework */,
 				2D1857291EFA509C00AA8D0D /* AMapLocationKit.framework */,
+				2D661AC51F03BC7600650177 /* Navigation */,
 				2D04B17D1EFB884200441CC1 /* ZJNMapView */,
 				2D04B16C1EFA6A0100441CC1 /* POISearch */,
 				2D18571C1EFA500500AA8D0D /* SingleLocation */,
@@ -262,6 +263,13 @@
 				2D18573A1EFA54F500AA8D0D /* ZJNLocateManager.m */,
 			);
 			path = SingleLocation;
+			sourceTree = "<group>";
+		};
+		2D661AC51F03BC7600650177 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 		2DC796881EFA5BD50086C1BD /* Frameworks */ = {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D661AC41F03852900650177 /* CYLModelTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D661AC31F03852900650177 /* CYLModelTool.m */; };
 		4E0C27DA1E9DE03B00FB0405 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0C27D91E9DE03B00FB0405 /* main.m */; };
 		4E0C27DD1E9DE03B00FB0405 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0C27DC1E9DE03B00FB0405 /* AppDelegate.m */; };
 		4E0C27E01E9DE03B00FB0405 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E0C27DF1E9DE03B00FB0405 /* ViewController.m */; };
@@ -19,6 +20,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D661AC21F03852900650177 /* CYLModelTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CYLModelTool.h; sourceTree = "<group>"; };
+		2D661AC31F03852900650177 /* CYLModelTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CYLModelTool.m; sourceTree = "<group>"; };
 		4E0C27D51E9DE03B00FB0405 /* CYLMediator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CYLMediator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E0C27D91E9DE03B00FB0405 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4E0C27DB1E9DE03B00FB0405 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -100,6 +103,8 @@
 			children = (
 				4E0C27F01E9DE06100FB0405 /* CYLMediator.h */,
 				4E0C27F11E9DE06100FB0405 /* CYLMediator.m */,
+				2D661AC21F03852900650177 /* CYLModelTool.h */,
+				2D661AC31F03852900650177 /* CYLModelTool.m */,
 			);
 			path = Mediator;
 			sourceTree = "<group>";
@@ -175,6 +180,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D661AC41F03852900650177 /* CYLModelTool.m in Sources */,
 				4E0C27F81E9F2B4400FB0405 /* ViewControllerTwo.m in Sources */,
 				4E0C27E01E9DE03B00FB0405 /* ViewController.m in Sources */,
 				4E0C27FE1E9F55CB00FB0405 /* AModel.m in Sources */,

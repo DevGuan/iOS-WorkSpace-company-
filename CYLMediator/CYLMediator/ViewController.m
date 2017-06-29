@@ -8,7 +8,8 @@
 
 #import "ViewController.h"
 #import "CYLMediator.h"
-#import "AModel.h"
+
+
 @interface ViewController ()
 
 @end
@@ -30,33 +31,16 @@
 
 - (void)goToControllerTwo
 {
-//    [[CYLMediator sharedMediator] mediatorPresentViewContoller:@"ViewControllerTwo" andParame:@"userID=37&userName=CYL&passWord=73635273" completeHandler:^(NSDictionary *params) {
-//      
-//        [self.navigationController pushViewController:params[ViewControllerKey] animated:YES];
-//        
-//        for (NSString *key in params.allKeys) {
-//            NSLog(@"key:%@  value:%@", key, params[key]);
-//        }
-//    }];
+    [[CYLMediator sharedMediator] mediatorPresentViewContoller:@"ViewControllerTwo"
+                                                 andParameDict:@{@"userName":@"cyl",
+                                                                 @"userID":@12,
+                                                                 @"passWord":@"233234234"}
+                                                completeHandler:^(NSDictionary *dict) {
+                                                    
+                                                    [self.navigationController pushViewController:dict[ViewControllerKey] animated:YES];
+                                                    
     
-    AModel *model = [[AModel alloc] initWithName:@"吃钰林" uid:@"22" password:@"password"];
-    
-//    [[CYLMediator sharedMediator] mediatorPresentViewContoller:@"ViewControllerTwo" withModelObject:model completeHandler:^(NSDictionary *params) {
-//       
-//        [self.navigationController pushViewController:params[ViewControllerKey] animated:YES];
-//        
-//                for (NSString *key in params.allKeys) {
-//                    NSLog(@"key:%@  value:%@", key, params[key]);
-//                }
-//    }];
-    
-    [[CYLMediator sharedMediator] mediatorPresentViewContoller:@"ViewControllerTwo" withModelObject:model andParam:@"userID=37&userName=CYL&passWord=73635273" completeHandler:^(NSDictionary *params) {
-        [self.navigationController pushViewController:params[ViewControllerKey] animated:YES];
-        
-        for (NSString *key in params.allKeys) {
-            NSLog(@"key:%@  value:%@", key, params[key]);
-        }
-    }];
+                                                }];
 }
 
 

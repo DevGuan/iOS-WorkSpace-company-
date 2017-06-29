@@ -7,6 +7,7 @@
 //
 
 #import "CYLMediator.h"
+#import "CYLModelTool.h"
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
@@ -46,7 +47,7 @@ static id sharedMediator;
  @param param 参数 param1=11&param2=long&param3=0122
  @param handler 返回参数字典
  */
-- (void)mediatorPresentViewContoller:(NSString*)className andParame:(NSString*)param completeHandler:(void(^)(NSDictionary*))handler
+- (void)mediatorPresentViewContoller:(NSString*)className andParames:(NSString*)param completeHandler:(void(^)(NSDictionary*))handler
 {
     
     Class ViewControllerClass = NSClassFromString(className);
@@ -58,31 +59,17 @@ static id sharedMediator;
     }
 }
 
-
-- (void)mediatorPresentViewContoller:(NSString*)className withModelObject:(id)model completeHandler:(void(^)(NSDictionary*))handler
+- (void)mediatorPresentViewContoller:(NSString*)className andParameDict:(NSDictionary*)paramDict completeHandler:(void(^)(NSDictionary*))handler
 {
-    Class viewControllerClass = NSClassFromString(className);
-    UIViewController *vc = [[viewControllerClass alloc] init];
-    NSMutableDictionary *dic = [self setModel:model forViewController:vc];
+    Class ViewControllerClass = NSClassFromString(className);
+    UIViewController *vc = [[ViewControllerClass alloc] init];
+    NSMutableDictionary *params = [self setDict:[NSMutableDictionary dictionaryWithDictionary:paramDict] forViewController:vc];
     
     if (handler) {
-        handler(dic);
+        handler(params);
     }
 }
 
-
-- (void)mediatorPresentViewContoller:(NSString*)className withModelObject:(id)model andParam:(NSString *)param completeHandler:(void(^)(NSDictionary*))handler
-{
-    Class viewControllerClass = NSClassFromString(className);
-    UIViewController *vc = [[viewControllerClass alloc] init];
-    NSMutableDictionary *paramDic = [self setParam:param forViewController:vc];
-    NSMutableDictionary *dic = [self setModel:model forViewController:vc];
-    [dic addEntriesFromDictionary:paramDic];
-    
-    if (handler) {
-        handler(dic);
-    }
-}
 
 #pragma mark - private
 
@@ -104,6 +91,23 @@ static id sharedMediator;
     [dic setObject:vc forKey:ViewControllerKey];
 
     return dic;
+}
+
+- (NSMutableDictionary*)setDict:(NSMutableDictionary*)dict forViewController:(UIViewController*)vc
+{
+
+    unsigned int outCount = 0;
+    objc_property_t *properties = class_copyPropertyList([vc class], &outCount);
+    for (int i = 0; i < outCount; i++) {
+        objc_property_t property = properties[i];
+        NSString *propertyName = [NSString stringWithUTF8String:property_getName(property)];
+//        NSString *propertyClass = [NSString stringWithUTF8String:property_getAttributes(property)];
+        if ([dict.allKeys containsObject:propertyName]) {
+            [vc setValue:dict[propertyName] forKey:propertyName];
+        }
+    }
+    [dict setObject:vc forKey:ViewControllerKey];
+    return dict;
 }
 
 - (NSMutableDictionary*)setParam:(NSString*)param forViewController:(UIViewController*)vc
@@ -137,25 +141,5 @@ static id sharedMediator;
     
     return params;
 }
-
-
-- (NSDictionary*)modelToDict:(id)model
-{
-    //模型转字典
-    NSMutableDictionary *ModelDic = [NSMutableDictionary dictionary];
-    Class modelClass = [model class];
-    unsigned int outCount = 0;
-    objc_property_t *properties = class_copyPropertyList(modelClass, &outCount);
-    for (int i = 0; i < outCount; i ++) {
-        objc_property_t property = properties[i];
-        NSString *propertyName = [NSString stringWithUTF8String:property_getName(property)];
-        id propertyValue = [model valueForKey:propertyName];
-        if (propertyValue) [ModelDic setValue:propertyValue forKey:propertyName];
-    }
-    
-    return ModelDic;
-}
-
-
 
 @end

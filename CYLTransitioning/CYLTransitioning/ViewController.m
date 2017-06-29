@@ -30,6 +30,7 @@
     [btn addTarget:self action:@selector(push) forControlEvents:UIControlEventTouchUpInside];
     
     UIImageView *imagV = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"haiti"]];
+    imagV.frame = CGRectMake(0, 100, 300, 300);
     [self.view addSubview:imagV];
     [self.view addSubview:btn];
 }

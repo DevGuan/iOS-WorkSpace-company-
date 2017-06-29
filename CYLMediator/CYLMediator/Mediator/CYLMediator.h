@@ -24,14 +24,5 @@
 - (void)mediatorPresentViewContoller:(NSString*)className andParame:(NSString*)param completeHandler:(void(^)(NSDictionary*))handler;
 
 
-/**
- 带参数 跳转到目标控制器
- 
- @param className 目标控制器的类名字符串
- @param model 传入模型
- @param handler 返回参数字典
- */
-- (void)mediatorPresentViewContoller:(NSString*)className withModelObject:(id)model completeHandler:(void(^)(NSDictionary*))handler;
-
-- (void)mediatorPresentViewContoller:(NSString*)className withModelObject:(id)model andParam:(NSString *)param completeHandler:(void(^)(NSDictionary*))handler;
+- (void)mediatorPresentViewContoller:(NSString*)className andParameDict:(NSDictionary*)paramDict completeHandler:(void(^)(NSDictionary*))handler;
 @end

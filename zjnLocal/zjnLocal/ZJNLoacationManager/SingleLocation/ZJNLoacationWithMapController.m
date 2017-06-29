@@ -45,7 +45,9 @@
             [annotation setSubtitle:[NSString stringWithFormat:@"accuracy:%.2fm", location.horizontalAccuracy]];
         }
         
-        [self.mapView addAnnotationToMapView:annotation];
+        
+        
+//        [self.mapView addAnnotationToMapView:annotation];
         
     }];
 
