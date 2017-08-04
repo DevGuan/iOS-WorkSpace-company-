@@ -24,6 +24,7 @@ static const char *errorPlaceholderKey = "errorPlaceholderKey";
     self.layer.cornerRadius = 5;
     self.layer.borderColor = [UIColor lightGrayColor].CGColor;
     self.isSetUpForCheck = YES;
+    [self setNeedsDisplay];
 }
 
 - (BOOL)checkInputWithPattern:(NSString *)pattern
