@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import "CYLTimePicker.h"
 #import "CYLCardPopUpController.h"
 
 @interface ViewController ()
@@ -37,11 +36,11 @@
 
 - (void)push
 {
-    CYLTimePicker *timePicker = [[CYLTimePicker alloc] initWithFrame:CGRectMake(0, 0, 375, 300)];
-    CYLCardPopUpController *ccv = [[CYLCardPopUpController alloc] initWithDisplayLayer:timePicker];
-    timePicker.header.didClickCancleBtnBlock = ^{
-        [ccv dismissViewControllerAnimated:YES completion:nil];
-    };
-    [self.navigationController presentViewController:ccv animated:YES completion:nil];
+//    CYLTimePicker *timePicker = [[CYLTimePicker alloc] initWithFrame:CGRectMake(0, 0, 375, 300)];
+//    CYLCardPopUpController *ccv = [[CYLCardPopUpController alloc] initWithDisplayLayer:timePicker];
+//    timePicker.header.didClickCancleBtnBlock = ^{
+//        [ccv dismissViewControllerAnimated:YES completion:nil];
+//    };
+//    [self.navigationController presentViewController:ccv animated:YES completion:nil];
 }
 @end
