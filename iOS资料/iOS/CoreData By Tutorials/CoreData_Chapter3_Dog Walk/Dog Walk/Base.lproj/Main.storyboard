@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14B17" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="F5i-TO-HGc">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+    </dependencies>
+    <scenes>
+        <!--Dog Walk-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="Dog_Walk" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
+                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Fido" translatesAutoresizingMaskIntoConstraints="NO" id="prI-ft-iHi">
+                                <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="400" id="kfk-46-aMk"/>
+                                </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="kfk-46-aMk"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="kfk-46-aMk"/>
+                                    </mask>
+                                </variation>
+                            </imageView>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="f76-GW-cRB">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="224" id="FDN-fp-AMi"/>
+                                </constraints>
+                                <prototypes>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="Gml-bO-TbX">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Gml-bO-TbX" id="Cpu-qf-9rY">
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                                <sections/>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="FDN-fp-AMi"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="FDN-fp-AMi"/>
+                                    </mask>
+                                </variation>
+                                <connections>
+                                    <outlet property="dataSource" destination="vXZ-lx-hvc" id="E4a-ax-p4n"/>
+                                    <outlet property="delegate" destination="vXZ-lx-hvc" id="Zrw-f1-wxu"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="prI-ft-iHi" firstAttribute="leading" secondItem="f76-GW-cRB" secondAttribute="leading" id="9Y7-TI-hYp"/>
+                            <constraint firstAttribute="trailing" secondItem="f76-GW-cRB" secondAttribute="trailing" id="NKL-Vy-nmu"/>
+                            <constraint firstItem="f76-GW-cRB" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="idY-BO-roZ"/>
+                            <constraint firstItem="f76-GW-cRB" firstAttribute="bottom" secondItem="2fi-mo-0CV" secondAttribute="top" id="kgH-BA-bDk"/>
+                            <constraint firstItem="prI-ft-iHi" firstAttribute="trailing" secondItem="f76-GW-cRB" secondAttribute="trailing" id="wng-Co-hVZ"/>
+                            <constraint firstItem="prI-ft-iHi" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="8" symbolic="YES" id="xuq-UO-TND"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="prI-ft-iHi"/>
+                                <exclude reference="f76-GW-cRB"/>
+                            </mask>
+                            <mask key="constraints">
+                                <exclude reference="9Y7-TI-hYp"/>
+                                <exclude reference="wng-Co-hVZ"/>
+                                <exclude reference="xuq-UO-TND"/>
+                                <exclude reference="NKL-Vy-nmu"/>
+                                <exclude reference="idY-BO-roZ"/>
+                                <exclude reference="kgH-BA-bDk"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=regular-widthClass=compact">
+                            <mask key="subviews">
+                                <include reference="prI-ft-iHi"/>
+                                <include reference="f76-GW-cRB"/>
+                            </mask>
+                            <mask key="constraints">
+                                <include reference="9Y7-TI-hYp"/>
+                                <include reference="wng-Co-hVZ"/>
+                                <include reference="xuq-UO-TND"/>
+                                <include reference="NKL-Vy-nmu"/>
+                                <include reference="idY-BO-roZ"/>
+                                <include reference="kgH-BA-bDk"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <navigationItem key="navigationItem" title="Dog Walk" id="wiz-Ze-d3f">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="dZT-MI-IuA">
+                            <connections>
+                                <action selector="add:" destination="vXZ-lx-hvc" id="ogy-Mv-CYC"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="imageView" destination="prI-ft-iHi" id="KG6-Wv-ceZ"/>
+                        <outlet property="tableView" destination="f76-GW-cRB" id="1rf-cY-hh5"/>
+                    </connections>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="1554" y="-507.75"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="ZIN-jN-HSd">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="F5i-TO-HGc" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="w4f-Tr-qlk">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="vXZ-lx-hvc" kind="relationship" relationship="rootViewController" id="tY9-Ph-vKo"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eqZ-6g-M4N" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="633" y="-507.75"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="Fido" width="600" height="600"/>
+    </resources>
+</document>

@@ -14,18 +14,18 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         let btn = UIButton.init(frame: CGRect.init(x: 0, y: 0, width: 55, height: 55))
+        btn.setTitle("tap", for: .normal)
+        btn.setTitleColor(UIColor.black, for: .normal)
         btn.tag = 1
         btn.addTarget(self, action: #selector(showLoading), for: .touchUpInside)
         self.view.addSubview(btn)
     }
 
     func showLoading(btn:UIButton) {
-        
-        let loader = CYLSparkLoading.init(frame: UIScreen.main.bounds)
-        self.view.addSubview(loader)
+        CYLSparkLoading.showLoading()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.3) {
-            loader.dismiss(status: btn.tag > 0 ? .failed : .done)
+            CYLSparkLoading.dismissSuccessful();
         }
         
         btn.tag *= -1

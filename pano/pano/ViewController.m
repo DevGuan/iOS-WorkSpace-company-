@@ -45,7 +45,7 @@ static CGFloat camera_Height = 50;
     
     [self configGesture];
     
-    [self configMotion];
+//    [self configMotion];
 }
 
 - (void)configCamera
