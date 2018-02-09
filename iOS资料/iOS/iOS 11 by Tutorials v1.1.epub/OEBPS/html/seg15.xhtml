@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 10: Natural Language Processing</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 10: Natural Language Processing</h1>
+
+<p>In science fiction, omniscient computers understand a user’s every spoken request. Imagine if you could just speak what you desire, as you would to a servant, and it would fulfill that request. With each iteration of operating systems and hardware, our mobile devices inch ever closer to making that a reality.
+</p>
+<p>Current-day computers understand free-form text through a group of technologies called <i>Natural Language Processing</i>. This is a broad topic in computer science that covers many types of text features, and many, many techniques for processing the text.
+</p>
+<p>Apple’s operating systems provide functions to understand text using the following techniques:
+</p>
+<ul>
+<li>
+<p>Language identification
+</p></li>
+
+<li>
+<p>Lemmatization (identification of the root form of a word)
+</p></li>
+
+<li>
+<p>Named entity recognition (proper names of people, places, and organizations)
+</p></li>
+
+<li>
+<p>Parts of speech identification
+</p></li>
+
+<li>
+<p>Tokenization
+</p></li>
+</ul>
+
+<p>In iOS, you access these through the <code>NSLinguisticTagger</code> Foundation class. This API has actually been around since iOS 5, but in iOS 11 it received a significant upgrade by being rewritten on top of <em>Core ML</em>.
+</p>
+<p>As a user of iOS, you’ll notice the impact machine learning can have through the improvements it makes in areas such as determining when it’s best to update your apps, what news you read more, or what apps you use more at certain times of the day. For your own apps, using <code>NSLinguisticTagger</code> is significantly more accurate, faster, and supports more languages than ever before.
+</p>
+<p>The natural language processing APIs in Foundation use machine learning to deeply understand text using features such as language identification, tokenization, lemmatization, part of speech, and named entity recognition.
+</p>
+<p>In this tutorial, you’ll build an app that analyzes movie reviews for salient information. It will identify the review’s language, any actors mentioned, calculate sentiment (whether the reviewer liked, or hated, the movie), and provide text-based search.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Here’s a quick peek at what the final project will look like:
+</p><div><img src="graphics/img146.png"  alt="" title="" /></div>
+<p>Open the starter project in Xcode 9, run it, and check out its three tabs:
+</p>
+<ul>
+<li>
+<p><em>All</em>: Shows all movie reviews, as loaded from the <i>server</i>. You will add language identification to this screen.
+</p></li>
+
+<li>
+<p><em>By Movie</em>: Groups the reviews by their respective movie. You will add a <i>tomato</i> rating on this screen based on the average review sentiment.
+</p></li>
+
+<li>
+<p><em>By Actor</em>: Groups the reviews by mentioned actor. Actors will be automatically identified from the review text.
+</p></li>
+</ul>
+
+<p>The review data comes from the included <em>reviews.json</em> file so you don’t actually have to connect to a server in order to get the data for this tutorial.
+</p>
+<p>Right now the app doesn’t show the language of a review, the sentiment of a review, or include any search functionality. Let’s work on the first issue: identifying the language.
+</p>
+<h2 class="segment-chapter">Language identification</h2>
+
+<p>New to iOS 11 is the ability of <code>NSLinguisticTagger</code> to tell you the dominant, or primary, language of a string.
+</p>
+<p>In <em>NLPHelper.swift</em>, replace <code>getLanguage(text:)</code> with the following:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getLanguage</span><span class="hljs-params">(text: String)</span></span> -&gt; <span class="hljs-type">String</span>? {
+  <span class="hljs-keyword">return</span> <span class="hljs-type">NSLinguisticTagger</span>.dominantLanguage(<span class="hljs-keyword">for</span>: text)
+}</pre>
+<p>This will try to identify the most significant language from the supplied text. For most strings, it’s likely there will only be one language present, so the dominant language will be the same as the language. A string such as <i>“That boy with a ballon has a real joie de vivre.”</i> will be identified as English even though <i>“joie de vivre”</i> is a French expression.
+</p>
+<p>Build and run. Country flags representing the language of a review will now show up beneath each review string:
+</p><div><img src="graphics/img147.png"  alt="" title="" /></div>
+<div class="note">
+<p><em>Note</em>: I’ve greatly oversimplified the languages with flag emoji here, as there is no simple one-to-one mapping between languages or countries (or even different languages within countries). <code>NSLinguisticTagger</code> isn’t smart enough to tell the difference between things like American English and British English, so country iconographies such as flag emoji are, of course, better suited for representing <i>where</i> the review was written rather than its language. However, they serve as a quick way to showcase this functionality in this chapter — no offense intended to any of you beautiful Earthlings out there!
+</p></div>
+
+<h2 class="segment-chapter">Adding a search feature</h2>
+
+<p>Next, you’ll add smart search to the app so users are able to find interesting reviews just by filtering for words that appear in the review.
+</p>
+<h3 class="segment-chapter">A naïve approach</h3>
+
+<p>One approach is to create a mapping between a review and all the words in that review. But how do you even <i>get</i> the words in a string? Splitting a string on spaces seems like a good idea, but that can get messy when you have to work around punctuation. If you start capturing all the rules that define what a word <i>is</i>, and before you know it, you’ve built a complex parser to capture all the edge cases of a language.
+</p>
+<p>Better yet, you can again leverage <code>NSLinguisticTagger</code> to figure out the words for you.
+</p>
+<p>In <em>NLPHelper.swift</em> replace <code>getSearchTerms(text:block:)</code> with:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getSearchTerms</span><span class="hljs-params">(text: String, block: <span class="hljs-params">(String)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> tagger = <span class="hljs-type">NSLinguisticTagger</span>(tagSchemes: [.tokenType],
+                                  options: <span class="hljs-number">0</span>)
+  tagger.string = text
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> options: <span class="hljs-type">NSLinguisticTagger</span>.<span class="hljs-type">Options</span> = [.omitWhitespace,
+                                             .omitPunctuation,
+                                             .omitOther,
+                                             .joinNames]
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">let</span> range = <span class="hljs-type">NSRange</span>(text.startIndex..., <span class="hljs-keyword">in</span>: text)
+  <span class="hljs-comment">// 4</span>
+  tagger.enumerateTags(<span class="hljs-keyword">in</span>: range, unit: .word,
+                       scheme: .tokenType, options: options)
+  { tag, tokenRange, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+
+    <span class="hljs-keyword">guard</span> tag != <span class="hljs-literal">nil</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-comment">// 5</span>
+    <span class="hljs-keyword">let</span> token = <span class="hljs-type">Range</span>(tokenRange, <span class="hljs-keyword">in</span>: text)!
+    block(text[token].lowercased())
+  }
+}</pre>
+<p>This method iterates over the words of the input <code>text</code>, and sends them back to <code>block</code>. It does the following:
+</p>
+<ol>
+<li>
+<p>Sets up an <code>NSLinguisticTagger</code> to look for tokens.
+</p></li>
+
+<li>
+<p>Specifies the options for enumeration. When calling the enumeration block, these options will skip whitespace, punctuation, and unidentified characters. In addition, <code>.joinNames</code> will combine names into a single token so “John Smith” will be a single token instead of “John” and “Smith” being separate tokens.
+</p></li>
+
+<li>
+<p>Creates the range to enumerate over. <code>NSLinguisticTagger</code> is a <code>Foundation</code> class that still relies on <code>NSString</code> behavior, including <code>NSRanges</code>. Swift 4 introduces support for easily converting between <code>NSRange</code> and <code>Range&lt;String.Index&gt;</code>.
+</p></li>
+
+<li>
+<p>Performs the enumeration over the string’s words, finding the tags with the specified options.
+</p></li>
+
+<li>
+<p>Since all the tags will be legitimate words, as all other types were omitted in <code>options</code>, it’s safe to get the text from the original string. The enumeration provides <code>tokenRange</code>, an <code>NSRange</code>, to describe the word. Again, use the Swift 4 support to obtain the appropriate <code>Range&lt;String.Index&gt;</code> and use that to extract the word.
+</p></li>
+</ol>
+
+<p>Build and run the app. Once launched, pull down on the table to reveal the search bar. Type <em>music</em> to only show reviews that contain the word “music”:
+</p><div class="image-25"><img src="graphics/img148.png"  alt="" title="" /></div>
+<p>This even works with multiple languages. Try searching for <em>mucho</em> to filter to a Spanish review. <i>¡Muy bueno</i><i>!</i>
+</p>
+<p>Now try searching for that one review talking about dancing by typing <em>dance</em>. No reviews. Hrm.
+</p>
+<p>There has got to be a better way to do this!
+</p>
+<h3 class="segment-chapter">A less naïve approach</h3>
+
+<p>Users have grown accustomed to rather forgiving search functionality. When typing “dance”, “dances”, or “dancing”, a user will expect a match for “dance”. A proper search engine indexes the text and does this for you, but those operations typically run server-side.
+</p>
+<p>Direct word matching only goes so far. Fortunately <code>NSLinguisticTagger</code> is once again here to help! It provides <i>lemmatization</i> of tags. A lemma is the root, or <i>base</i>, form of a word excluding any modification for tense, gender, pluralization, etc.
+</p>
+<p>The lemma of “dancing” is “dance”, and the lemma of “dances” is also “dance”. Instead of adding words as found in the text, add their lemmas instead.
+</p>
+<p>Replace <code>getSearchTerms(text:block:)</code> with this updated version:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getSearchTerms</span><span class="hljs-params">(text: String, block: <span class="hljs-params">(String)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> tagger = <span class="hljs-type">NSLinguisticTagger</span>(tagSchemes: [.lemma],
+                                  options: <span class="hljs-number">0</span>)
+  tagger.string = text
+  <span class="hljs-keyword">let</span> options: <span class="hljs-type">NSLinguisticTagger</span>.<span class="hljs-type">Options</span> = [.omitWhitespace,
+                                             .omitPunctuation,
+                                             .joinNames,
+                                             .omitOther]
+  <span class="hljs-keyword">let</span> range = <span class="hljs-type">NSRange</span>(text.startIndex..., <span class="hljs-keyword">in</span>: text)
+  <span class="hljs-comment">// 2</span>
+  tagger.enumerateTags(<span class="hljs-keyword">in</span>: range, unit: .word,
+                       scheme: .lemma, options: options)
+  { tag, <span class="hljs-number">_</span>, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> tag = tag <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    block(tag.rawValue.lowercased())
+  }
+}</pre>
+<p>Like the previous version, this enumerates over all the words in the supplied <code>text</code>. There are three subtle changes that result in quite different functionality:
+</p>
+<ol>
+<li>
+<p><code>NSLinguisticTagScheme.lemma</code> now tells the tagger to process for lemmas instead of token types.
+</p></li>
+
+<li>
+<p>The enumeration is for lemmas as well.
+</p></li>
+
+<li>
+<p>The <code>tag</code> is now the lemma, so its <code>rawValue</code> will contain the actual lemma, whereas <code>tokenRange</code> will still contain the original, non-lemmatized word.
+</p></li>
+</ol>
+
+<p>Build and run again. Searching for <em>dance</em> now yields a result that contains a review with the word “dancing”. Search for <em>good</em>, and you’ll see reviews that contain “best”.
+</p>
+<p>Now, try searching specifically for <em>best</em>. Again, no results!
+</p>
+<p>When building a search list with lemmas, it’s good to also lemmatize the search input. This way, the input query will match the search dictionary keys.
+</p>
+<p>There is one little gotcha: Lemmatization is language-dependent. Because of the machine learning algorithms that power <code>NSLinguisticTagger</code>, it’s more accurate in determining the language, and the actual word, the more text that is provided. However, a single search query is often not enough context, so it can use a little help.
+</p>
+<p>For the third and final time, replace <code>getSearchTerms(text:block:)</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getSearchTerms</span><span class="hljs-params">(text: String, language: String? = <span class="hljs-literal">nil</span>,
+                    block: <span class="hljs-params">(String)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-keyword">let</span> tagger = <span class="hljs-type">NSLinguisticTagger</span>(tagSchemes: [.lemma],
+                                  options: <span class="hljs-number">0</span>)
+  tagger.string = text
+  <span class="hljs-keyword">let</span> options: <span class="hljs-type">NSLinguisticTagger</span>.<span class="hljs-type">Options</span> = [.omitWhitespace,
+                                             .omitPunctuation,
+                                             .joinNames,
+                                             .omitOther]
+  <span class="hljs-keyword">let</span> range = <span class="hljs-type">NSRange</span>(text.startIndex..., <span class="hljs-keyword">in</span>: text)
+
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> language = language {
+    tagger.setOrthography(<span class="hljs-type">NSOrthography</span>
+      .defaultOrthography(forLanguage: language), range: range)
+  }
+
+  tagger.enumerateTags(<span class="hljs-keyword">in</span>: range, unit: .word,
+                       scheme: .lemma, options: options)
+  { tag, <span class="hljs-number">_</span>, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> tag = tag <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    block(tag.rawValue.lowercased())
+  }
+}</pre>
+<p>In this version:
+</p>
+<ol>
+<li>
+<p>The caller can provide an optional language to help the tagger determine the lemma.
+</p></li>
+
+<li>
+<p>To set the tagger’s language you have to actually set its <em>orthography</em>. The orthography describes not only the language, but the <i>script</i> as well. An easy shorthand to understand script is to think about the alphabet, or character set, such as Latin for English, or Cyrillic for Russian.
+</p></li>
+</ol>
+
+<p>Next, open <em>ReviewsTableViewController.swift</em>, and replace <code>findMatches(_:)</code> with:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">findMatches</span><span class="hljs-params">(<span class="hljs-number">_</span> searchText: String)</span></span> {
+  <span class="hljs-keyword">var</span> matches: <span class="hljs-type">Set</span>&lt;<span class="hljs-type">Review</span>&gt; = []
+  getSearchTerms(text: searchText,
+                 language: <span class="hljs-type">Locale</span>.current.languageCode)
+  { word <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> founds = <span class="hljs-type">ReviewsManager</span>.instance.searchTerms[word] {
+         matches.formUnion(founds)
+    }
+  }
+  reviews = matches.<span class="hljs-built_in">filter</span> {baseReviews.<span class="hljs-built_in">contains</span>($<span class="hljs-number">0</span>) }
+}</pre>
+<p>Instead of using the <code>searchText</code> directly, this reuses the previous lemmatization code to process the user’s input text. The user’s current <code>Locale</code> is assumed for the search language. A complete case would cover at least the same set of languages as the total review set since you can no longer properly search for reviews in different languages.
+</p>
+<p>Build and run again. Searching for <em>best</em> will now return viable results!
+</p>
+<h2 class="segment-chapter">Using named entities</h2>
+
+<p>Another great feature is <i>named entity recognition</i>: the ability to identify mentioned people, places, and organizations in the text. You will use this feature to identify the actors mentioned in the reviews.
+</p>
+<p>In <em>NLPHelper.swift</em> replace <code>getPeopleNames(text:block:)</code> with:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getPeopleNames</span><span class="hljs-params">(text: String, block: <span class="hljs-params">(String)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> tagger = <span class="hljs-type">NSLinguisticTagger</span>(tagSchemes: [.nameType],
+                                  options: <span class="hljs-number">0</span>)
+  tagger.string = text
+  <span class="hljs-keyword">let</span> options: <span class="hljs-type">NSLinguisticTagger</span>.<span class="hljs-type">Options</span> = [.omitWhitespace,
+                                             .omitOther,
+                                             .omitPunctuation,
+                                             .joinNames]
+  <span class="hljs-keyword">let</span> range = <span class="hljs-type">NSRange</span>(text.startIndex..., <span class="hljs-keyword">in</span>: text)
+
+  tagger.enumerateTags(<span class="hljs-keyword">in</span>: range, unit: .word,
+                       scheme: .nameType, options: options)
+  { tag, tokenRange, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> tag = tag, tag == .personalName <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+
+    <span class="hljs-keyword">let</span> token = <span class="hljs-type">Range</span>(tokenRange, <span class="hljs-keyword">in</span>: text)!
+    block(<span class="hljs-type">String</span>(text[token]))
+  }
+}</pre>
+<p>This pattern should look very familiar at this point. You set up the <code>NSLinguisticTagger</code>, and iterate over the tokens. The differences this time are:
+</p>
+<ol>
+<li>
+<p>The tag scheme used is <code>nameType</code>, which means the tagger is on the lookout for named entities.
+</p></li>
+
+<li>
+<p>Since there are a few types of named entities, this makes sure that the tag found is a person’s name.
+</p></li>
+</ol>
+
+<p>Build and run again. Tap the <em>By Actor</em> tab.
+</p><div><img src="graphics/img149.png"  alt="" title="" /></div>
+<p>Now the list of actors is populated. Tapping on a name will show the list of reviews associated with them. As you can see, this list is pretty good, but not perfect, with a few false positives, such as “O”. That’s a tradeoff, though, when you’re being forgiving in your search results.
+</p>
+<h2 class="segment-chapter">Sentiment analysis</h2>
+
+<p>No movie review app is complete without determining if a movie is good or not, based on its reviews. In natural language processing parlance, figuring out the emotional content of a text is called sentiment analysis. <em>SMDB</em> has a simple measure of a review’s sentiment: either the writer liked, or disliked the movie.
+</p>
+<p><code>NSLinguisticTagger</code> is mighty powerful, but sentiment is one feature that it does not yet tag. You’ll have to build this feature yourself. There’s no straightforward algorithm for sentiment analysis, but there are general patterns for identifying positive and negative reviews. This scenario is a great candidate for machine learning.
+</p>
+<p>New in iOS 11, the Core ML framework lets you run machine learning algorithms in apps. Apple provides a few powerful models for image analysis, but as of this writing, none yet for text. This means you will have to model this yourself.
+</p>
+<h3 class="segment-chapter">The Core ML model</h3>
+
+<p>First, you’ll build out the sentiment analysis feature, and then see how it works.
+</p>
+<p>Locate <em>Sentiment.mlmodel</em> in the <em>Project Navigator</em>, and open it. This is the editor for the pre-trained model for this app’s sentiment analysis.
+</p><div class="image-90"><img src="graphics/img150.png"  alt="" title="" /></div>
+<p>The top section is the model’s metadata. The most important value is the model <em>Type</em> which is a <code>Generalized Linear Classifier</code>. A Classifier looks at the input and assigns a label.  An image classifier might look at an image of a dog, and label its breed. In your case, the label for the text sentiment will be either <i>positive</i>, or <i>negative</i>.
+</p>
+<p>The <i>Generalized Linear</i> part describes the type of math used in the model; this process will be described in the next section. Other popular types of supported models include neural networks, tree ensembles, support vector machines, and pipeline models. A description, and use, of those model types are outside the scope of this chapter.
+</p>
+<div class="note">
+<p><em>Note:</em> You can find more information about these models and how Core ML supports them in Apple’s developer documentation at <a href="http://apple.co/2sjpAXw">http://apple.co/2sjpAXw</a>
+</p></div>
+
+<p>The bottom section, <em>Model Evaluation Parameters</em>, describes the inputs, and outputs, of the model.
+</p>
+<p>There is one <em>input</em>: <code>wordCount</code>. This is a frequency count of all the known words as they occur in a review. This is a <code>MultiArray (Double 189)</code>. This means that the input is a 1x189 array. This is because the model uses the frequency of only 189 words. It may seem like the model doesn’t scale well for all the words in English, and that is true. A more fully-fledged app, however, would likely input the whole input string, or a dictionary of word counts, and perform the vectorization on the model side, which is a lot more complicated. Due to the limited set of known words, this model only supports analyzing reviews in English.
+</p>
+<p>There are two <em>outputs</em>: <code>sentiment</code>, and <code>classProbability</code>. Sentiment is the classification label. This is the most likely sentiment, and is an <code>Int64</code>. The value will be <code>0</code> for a negative review, and <code>1</code> for a positive one.
+</p>
+<p>Machine learning algorithms are not perfect, and some input can be hard to classify. Consider the following review:
+</p>
+<p><i>“The special effects were amazing, but the plot was predictable.”</i>
+</p>
+<p>Is that a positive, or negative review? In a case like this, the model might assign a Class Probability of 51% to negative and 49% to positive. The predicted <code>sentiment</code> value would be <code>0</code> because that is the more likely scenario, but it doesn’t tell the whole story. This output probability dictionary allows you to build a UI that exposes that ambiguity to the user.
+</p>
+<p>In the middle of the <em>Sentiment.mlmodel</em> file’s editor is the <em>Model Class</em>. Core ML exposes a model to the app’s code through an automatically generated class.
+</p>
+<p>Click the arrow next to <code>Sentiment</code> to open the Swift file. It has a class <code>SentimentInput</code> for the inputs, <code>SentimentOutput</code> for the outputs, and <code>Sentiment</code> for the model itself. There is an initializer, and only one function to worry about: <code>prediction(wordCount:)</code>.
+</p>
+<h3 class="segment-chapter">Using the model</h3>
+
+<p>It’s time to put the model to use. Open <em>NLPHelper.swift</em>, and replace <code>predictSentiment(text:)</code> with:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">predictSentiment</span><span class="hljs-params">(text: String)</span></span> -&gt; <span class="hljs-type">Int</span>? {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> counts = tokenizeAndCountWords(text: text)
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> model = <span class="hljs-type">Sentiment</span>()
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">let</span> input = <span class="hljs-keyword">try</span>! <span class="hljs-type">MLMultiArray</span>(shape:
+    [<span class="hljs-number">1</span>, <span class="hljs-type">NSNumber</span>(value: words.<span class="hljs-built_in">count</span>)], dataType: .int32)
+  <span class="hljs-comment">// 4</span>
+  <span class="hljs-keyword">for</span> (index, counts) <span class="hljs-keyword">in</span> counts.enumerated() {
+    input[index] = <span class="hljs-type">NSNumber</span>(value: counts)
+  }
+
+  <span class="hljs-comment">// 5</span>
+  <span class="hljs-keyword">let</span> prediction = <span class="hljs-keyword">try</span>! model.prediction(wordCount: input)
+  <span class="hljs-comment">// 6</span>
+  <span class="hljs-keyword">let</span> sentiment = prediction.sentiment
+  <span class="hljs-comment">// 7</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-type">Int</span>(sentiment)
+}</pre>
+<p>This method organizes a review’s text into the required form for the model, and performs the classification. Here’s how each step works:
+</p>
+<ol>
+<li>
+<p>Find the word frequencies in the review with this soon-to-be-added helper method.
+</p></li>
+
+<li>
+<p>Instantiate an object of type <code>Sentiment</code>, which was generated by the Core ML model.
+</p></li>
+
+<li>
+<p>Create an <code>MLMultiArray</code> object to match the required input shape. Core ML uses Foundation types, thus the explicit <code>NSNumber</code> conversion.
+</p></li>
+
+<li>
+<p>Fill the model input with values.
+</p></li>
+
+<li>
+<p>Run the model, and find the prediction.
+</p></li>
+
+<li>
+<p>Grab the most likely classification label. The output of a prediction is also an object, as described by the model file.
+</p></li>
+
+<li>
+<p>Cast the result, an <code>Int64</code>, to a Swift <code>Int</code> before returning.
+</p></li>
+</ol>
+
+<p>To get the word counts, replace <code>tokenizeAndCountWords(text:)</code> with the following:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tokenizeAndCountWords</span><span class="hljs-params">(text: String)</span></span> -&gt; [<span class="hljs-type">Int</span>] {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> tagger = <span class="hljs-type">NSLinguisticTagger</span>(tagSchemes:
+    [.lemma, .lexicalClass], options: <span class="hljs-number">0</span>)
+  tagger.string = text
+  <span class="hljs-keyword">let</span> options: <span class="hljs-type">NSLinguisticTagger</span>.<span class="hljs-type">Options</span> =
+    [.omitWhitespace, .omitPunctuation, .joinNames, .omitOther]
+  <span class="hljs-keyword">let</span> range = <span class="hljs-type">NSRange</span>(text.startIndex..., <span class="hljs-keyword">in</span>: text)
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">var</span> wordCount = <span class="hljs-type">Array</span>(repeating: <span class="hljs-number">0</span>, <span class="hljs-built_in">count</span>: words.<span class="hljs-built_in">count</span>)
+  tagger.enumerateTags(<span class="hljs-keyword">in</span>: range, unit: .word,
+                       scheme: .lemma, options: options)
+  { tag, <span class="hljs-number">_</span>, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> tag = tag <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+
+    <span class="hljs-keyword">let</span> word = tag.rawValue
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> index = words.index(of: word) {
+      wordCount[index] += <span class="hljs-number">1</span>
+    }
+  }
+  <span class="hljs-keyword">return</span> wordCount
+}</pre>
+<p>This iterates over the lemmas, looks up the lemma in a list, and increments a counter at the corresponding index each time. Here’s a breakdown of the method:
+</p>
+<ol>
+<li>
+<p>Use an <code>NSLinguisticTagger</code> to find the lemmas.
+</p></li>
+
+<li>
+<p>Set up an array with a count of 0 for each known word. The complete list of words in the model is included below as the <code>words</code> array.
+</p></li>
+
+<li>
+<p>Get the index, and increment the corresponding count if the lemma is in the word list.
+</p></li>
+</ol>
+
+<p>The resulting array is what is then passed to the model. The model used here doesn’t actually know anything about words. It treats each “word” as an anonymous feature represented by an Integer. When using models like this one, it’s important to make sure the same “feature list” that was used for training is the same for the prediction inputs.
+</p>
+<p>Build and run the app. Now, if a sentiment is determined, it will be marked with either a happy or sad emoji accordingly.
+</p><div><img src="graphics/img151.png"  alt="" title="" /></div>
+<p>With the app running, tap the <em>By Movie</em> tab. For each movie, an average sentiment is calculated, and assigned a value in terms the Internet understands for movie quality: tomatoes!
+</p><div><img src="graphics/img152.png"  alt="" title="" /></div>
+<p>For each actor mentioned, the tab now shows an average sentiment.
+</p><div><img src="graphics/img153.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">How Linear SVC works</h3>
+
+<p>That’s interesting, but how does this all work behind the scenes?
+</p>
+<p>The <i>Linear Support Vector Classifier (SVC)</i> model is basically a fancy linear regression; that is, it fits a line to a bunch of points. The basic idea is to map the domain onto a space, and figure out how to divide up that space so each classification fits neatly into its own area.
+</p>
+<p>Take an example with four simple reviews. The first two are positive reviews, and the last two are negative:
+</p><pre class="code-block">* The movie was great. Loved it!
+* I really loved the movie.
+* That was the worst movie, ever.
+* I hated all the things!</pre>
+<p>One common way of treating text for machine learning is called <i>Bag of Words</i>. This theory is that the meaningful part of a text is the words in it, and the relative frequency of those words. With lemmatization your input becomes:
+</p><pre class="code-block">* great is it love movie the
+* i love movie really the
+* ever is movie that the worst
+* all hate i movie the</pre>
+<p>The next step is finding the relative count of each word where the total word list is <code>[all, ever, great, hate, I, is, it, love, movie, really, that, the, worst]</code>. Each input now looks like the following:
+</p><pre class="code-block">* [0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
+* [0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0]
+* [0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1]
+* [1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0]</pre>
+<p>You can think of each word as a <i>feature</i>, or <i>dimension</i>. This means each review can be plotted as a point in N-dimensional space. In this example, there are 13 dimensions. In the app, there are 189 features for each review. In a full-fledged sentiment classifier text analyzer, there might be 20,000 to 40,000 words considered.
+</p>
+<p>In order to illustrate this example on paper, consider a two-dimensional space with the words “I”, and “love”. These can be plotted on an axis:
+</p><div><img src="graphics/img154.png" height="30%"  alt="" title="Four reviews plotted against frequency of the words “love”, and “i”. The blue line is the fit that divides the space into positive, and negative reviews. Orange loops are groupings by class." /></div>
+<p>There are two groupings for the reviews: the positive reviews are at the top, and the negative reviews at the bottom. The blue line evenly bisects these two spaces, which, for this contrived example, would be the linear classifier that fit this data. Take this two-dimensional example, and scale it up to thousands of dimensions, and that is how a Linear Support Vector Classifier works.
+</p>
+<p>In a three-dimensional example, a plane would be fit so it divides the space between reviews:
+</p><div class="image-40"><img src="graphics/img155.png"  alt="" title="Four reviews plotted against frequency of the words “great”, “worst” and “i”. Blue plane is the fit that divides the space into positive, and negative." /></div>
+<p>If the word <i>movie</i> were chosen instead of <i>love</i>, then there would not be a clear grouping, and the classifier would have a harder time figuring things out. As both the number of examples for training increases, and the total number of features increases, the more accurate, and general, the classifier becomes.
+</p>
+<p>More sophisticated models use N-grams instead of Bag of Words. These not only consider the frequency of words, but also the location of those words relative to each other.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>There are more things that can be identified by <code>NSLinguisticTagger</code>, including parts of speech and script. Identified tokens can be used to build lists for type-ahead search, analytics, input for interactive fiction games, translation, or input validation.
+</p>
+<p>In this app, the search mechanism is a dictionary lookup, which can soak up memory as the number of reviews increases. A better implementation would offload this lookup to a search index, or a database that provides full-text searching.
+</p>
+<p>There are many, many different ways to analyze text, and an equally large number of ways to leverage Core ML in your apps. Some great machine learning applications for NLP that you can investigate on your own include translation, style identification, spam filtering, data mining, type-ahead prediction, or converting data to identify appointments, travel plans, or contact information <i>à la</i> Google Inbox.
+</p>
+<p>I’m excited to see where your forays into natural language processing take you!
+</p></body></html>

@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 11: Introduction to ARKit</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 11: Introduction to ARKit</h1>
+
+<p>Mainstream augmented reality was nothing but a distant dream not so long ago. So it’s no wonder ARKit, a new iOS framework that lets developers create augmented reality apps, took the world by storm after it was introduced at WWDC ’17. All you need to run AR apps is an iOS device — no extra accessories needed.
+</p><div><img src="graphics/img156.png"  alt="" title="Need to set the mood? ARKit has you covered!" /></div>
+<p>The result is simply stunning. By the end of the chapter, you’ll have created an app that’ll make you the hero of any social gathering: <em>HomeHero</em>. This is an AR app that helps you measure, plan and visualize the interior design of your home.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Go to the starter project folder for this chapter and open <em>HomeHero.xcodeproj</em>. Choose your development team in the <em>General</em> tab, after you select the <em>HomeHero</em> project file and target.
+</p>
+<div class="note">
+<p><em>Note</em>: ARKit doesn’t work with the simulator. It works best with an iOS device with an A9 processor or better.
+</p></div>
+
+<p>Run the project on an iOS 11 device:
+</p><div><img src="graphics/img157.png"  alt="" title="" /></div>
+<p>No magical worlds yet, just some plain good ol’ UIButtons. You’ll need to configure ARKit and render it, but first you need to get comfortable with the building blocks of ARKit.
+</p>
+<p>ARKit uses your device’s camera and motion sensors to detect changes in device position over time. Camera images are also used for recognizing depth, planes and lighting conditions. That’s why ARKit works best in good lighting conditions in backgrounds with a lot of objects and rich texture. ARKit is so accurate you can measure real world objects with its help.
+</p>
+<h2 class="segment-chapter">ARKit session</h2>
+
+<p>Imagine that your iOS device is a robot: it has eyes and it can feel its motion. <code>ARSession</code> is the brain of that robot and it communicates what it sees and feels through its API. <code>ARSession</code> operates on two building blocks to communicate with you:
+</p>
+<ul>
+<li>
+<p><em>ARAnchor</em>: A class that represents the real world position and orientation of an object. You can manually add anchors to the session to track objects, or <code>ARSession</code> can add them automatically when detecting certain objects. For example, when you turn on automatic plane detection, <code>ARPlaneAnchor</code> objects (an <code>ARAnchor</code> subclass) are added automatically.
+</p></li>
+
+<li>
+<p><em>ARFrame</em>: ARKit captures video frames, analyzes the motion data of each and returns the digested data in <code>ARFrame</code>, one for each video frame. <code>ARFrame</code> contains the captured video image, light estimation data and all tracked <code>ARAnchor</code> objects. <code>ARFrame</code> provides <code>ARCamera</code>, which is a representation of the physical camera and its position. <code>ARFrame</code> also contains detected <em>feature points</em>, which are interesting features in the real world 3D coordinates. More stuff happening on video means you have more feature points.
+</p></li>
+</ul>
+
+<p><code>ARSesssion</code> has an <code>ARSessionDelegate</code> delegate that keeps you up to date with all that’s happening.
+</p><div class="image-90"><img src="graphics/img158.png"  alt="" title="ARKit building blocks" /></div>
+<h3 class="segment-chapter">Session configuration</h3>
+
+<p>You’ll need <code>ARConfiguration</code> to run <code>ARSession</code>. Using <code>ARConfiguration</code> directly is not recommended, because it only detects the rotation of the device, not its position. It supports devices that don’t have an A9 processor, so it should be only used if you want to fallback and support older devices. Instead, use <code>ARWorldTrackingConfiguration</code> (a subclass of <code>ARConfiguration</code>), which tracks all degrees of movement and gives the best results.
+</p>
+<p><code>ARWorldTrackingConfiguration</code> lets you opt in for:
+</p>
+<ul>
+<li>
+<p><em>Light Estimation</em>: Executes additional calculations to estimate the lighting conditions and return them in the <code>ARFrame</code> objects. It’s used by the renderers to help the virtual objects match the real world light to intensify the illusion.
+</p></li>
+
+<li>
+<p><em>Plane Detection</em>: Detects planes in the real world and tracks them by automatically adding <code>ARPlaneAnchor</code> objects. As of now, only horizontal planes are detected. ARKit detects planes on floors, tables, couches etc.  ARKit continually gathers data as you move the camera so the plane’s position and extent change, or even merge together to make one plane.
+</p></li>
+</ul>
+
+<h3 class="segment-chapter">Rendering</h3>
+
+<p>ARKit is just a robot’s brain, containing the raw data of its observations. It doesn’t render anything. You can use any renderer like SceneKit, Metal or even SpriteKit to render your augmented reality objects. Fortunately, Apple has provided you with <code>ARSCNView</code> which helps you in rendering ARKit data using SceneKit. <code>ARSCNView</code> holds an <code>ARSesssion</code> instance and maps the <code>ARCamera</code> to an <code>SCNCamera</code>, so the rendered SceneKit objects move when you move your device. It does a lot of heavy-lifting for you, as you’ll find out soon enough.
+</p>
+<h2 class="segment-chapter">Setting up ARKit</h2>
+
+<p>In order to place and render your first virtual object you need to set up <code>ARSession</code> and <code>ARSCNView</code>. Open <em>HomeHeroViewController.swift</em>. The starter project already includes an <code>ARSCNView</code>, which is connected to the <code>sceneView</code> property in <code>HomeHeroViewController</code>.
+</p>
+<p>Create a <code>HomeHeroViewController</code> extension that conforms to <code>ARSCNViewDelegate</code>:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">HomeHeroViewController</span>: <span class="hljs-title">ARSCNViewDelegate</span> </span>{
+}</pre>
+<p>This is where <code>ARSCNView</code> will update you about the <code>ARSession</code> and renderer state. You’ll implement its methods later.
+</p>
+<p>Add the following method to the <code>HomeHeroViewController</code> class:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">runSession</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-comment">// 1</span>
+  sceneView.delegate = <span class="hljs-keyword">self</span>
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> configuration = <span class="hljs-type">ARWorldTrackingConfiguration</span>()
+  <span class="hljs-comment">// 3</span>
+  configuration.planeDetection = .horizontal
+  <span class="hljs-comment">// 4</span>
+  configuration.isLightEstimationEnabled = <span class="hljs-literal">true</span>
+  <span class="hljs-comment">// 5</span>
+  sceneView.session.run(configuration)
+  <span class="hljs-comment">// 6</span>
+  #<span class="hljs-keyword">if</span> <span class="hljs-type">DEBUG</span>
+    sceneView.debugOptions = <span class="hljs-type">ARSCNDebugOptions</span>.showFeaturePoints
+  #endif
+}</pre>
+<p>This method configures and runs <code>ARSession</code>. This is how it works:
+</p>
+<ol>
+<li>
+<p>Registers <code>HomeHeroViewController</code> as <code>ARSCNView</code> delegate. You’ll use this later to render objects.
+</p></li>
+
+<li>
+<p>Uses <code>ARWorldTrackingConfiguration</code> to make use of all degrees of movement and give the best results. Remember, it supports A9 processors and up.
+</p></li>
+
+<li>
+<p>Turns on the automatic horizontal plane detection. You’ll use this to render planes for debugging and to place objects in the world.
+</p></li>
+
+<li>
+<p>This turns on the light estimation calculations. <code>ARSCNView</code> uses that automatically and lights your objects based on the estimated light conditions in the real world.
+</p></li>
+
+<li>
+<p><code>run(_:options)</code> starts the <code>ARKit</code> session along with capturing video. This method will cause your device to ask for camera capture permission. If the user denies this request, ARKit won’t work.
+</p></li>
+
+<li>
+<p><code>ASRCNView</code> has an extra feature of rendering feature points. This turns it on for debug builds.
+</p></li>
+</ol>
+
+<p>To call <code>runSession()</code> in <code>viewDidLoad()</code> of <code>HomeHeroViewController</code>, change the already existing <code>viewDidLoad()</code> to the following:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewDidLoad</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.viewDidLoad()
+  runSession()
+  trackingInfo.text = <span class="hljs-string">""</span>
+  messageLabel.text = <span class="hljs-string">""</span>
+  distanceLabel.isHidden = <span class="hljs-literal">true</span>
+  selectVase()
+}</pre>
+<p>This will run the <code>ARKit</code> session when the view loads.
+</p>
+<p>Run the app; you’ll need to grant camera permissions as well. <code>ARSCNView</code> does all the work for you: it shows the captured video images in the background and it renders the feature points. If it weren’t for <code>ARSCNView</code>, you’d have to do all that hard work yourself!
+</p><div><img src="graphics/img159.png"  alt="" title="These are some cute feature points!" /></div>
+<h3 class="segment-chapter">Drawing planes</h3>
+
+<p>Before placing objects, you need to understand how ARKit sees the world. You’re familiar with feature points, but they’re hardly an accurate model of the world. Fortunately, ARKit provides a more accurate representation of the world: planes.
+</p>
+<p><code>ARPlaneAnchors</code> are added automatically to the <code>ARSession</code> anchors array, and <code>ARSCNView</code> automatically converts <code>ARPlaneAnchor</code> objects to <code>SCNNode</code> nodes. This is convenient because all you have to do is implement a <code>ARSCNViewDelegate</code> delegate method and render new planes there. Implement <code>renderer(_:didAdd:for:)</code> in the <code>ARSCNViewDelegate</code> extension of <code>HomeHeroViewController</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              didAdd node: SCNNode, 
+              <span class="hljs-keyword">for</span> anchor: ARAnchor)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> planeAnchor = anchor <span class="hljs-keyword">as</span>? <span class="hljs-type">ARPlaneAnchor</span> {
+      <span class="hljs-comment">// 3</span>
+      #<span class="hljs-keyword">if</span> <span class="hljs-type">DEBUG</span>
+          <span class="hljs-comment">// 4</span>
+        <span class="hljs-keyword">let</span> planeNode = createPlaneNode(
+            center: planeAnchor.center, 
+            extent: planeAnchor.extent)
+        <span class="hljs-comment">// 5</span>
+        node.addChildNode(planeNode)
+      #endif
+    }
+  }
+}</pre>
+<p>When <code>ARSession</code> recognizes a new plane, <code>ARSCNView</code> automatically adds a new <code>ARAnchor</code> for that plane and calls the <code>renderer(_:didAdd:for:)</code> delegate methods. This is what happens in your implementation:
+</p>
+<ol>
+<li>
+<p>Renderer delegate methods are called on a separate queue. The easiest solution to prevent multithreading problems is to dispatch to the main queue.
+</p></li>
+
+<li>
+<p>This checks if the newly added <code>ARAnchor</code> is indeed an <code>ARPlaneAnchor</code> subclass.
+</p></li>
+
+<li>
+<p>Show only for debug builds.
+</p></li>
+
+<li>
+<p><code>createPlaneNode(center:extent:)</code> is a helper function included with the starter project. This is SceneKit-specific code that creates a blue plane <code>SCNNode</code> with given a center and extent taken from <code>ARPlaneAnchor</code>.
+</p></li>
+
+<li>
+<p><code>node</code> argument is an empty <code>SCNNode</code> that is automatically added to the scene by <code>ARSCNView</code> at a coordinate that corresponds to the <code>anchor</code> argument. All you need to do is attach a child to this empty node using <code>addChildNode(_:)</code>, and this child (your plane in this example) will be in the correct position automatically.
+</p></li>
+</ol>
+
+<p>You also need to support the cases where a plane’s size or position changes, or where it’s removed altogether. For these, you need to implement the <code>renderer(_:didUpdate:for:)</code> and <code>renderer(_:didRemove:for:)</code> delegate methods:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              didUpdate node: SCNNode, 
+              <span class="hljs-keyword">for</span> anchor: ARAnchor)</span></span> {
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> planeAnchor = anchor <span class="hljs-keyword">as</span>? <span class="hljs-type">ARPlaneAnchor</span> {
+      <span class="hljs-comment">// 1</span>
+      updatePlaneNode(node.childNodes[<span class="hljs-number">0</span>], 
+                      center: planeAnchor.center, 
+                      extent: planeAnchor.extent)
+    }
+  }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              didRemove node: SCNNode, 
+              <span class="hljs-keyword">for</span> anchor: ARAnchor)</span></span> {
+  <span class="hljs-keyword">guard</span> anchor <span class="hljs-keyword">is</span> <span class="hljs-type">ARPlaneAnchor</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-comment">// 2</span>
+  removeChildren(inNode: node)
+}</pre>
+<p>This takes care of updating the state of your planes. <code>renderer(_:didUpdate:for:)</code> is called when a corresponding <code>ARAnchor</code> is updated, and <code>renderer(_:didRemove:for:)</code> is called when an <code>ARAnchor</code> is removed. Here are the details:
+</p>
+<ol>
+<li>
+<p>Update the child node, which is the plane node you added earlier in <code>renderer(_:didAdd:for:)</code>. <code>updatePlaneNode(_:center:extent:)</code> is a function included with the starter that updates the coordinates and size of the plane to the updated values contained in <code>ARPlaneAnchor</code>.
+</p></li>
+
+<li>
+<p>Removes the plane from the node if the corresponding <code>ARAnchorPlane</code> has been removed. <code>removeChildren(inNode:)</code> was provided with the starter project as well.
+</p></li>
+</ol>
+
+<p>Run the app and walk around to see planes being visualized in the real world:
+</p><div class="image-65"><img src="graphics/img160.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Creating AR objects</h2>
+
+<p>You’re ready! It’s time to enter the virtual world and mold it to your will. You’ll start by placing objects on detected planes. <code>ARSCNView</code> contains very useful hit detection methods, so you’ll use it to detect the point where the tap of the finger touches a detected plane in the virtual world.
+</p>
+<p>Add the following new method in <em>HomeHeroViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">touchesBegan</span><span class="hljs-params">(<span class="hljs-number">_</span> touches: Set&lt;UITouch&gt;, 
+                           with event: UIEvent?)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> hit = sceneView.hitTest(
+      viewCenter, 
+      types: [.existingPlaneUsingExtent]).first {
+    <span class="hljs-comment">// 2</span>
+    sceneView.session.add(anchor: 
+        <span class="hljs-type">ARAnchor</span>(transform: hit.worldTransform))
+    <span class="hljs-keyword">return</span>
+  }
+}</pre>
+<p>This will add a new anchor in the hit test result point. Here’s how it works:
+</p>
+<ol>
+<li>
+<p><code>hitTest(_:types:)</code> returns all hit test results for given screen coordinate and types. You’re passing <code>viewCenter</code> as the coordinate which is the screen’s center, where the gray dot is drawn. <code>viewCenter</code> is a helper property provided with the starter project. You’re using <code>existingPlaneUsingExtent</code> hit test option to indicate that you’re interested in hit testing with existing planes, while respecting the plane’s limited size (the extent).
+</p></li>
+
+<li>
+<p>If there’s a result, you use <code>add(anchor:)</code> on <code>ARSession</code> to create an anchor to represent the point in world where your object will be placed.
+</p></li>
+</ol>
+
+<p>This adds an anchor but doesn’t render anything. <code>ARSCNView</code> calls the <code>renderer(_:didAdd:for:)</code> delegate method when a new <code>ARAnchor</code> is added. This is where you’ll handle rendering your new object.
+</p>
+<p>Change the <code>renderer(_:didAdd:for:)</code> implementation to the following:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              didAdd node: SCNNode, 
+              <span class="hljs-keyword">for</span> anchor: ARAnchor)</span></span> {
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> planeAnchor = anchor <span class="hljs-keyword">as</span>? <span class="hljs-type">ARPlaneAnchor</span> {
+      #<span class="hljs-keyword">if</span> <span class="hljs-type">DEBUG</span>
+        <span class="hljs-keyword">let</span> planeNode = createPlaneNode(
+            center: planeAnchor.center, 
+            extent: planeAnchor.extent)
+        node.addChildNode(planeNode)
+      #endif
+      <span class="hljs-comment">// 1</span>
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-comment">// 2</span>
+      <span class="hljs-keyword">switch</span> <span class="hljs-keyword">self</span>.currentMode {
+      <span class="hljs-keyword">case</span> .<span class="hljs-keyword">none</span>: 
+        <span class="hljs-keyword">break</span>
+      <span class="hljs-comment">// 3</span>
+      <span class="hljs-keyword">case</span> .placeObject(<span class="hljs-keyword">let</span> name):
+        <span class="hljs-comment">// 4</span>
+        <span class="hljs-keyword">let</span> modelClone = nodeWithModelName(name)
+        <span class="hljs-comment">// 5</span>
+        <span class="hljs-keyword">self</span>.objects.append(modelClone)
+        <span class="hljs-comment">// 6</span>
+        node.addChildNode(modelClone)
+      <span class="hljs-comment">// 7</span>
+      <span class="hljs-keyword">case</span> .measure: 
+        <span class="hljs-keyword">break</span>
+      }
+    }
+  }
+}</pre>
+<p>This code will place the selected model in the world like so:
+</p>
+<ol>
+<li>
+<p><code>else</code> means that <code>ARAnchor</code> is not <code>ARPlaneAnchor</code> subclass, but just a regular <code>ARAnchor</code> instance you added in <code>touchesBegan(_:with:)</code>
+</p></li>
+
+<li>
+<p><code>currentMode</code> is a <code>HomeHeroViewController</code> property already added in the starter. It represents the current UI state: <code>placeObject</code> value if the object button is selected, or <code>measure</code> value if the measuring button is selected. The switch executes different code depending on the UI state.
+</p></li>
+
+<li>
+<p><code>placeObject</code> has an associated <code>string</code> value which represents the path to the 3D model <em>.</em><em>scn</em> file. You can browse all the 3D models in <em>Models.scnassets</em>.
+</p></li>
+
+<li>
+<p><code>nodeWithModelName(_:)</code> creates a new 3D model <code>SCNNode</code> with the given path name. It’s a helper function provided with the starter project.
+</p></li>
+
+<li>
+<p>Append the node to the <code>objects</code> array provided with the starter.
+</p></li>
+
+<li>
+<p>Finally, you add your new object node to the <code>SCNNode</code> provided to the delegate method.
+</p></li>
+
+<li>
+<p>You’ll implement measuring later.
+</p></li>
+</ol>
+
+<p>Run the project, point the gray dot at an existing plane and tap the screen:
+</p><div><img src="graphics/img161.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Placing objects at feature points</h3>
+
+<p>You can’t expect the user to run around the apartment hunting for ARKit planes, so you need some other means of hit detection. You’ll use feature points as a backup if no planes were found. It’s actually very easy; you simply need to modify <code>touchesBegan(_:with:)</code>. Replace it with the following:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">touchesBegan</span><span class="hljs-params">(<span class="hljs-number">_</span> touches: Set&lt;UITouch&gt;, 
+                           with event: UIEvent?)</span></span> {
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> hit = sceneView.hitTest(
+      viewCenter, 
+      types: [.existingPlaneUsingExtent]).first {
+    sceneView.session.add(
+        anchor: <span class="hljs-type">ARAnchor</span>(transform: hit.worldTransform))
+    <span class="hljs-keyword">return</span>
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> hit = sceneView.hitTest(
+      viewCenter, 
+      types: [.featurePoint]).last {
+    sceneView.session.add(
+        anchor: <span class="hljs-type">ARAnchor</span>(transform: hit.worldTransform))
+    <span class="hljs-keyword">return</span>
+  }
+}</pre>
+<p>This adds a new type of hit test — <code>featurePoint</code> — for when you haven’t found any results with <code>existingPlaneUsingExtent</code> test. The feature point hit results are sorted from nearest to farthest, so you should use the <code>last</code> result rather than <code>first</code>, because it gives the best user experience most of the time.
+</p>
+<p>Run HomeHero and try it out. You might notice that this hit detection is pretty good but far from perfect: It places the object at <i>some</i> feature point you know nothing about. You’ll have a chance to improve that later in a challenge.
+</p><div><img src="graphics/img162.png"  alt="" title="Oops..." /></div>
+<h2 class="segment-chapter">Measuring distances</h2>
+
+<p>It’s time to work on another interesting feature in your app: measuring distances. ARKit places and tracks objects so accurately that you can use it to measure real world distances. 1 coordinate point in SceneKit is 1 meter in the real world. You’ll measure distances in the app by placing two AR spheres and calculating the distance between them. To do that, you need to modify <code>renderer(_:didAdd:for:)</code> and implement the <code>measure</code> case in the <code>switch</code> statement:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              didAdd node: SCNNode, 
+              <span class="hljs-keyword">for</span> anchor: ARAnchor)</span></span> {
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> planeAnchor = anchor <span class="hljs-keyword">as</span>? <span class="hljs-type">ARPlaneAnchor</span> {
+      #<span class="hljs-keyword">if</span> <span class="hljs-type">DEBUG</span>
+        <span class="hljs-keyword">let</span> planeNode = createPlaneNode(
+            center: planeAnchor.center, 
+            extent: planeAnchor.extent)
+        node.addChildNode(planeNode)
+      #endif
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">switch</span> <span class="hljs-keyword">self</span>.currentMode {
+      <span class="hljs-keyword">case</span> .<span class="hljs-keyword">none</span>: 
+        <span class="hljs-keyword">break</span>
+      <span class="hljs-keyword">case</span> .placeObject(<span class="hljs-keyword">let</span> name):
+        <span class="hljs-keyword">let</span> modelClone = nodeWithModelName(name)
+        <span class="hljs-keyword">self</span>.objects.append(modelClone)
+        modelClone.position = <span class="hljs-type">SCNVector3Zero</span>
+        node.addChildNode(modelClone)
+      <span class="hljs-keyword">case</span> .measure:
+        <span class="hljs-comment">// 1</span>
+        <span class="hljs-keyword">let</span> sphereNode = createSphereNode(radius: <span class="hljs-number">0.02</span>)
+        <span class="hljs-comment">// 2</span>
+        <span class="hljs-keyword">self</span>.objects.append(sphereNode)
+        <span class="hljs-comment">// 3</span>
+        node.addChildNode(sphereNode)
+        <span class="hljs-comment">// 4</span>
+        <span class="hljs-keyword">self</span>.measuringNodes.append(node)
+      }
+    }
+  }
+}</pre>
+<p>This code will create measuring nodes when you have the measuring tool selected in UI. It’s fairly straightforward:
+</p>
+<ol>
+<li>
+<p>Create the sphere node using the <code>createSphereNode(radius:)</code> helper function included with the starter project.
+</p></li>
+
+<li>
+<p>Add the object the objects array.
+</p></li>
+
+<li>
+<p>Add the sphere to the node passed to the delegate.
+</p></li>
+
+<li>
+<p>Add the sphere to the <code>measuringNodes</code> array provided in the starter project to keep track of the measuring nodes.
+</p></li>
+</ol>
+
+<p>You need to create logic that calculates the distance between two measuring nodes. Add the following new method in <em>HomeHeroViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">measure</span><span class="hljs-params">(fromNode: SCNNode, toNode: SCNNode)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> measuringLineNode = createLineNode(
+      fromNode: fromNode, 
+      toNode: toNode)
+  <span class="hljs-comment">// 2</span>
+  measuringLineNode.name = <span class="hljs-string">"MeasuringLine"</span>
+  <span class="hljs-comment">// 3</span>
+  sceneView.scene.rootNode.addChildNode(measuringLineNode)
+  objects.append(measuringLineNode)
+  <span class="hljs-comment">// 4</span>
+  <span class="hljs-keyword">let</span> dist = fromNode.position.distanceTo(toNode.position)
+  <span class="hljs-keyword">let</span> measurementValue = <span class="hljs-type">String</span>(format: <span class="hljs-string">"%.2f"</span>, dist)
+  <span class="hljs-comment">// 5</span>
+  distanceLabel.text = <span class="hljs-string">"Distance: <span class="hljs-subst">\(measurementValue)</span> m"</span>
+}</pre>
+<p>This method creates a line between two nodes and updates the UI. Here’s how it works:
+</p>
+<ol>
+<li>
+<p><code>createLineNode(fromNode:toNode:)</code> is a helper function provided with the starter project. It creates a straight line node between two nodes.
+</p></li>
+
+<li>
+<p>Names the line node so it’s easier to delete later.
+</p></li>
+
+<li>
+<p>Adds the line node to the scene.
+</p></li>
+
+<li>
+<p>Measures the distance between the two nodes. The distance between virtual objects corresponds to the distance in meters of the objects in real world position.
+</p></li>
+
+<li>
+<p>Updates the UI to show the distance to the user.
+</p></li>
+</ol>
+
+<p>You need to add some logic that will update the measurement state depending on the number of spheres. Add the following method to <em>HomeHeroViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">updateMeasuringNodes</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">guard</span> measuringNodes.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">1</span> <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-keyword">let</span> firstNode = measuringNodes[<span class="hljs-number">0</span>]
+  <span class="hljs-keyword">let</span> secondNode = measuringNodes[<span class="hljs-number">1</span>]
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> showMeasuring = <span class="hljs-keyword">self</span>.measuringNodes.<span class="hljs-built_in">count</span> == <span class="hljs-number">2</span>
+  distanceLabel.isHidden = !showMeasuring
+  <span class="hljs-keyword">if</span> showMeasuring {
+    measure(fromNode: firstNode, toNode: secondNode)
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> measuringNodes.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">2</span>  {
+    <span class="hljs-comment">// 2</span>
+    firstNode.removeFromParentNode()
+    secondNode.removeFromParentNode()
+    measuringNodes.removeFirst(<span class="hljs-number">2</span>)
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> sceneView.scene.rootNode.childNodes {
+      <span class="hljs-keyword">if</span> node.name == <span class="hljs-string">"MeasuringLine"</span> {
+        node.removeFromParentNode()
+      }
+    }
+  }
+}</pre>
+<p>The logic is as follows:
+</p>
+<ol>
+<li>
+<p>Shows measure results only if there are two spheres.
+</p></li>
+
+<li>
+<p>Removes old measurement nodes if there are more than 2 nodes.
+</p></li>
+
+<li>
+<p>Removes old measuring lines.
+</p></li>
+</ol>
+
+<p>Now you only need to call <code>updateMeasuringNodes()</code> at an appropriate time. <code>renderer(_:didAdd:for:)</code> is too early, because at that time the nodes passed in the delegate method don’t yet have a valid position. Because <code>renderer(_:didUpdate:for:)</code> is called right after <code>renderer(_:didAdd:for:)</code>, the node passed in the <code>for</code> argument has the correct scene position, which means you can start the measuring.
+</p>
+<p>With that in mind, change <code>renderer(_:didUpdate:for:)</code> to:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              didUpdate node: SCNNode, 
+              <span class="hljs-keyword">for</span> anchor: ARAnchor)</span></span> {
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> planeAnchor = anchor <span class="hljs-keyword">as</span>? <span class="hljs-type">ARPlaneAnchor</span> {
+      updatePlaneNode(node.childNodes[<span class="hljs-number">0</span>], 
+                      center: planeAnchor.center, 
+                      extent: planeAnchor.extent)
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">self</span>.updateMeasuringNodes()
+    }
+  }
+}</pre>
+<p>Calling <code>updateMeasuringNodes()</code> will update your measuring logic when a new <code>ARAnchor</code> has been added, mapped to a <code>SCNNode</code>, and updated.
+</p>
+<p>Run the app and experience for yourself the magical accuracy of ARKit. You might want to find a plane to test on for more accurate hit testing:
+</p><div><img src="graphics/img163.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">ARSession state</h2>
+
+<p><code>ARSession</code>, the running brain of ARKit, has different “moods” depending on the conditions in the real world. Sometimes it’s running perfectly because the lighting and number of details on the screen is great; sometimes it has problems with the tracking. You’ll use the state information provided in <code>ARFrame</code> to let the user know when there are tracking problems.
+</p>
+<p>Add the following method to <em>HomeHeroViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">updateTrackingInfo</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> frame = sceneView.session.currentFrame <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">switch</span> frame.camera.trackingState {
+  <span class="hljs-keyword">case</span> .limited(<span class="hljs-keyword">let</span> reason):
+    <span class="hljs-keyword">switch</span> reason {
+    <span class="hljs-keyword">case</span> .excessiveMotion:
+      trackingInfo.text = <span class="hljs-string">"Limited Tracking: Excessive Motion"</span>
+    <span class="hljs-keyword">case</span> .insufficientFeatures:
+      trackingInfo.text = 
+          <span class="hljs-string">"Limited Tracking: Insufficient Details"</span>
+    <span class="hljs-keyword">default</span>:
+      trackingInfo.text = <span class="hljs-string">"Limited Tracking"</span>
+    }
+  <span class="hljs-keyword">default</span>: 
+    trackingInfo.text = <span class="hljs-string">""</span>
+  }
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">guard</span> 
+    <span class="hljs-keyword">let</span> lightEstimate = frame.lightEstimate?.ambientIntensity 
+    <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-comment">// 4</span>
+  <span class="hljs-keyword">if</span> lightEstimate &lt; <span class="hljs-number">100</span> {
+    trackingInfo.text = <span class="hljs-string">"Limited Tracking: Too Dark"</span>
+  }
+}</pre>
+<p>This code takes the current <code>ARFrame</code> information and communicates it to the user if conditions are poor. Here’s how this works:
+</p>
+<ol>
+<li>
+<p>You can get the current <code>ARFrame</code> thanks to the <code>currentFrame</code> property on the <code>ARSession</code> object.
+</p></li>
+
+<li>
+<p>The <code>trackingState</code> property can be found in the current frame’s <code>ARCamera</code> object. The <code>trackingState</code> enum value <code>limited</code> has an associated <code>TrackingStateReason</code> value which tells you the specific tracking problem.
+</p></li>
+
+<li>
+<p>You turned on light estimation in the <code>ARWorldTrackingConfiguration</code>, so it’s measured and provided in each <code>ARFrame</code> in the <code>lightEstimate</code> property.
+</p></li>
+
+<li>
+<p><code>ambientIntensity</code> is given in lumen units. Less than 100 lumens is usually too dark, so you communicate this to the user.
+</p></li>
+</ol>
+
+<p>You need to update the tracking information for each rendered frame, so you do that in the <code>renderer(_:updateAtTime:)</code> delegate method. Add this method in the <code>ARSCNViewDelegate</code> extension of <em>HomeHeroViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">renderer</span><span class="hljs-params">(<span class="hljs-number">_</span> renderer: SCNSceneRenderer, 
+              updateAtTime time: TimeInterval)</span></span> {
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-comment">// 1</span>
+    <span class="hljs-keyword">self</span>.updateTrackingInfo()
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-number">_</span> = <span class="hljs-keyword">self</span>.sceneView.hitTest(
+        <span class="hljs-keyword">self</span>.viewCenter, 
+        types: [.existingPlaneUsingExtent]).first {
+      <span class="hljs-keyword">self</span>.crosshair.backgroundColor = <span class="hljs-type">UIColor</span>.green
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">self</span>.crosshair.backgroundColor = <span class="hljs-type">UIColor</span>(white: <span class="hljs-number">0.34</span>, 
+                                               alpha: <span class="hljs-number">1</span>)
+    }
+  }
+}</pre>
+<p>This method does the following:
+</p>
+<ol>
+<li>
+<p>Updates tracking info for each rendered frame.
+</p></li>
+
+<li>
+<p>If the dot in the middle hit tests with <code>existingPlaneUsingExtent</code> type, it turns green to indicate high quality hit testing to the user.
+</p></li>
+</ol>
+
+<p>Run the app and test the tracking info by feeding the camera with some bad conditions.
+</p><div class="image-55"><img src="graphics/img164.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Session interruptions</h3>
+
+<p>Sometimes the <code>ARSession</code> will be interrupted, such as when sending the app to background. This cuts the video feed, making the <code>ARSession</code> completely blind. The session is interrupted, so the next time you enter the app and resume the session, your device probably won’t be in the same position and rotation as before so the tracking will be completely broken. When that happens, you need to restart the session.
+</p>
+<p><code>ARSession</code> signals all session interruptions and general errors to its delegate via the <code>ARSessionObserver</code> protocol. <code>ARSCNViewDelegate</code> implements <code>ARSessionObserver</code>, so all you need to do is add these methods to your <code>ARSCNViewDelegate</code> implementation in <em>HomeHeroViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">session</span><span class="hljs-params">(<span class="hljs-number">_</span> session: ARSession, 
+             didFailWithError error: Error)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  showMessage(error.localizedDescription, 
+              label: messageLabel, 
+              seconds: <span class="hljs-number">2</span>)
+}
+
+<span class="hljs-comment">// 2</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sessionWasInterrupted</span><span class="hljs-params">(<span class="hljs-number">_</span> session: ARSession)</span></span> {
+  showMessage(<span class="hljs-string">"Session interrupted"</span>, 
+              label: messageLabel, 
+              seconds: <span class="hljs-number">2</span>)
+}
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sessionInterruptionEnded</span><span class="hljs-params">(<span class="hljs-number">_</span> session: ARSession)</span></span> {
+  showMessage(<span class="hljs-string">"Session resumed"</span>, 
+  label: messageLabel, 
+  seconds: <span class="hljs-number">2</span>)
+  <span class="hljs-comment">// 3</span>
+  removeAllObjects()
+  runSession()
+}</pre>
+<p>This code takes care of most <code>ARSession</code> problems that can occur. Here are the details:
+</p>
+<ol>
+<li>
+<p><code>showMessage(_:label:seconds:)</code> is a helper method included with the starter project. It shows a message in a label for a given number of seconds. <code>session(_:didFailWithError:)</code> is called in case of general <code>ARSession</code> errors like a device not supporting AR.
+</p></li>
+
+<li>
+<p><code>sessionWasInterrupted(_:)</code> is called when a session is interrupted, like when your app is backgrounded.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>When <code>sessionInterruptionEnded(_:)</code> is called, you should remove all your objects and restart the AR session by calling the <code>runSession()</code> method you implemented before. <code>removeAllObjects()</code> is a helper method provided with the starter project.
+</p></li>
+</ol>
+
+<p>Run the app on your device and try to interrupt the session by sending it to background, then resume the app again.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>In this chapter, you had a chance to grasp most of what ARKit has to offer. Past that point, it’s up to SceneKit and math to create jaw-dropping AR apps. ARKit will surely revitalize the App Store with exciting new experiences. The app you created has proven that AR is not only good for entertainment, but also for useful features like measuring, visualizing or education.
+</p>
+<p>Before diving into designing awesome AR experiences, make sure to check out the Apple Human Interface Guidelines for ARKit here: <a href="http://apple.co/2xOwp1Q">apple.co/2xOwp1Q</a>
+</p>
+<p>For more details check out the WWDC ARKit Video here: <a href="http://apple.co/2t4UPlA">apple.co/2t4UPlA</a>
+</p>
+<h3 class="segment-chapter">Challenge</h3>
+
+<p>The ARKit WWDC Demo App that you can find in the above link has a solution for more accurate placing of objects using feature points. The challenge is to improve the problematic hit testing in HomeHero by reading the ARKit WWDC Demo App code and introducing a similar algorithm. You’re going to need trigonometry and algebra knowledge to solve that problem.
+</p>
+<p>You can find the solution in the <em>challenge</em> folder. Of course, you can cheat a little and peek at the challenge solution — the point is for you to understand the math and algorithms so you can use it in your future ARKit projects.
+</p></body></html>

@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 9: Core ML &amp; Vision Framework</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 9: Core ML &amp; Vision Framework</h1>
+
+<p>We are visual creatures. According to <i>Time</i> magazine, 7 of the 10 most popular non-game apps in 2016 were either solely or significantly about image and or/video sharing. Some of these apps, like Facebook, Snapchat, and Instagram, provide users more than basic image display. They provide image correction, add filters, identify faces, and more.
+</p>
+<p>In iOS 11, the new <em>Vision</em> framework, built on top of Core Image and Core ML, provides several out-of-box features for analyzing images and video. Its supported features include face tracking, face detection, face landmarks, text detection, rectangle detection, barcode detection, object tracking, and image registration.
+</p>
+<p>In this chapter, you’ll learn to detect faces, work with facial landmarks, and classify scenes using Vision and Core ML.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Open the starter project: <em>GetReady</em>. GetReady looks at your pictures and decorates your friends and families for the occasion. These occasions include hiking and going to the beach. Hikers can be accessorized with ranger hats, and sunbathers will get sunglasses.
+</p>
+<p>The image detail controller <em>ImageViewController.swift</em> is where most of the tutorial’s code will go.
+</p>
+<p>Build and run the app; you’ll be presented with a blank screen. Tap the “+” button in the upper right-hand corner to open the picture chooser.
+</p>
+<div class="note">
+<p><em>Note:</em> You can safely ignore any warnings or log messages that appear in the console due to opening the image picker.
+</p></div>
+
+<p>If you’re using the iOS Simulator, it comes preloaded with some pretty flowers and waterfalls. But since this tutorial is all about images with faces, these won’t be helpful. Fortunately, the iOS 11 Simulator now makes it easy to add images!
+</p><div class="image-20"><img src="graphics/img133.png"  alt="" title="" /></div>
+<p>You can use one of your own images, or you can grab the sample <em>hiker.jpg</em> from the <em>GetReady</em><em>\</em><em>images</em> folder and simply drag it into the Photos app. This will import it into the Simulator and make it available to its apps.
+</p><div><img src="graphics/img134.png"  alt="" title="" /></div>
+<p>Back to our app, tap the plus button at top right, then select the new image. The image will appear as a thumbnail in a collection view.
+</p><div><img src="graphics/img135.png"  alt="" title="" /></div>
+<p>Tap the thumbnail and it will open larger in its own screen. This is the view controller where all the image decorating will happen.
+</p><div><img src="graphics/img136.png"  alt="" title="" /></div>
+<p>This guy looks like he’s having fun hiking, but something’s missing. Ah — he’s <i>sans-chapeau</i>! Let’s get the dude a hat to protect that magnificent scalp.
+</p>
+<h2 class="segment-chapter">Detecting faces</h2>
+
+<p>To figure out where to put a hat involves finding the dimensions of each head in the picture. Fortunately, one of the things <em>Vision</em> does quite well is identify the bounding rectangles of a face.
+</p>
+<div class="note">
+<p><em>Note</em>: The Core Image <code>CIDetector</code> class is also able to identify faces in images. The new Vision face detection is more powerful, able to identify smaller faces, faces in profile, and faces blocked by objects, hats, and glasses. The downside is that Vision is slower and requires more compute power (read “battery”).
+</p></div>
+
+<p>For this first part, the goal will be to draw a ranger hat on top of every recognized head in a photo. Later on, you’ll use additional data to orient the hat and to place sunglasses on beachgoers’ faces.
+</p>
+<h3 class="segment-chapter">Face rectangle detection</h3>
+
+<p>Open <em>ImageViewController.swift</em> and replace <code>viewWillAppear(_:)</code> with:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewWillAppear</span><span class="hljs-params">(<span class="hljs-number">_</span> animated: Bool)</span></span> {
+  <span class="hljs-keyword">super</span>.viewWillAppear(animated)
+
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> cgImage = image.cgImage <span class="hljs-keyword">else</span> {
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"can't create CIImage from UIImage"</span>)
+    <span class="hljs-keyword">return</span>
+  }
+
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> orientation = <span class="hljs-type">CGImagePropertyOrientation</span>(
+    image.imageOrientation)
+
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">let</span> faceRequest = <span class="hljs-type">VNDetectFaceRectanglesRequest</span>(
+    completionHandler: handleFaces)
+
+  <span class="hljs-comment">// 4</span>
+  <span class="hljs-keyword">let</span> handler = <span class="hljs-type">VNImageRequestHandler</span>(cgImage: cgImage,
+                                      orientation: orientation)
+  <span class="hljs-comment">// 5</span>
+  <span class="hljs-type">DispatchQueue</span>.global(qos: .userInteractive).async {
+    <span class="hljs-keyword">do</span> {
+      <span class="hljs-comment">// 6</span>
+      <span class="hljs-keyword">try</span> handler.perform([faceRequest])
+    } <span class="hljs-keyword">catch</span> {
+      <span class="hljs-built_in">print</span>(<span class="hljs-string">"Error handling vision request <span class="hljs-subst">\(error)</span>"</span>)
+    }
+  }
+}</pre>
+<p>This code sets up the call to the Vision API:
+</p>
+<ol>
+<li>
+<p>Vision does not work on <code>UIImage</code>s, but instead on raw image data, a pixel buffer, or either a <code>CIImage</code> or <code>CGImage</code>.
+</p></li>
+
+<li>
+<p>Specifying the orientation makes sure the detected bounds line up in the same direction as the image.
+</p></li>
+
+<li>
+<p>This creates the face detection request. The completion handler is a class instance method that you will supply shortly.
+</p></li>
+
+<li>
+<p>You need an image request handler to process one or more requests for a single image.
+</p></li>
+
+<li>
+<p>Vision requests can be time-intensive, so it’s best to perform them on a background queue.
+</p></li>
+
+<li>
+<p><code>perform(_:)</code> takes a list of requests and performs the detection work. The request callbacks are invoked on the background queue at the end of the detection process.
+</p></li>
+</ol>
+
+<h3 class="segment-chapter">The completion handler</h3>
+
+<p>As its name suggests, <code>VNDetectFaceRectanglesRequest</code> finds the rectangles that bound faces in an image. A Vision request calls its completion handler with an array of detected objects, called <i>observations</i>.
+</p>
+<p>Build out the completion handler by replacing <code>handleFaces(request:error:)</code> with:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">handleFaces</span><span class="hljs-params">(request: VNRequest, error: Error?)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> observations = request.results
+    <span class="hljs-keyword">as</span>? [<span class="hljs-type">VNFaceObservation</span>] <span class="hljs-keyword">else</span> {
+      <span class="hljs-built_in">print</span>(<span class="hljs-string">"unexpected result type from face request"</span>)
+      <span class="hljs-keyword">return</span>
+  }
+
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">self</span>.handleFaces(observations: observations)
+  }
+}</pre>
+<p>This implementation does the following:
+</p>
+<ol>
+<li>
+<p>Confirms that the request has a valid <code>results</code> array of <code>VNFaceObservation</code> elements.
+</p></li>
+
+<li>
+<p>Bounces the actual hard work to another function on the <code>main</code> queue.
+</p></li>
+</ol>
+
+<p>This function is not defined yet, and Xcode is likely telling you so. To solve that, insert the following observation-handling method after <code>handleFaces()</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">handleFaces</span><span class="hljs-params">(observations: [VNFaceObservation])</span></span> {
+  <span class="hljs-keyword">var</span> faces: [<span class="hljs-type">FaceDimensions</span>] = []
+
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> viewSize = imageView.bounds.size
+  <span class="hljs-keyword">let</span> imageSize = image.size
+
+  <span class="hljs-keyword">let</span> widthRatio = viewSize.width / imageSize.width
+  <span class="hljs-keyword">let</span> heightRatio = viewSize.height / imageSize.height
+  <span class="hljs-keyword">let</span> scaledRatio = <span class="hljs-built_in">min</span>(widthRatio, heightRatio)
+
+  <span class="hljs-keyword">let</span> scaleTransform = <span class="hljs-type">CGAffineTransform</span>(scaleX: scaledRatio,
+                                         y: scaledRatio)
+  <span class="hljs-keyword">let</span> scaledImageSize = imageSize.applying(scaleTransform)
+
+  <span class="hljs-keyword">let</span> imageX = (viewSize.width - scaledImageSize.width) / <span class="hljs-number">2</span>
+  <span class="hljs-keyword">let</span> imageY = (viewSize.height - scaledImageSize.height) / <span class="hljs-number">2</span>
+  <span class="hljs-keyword">let</span> imageLocationTransform = <span class="hljs-type">CGAffineTransform</span>(
+    translationX: imageX, y: imageY)
+
+  <span class="hljs-keyword">let</span> uiTransform = <span class="hljs-type">CGAffineTransform</span>(scaleX: <span class="hljs-number">1</span>, y: -<span class="hljs-number">1</span>)
+    .translatedBy(x: <span class="hljs-number">0</span>, y: -imageSize.height)
+
+  <span class="hljs-keyword">for</span> face <span class="hljs-keyword">in</span> observations {
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">let</span> observedFaceBox = face.boundingBox
+
+    <span class="hljs-keyword">let</span> faceBox = observedFaceBox
+      .scaled(to: imageSize)
+      .applying(uiTransform)
+      .applying(scaleTransform)
+      .applying(imageLocationTransform)
+
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">let</span> face = <span class="hljs-type">FaceDimensions</span>(faceRect: faceBox)
+    faces.append(face)
+  }
+  <span class="hljs-comment">// 4</span>
+  annotationView.faces = faces
+  annotationView.setNeedsDisplay()
+}</pre>
+<p>This method iterates over all observations, with the purpose of translating coordinates and define regions within the image where faces have been detected:
+</p>
+<ol>
+<li>
+<p>Here you locate the actual bounds of the image within the containing image view. Because the image view’s content mode is specified as <em>Aspect Fit</em>, it is shrunk down so it fills at least one dimension of the image view. This means that the other dimension won’t line up with the coordinates of the image view. Choosing a different mode, such as <em>Scale to Fill</em>, would simplify the math, but won’t look very nice.
+</p></li>
+
+<li>
+<p>For each observation, you translate its coordinates to <code>imageView</code> coordinates.
+</p></li>
+
+<li>
+<p>You encapsulate the face bounds in a custom <code>FaceDimensions</code> struct and push it into an array. The struct is used to pass the face data around the app.
+</p></li>
+
+<li>
+<p>Finally, you add all face dimensions to <code>annotationView</code>, which will draw custom images over the original photo.
+</p></li>
+</ol>
+
+<p>Step 2 is required because an observation’s <code>boundingBox</code> is normalized in Core Graphics coordinates, with an origin at the bottom left. Before being drawn on a view, you need to do the following to the bounding box:
+</p>
+<ul>
+<li>
+<p>Denormalize it to the input image size.
+</p></li>
+
+<li>
+<p>Flip it into UIKit coordinates.
+</p></li>
+
+<li>
+<p>Scale it to the drawn aspect ratio.
+</p></li>
+
+<li>
+<p>Translate it to where the image is within the image view.
+</p></li>
+</ul>
+
+<p>Before moving on, you probably want to see this code in action. Open <em>annotationView.swift</em> and change the <code>drawDebug</code> variable at the top to <code>true</code>:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AnnotationLayer</span>: <span class="hljs-title">UIView</span> </span>{
+  <span class="hljs-keyword">var</span> drawDebug = <span class="hljs-literal">true</span>
+  ...</pre>
+<p>This will draw green boxes around the identified faces. Build and run, and select a photo. After a short time, you will see a green rectangle around all the identified faces.
+</p><div class="image-30"><img src="graphics/img137.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Put a hat on it</h3>
+
+<p>Now that you can find a face, the next step is to style the head with a hat:
+</p><div class="image-20"><img src="graphics/img138.png"  alt="" title="" /></div>
+<p>In <em>AnnotationView.swift</em>, replace <code>drawHat(faceRect:)</code> with:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawHat</span><span class="hljs-params">(faceRect: CGRect)</span></span> {
+  <span class="hljs-keyword">let</span> hatSize = hat.size
+  <span class="hljs-keyword">let</span> headSize = faceRect.size
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> hatWidthForHead = (<span class="hljs-number">3.0</span> / <span class="hljs-number">2.0</span>) * headSize.width
+  <span class="hljs-keyword">let</span> hatRatio = hatWidthForHead / hatSize.width
+
+  <span class="hljs-keyword">let</span> scaleTransform = <span class="hljs-type">CGAffineTransform</span>(scaleX: hatRatio,
+                                         y: hatRatio)
+  <span class="hljs-keyword">let</span> adjustedHatSize = hatSize.applying(scaleTransform)
+
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> hatRect = <span class="hljs-type">CGRect</span>(
+              x: faceRect.midX - (adjustedHatSize.width / <span class="hljs-number">2.0</span>),
+              y: faceRect.minY - adjustedHatSize.height,
+              width: adjustedHatSize.width,
+              height: adjustedHatSize.height)
+
+  <span class="hljs-comment">// 3</span>
+  hat.draw(<span class="hljs-keyword">in</span>: hatRect)
+}</pre>
+<p>The general idea is to fit the hat on the head, with a little bit of brim extending beyond the head. By going with a 2/3 horizontal ratio of head to hat, you can draw hats by:
+</p>
+<ol>
+<li>
+<p>Computing the 3/2 scale factor and applying it to the hat’s size.
+</p></li>
+
+<li>
+<p>Creating a rectangle centered horizontally on the face, and resting just above the top of the face. This will have the brim cover up the brow, which gives it a worn look rather than floating above the head.
+</p></li>
+
+<li>
+<p>Asking the hat to draw itself on the annotation view.
+</p></li>
+</ol>
+
+<p>Build and run again. Now a hat will appear above each head.
+</p><div><img src="graphics/img139.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Working with landmarks</h2>
+
+<p>Finding a face rectangle is nothing new in iOS, although the added accuracy in Vision is nice. Vision’s capabilities get interesting when identifying additional face landmarks, such as the location of eyes, noses, mouths, and chins.
+</p>
+<p>What can you do with these landmarks? Well, this app should be able to deliver cool shades to people out in the hot sun on a beach. To do that, the app will need to draw a sunglasses image over the eyes.
+</p>
+<h3 class="segment-chapter">Detecting facial landmarks</h3>
+
+<p>The first thing is to use a <code>VNDetectFaceLandmarksRequest</code> to get all the landmarks. Back in <em>ImageViewController.swift</em>’s <code>viewWillAppear(_:)</code> change:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> faceRequest = <span class="hljs-type">VNDetectFaceRectanglesRequest</span>(
+      completionHandler: handleFaces)</pre>
+<p>...to
+</p><pre class="code-block"><span class="hljs-keyword">let</span> faceRequest = <span class="hljs-type">VNDetectFaceLandmarksRequest</span>(
+  completionHandler: handleFaces)</pre>
+<p>Then, in <code>handleFaces(observations:)</code> replace:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> face = <span class="hljs-type">FaceDimensions</span>(faceRect: faceBox)</pre>
+<p>...with:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> leftEye: [<span class="hljs-type">CGPoint</span>]?
+<span class="hljs-keyword">var</span> rightEye: [<span class="hljs-type">CGPoint</span>]?
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> landmarks = face.landmarks {
+  leftEye = compute(feature: landmarks.leftEye,
+                    faceBox: faceBox)
+  rightEye = compute(feature: landmarks.rightEye,
+                     faceBox: faceBox)
+}
+
+<span class="hljs-keyword">let</span> face = <span class="hljs-type">FaceDimensions</span>(faceRect: faceBox,
+                          leftEye: leftEye,
+                          rightEye: rightEye)</pre>
+<p>This queries the <code>landmarks</code> property of the <code>VNFaceObservation</code>, which is a class that contains an optional property of all the possible landmarks that can be detected. Here, you’re using the <code>leftEye</code> and <code>rightEye</code> properties.
+</p>
+<p>Now complete the code by adding the following <code>compute</code> method:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">compute</span><span class="hljs-params">(
+  feature: VNFaceLandmarkRegion2D?,
+  faceBox: CGRect)</span></span> -&gt; [<span class="hljs-type">CGPoint</span>]? {
+
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> feature = feature <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+  }
+
+  <span class="hljs-keyword">var</span> drawPoints: [<span class="hljs-type">CGPoint</span>] = []
+  <span class="hljs-keyword">for</span> point <span class="hljs-keyword">in</span> feature.normalizedPoints {
+    <span class="hljs-comment">// 1</span>
+    <span class="hljs-keyword">let</span> cgPoint = <span class="hljs-type">CGPoint</span>(x: <span class="hljs-type">CGFloat</span>(point.x),
+                          y: <span class="hljs-type">CGFloat</span>(<span class="hljs-number">1</span> - point.y))
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">let</span> scale = <span class="hljs-type">CGAffineTransform</span>(scaleX: faceBox.width,
+                                  y: faceBox.height)
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">let</span> translation = <span class="hljs-type">CGAffineTransform</span>(
+                        translationX: faceBox.origin.x,
+                        y: faceBox.origin.y)
+    <span class="hljs-keyword">let</span> adjustedPoint =
+        cgPoint.applying(scale).applying(translation)
+    drawPoints.append(adjustedPoint)
+  }
+  <span class="hljs-keyword">return</span> drawPoints
+}</pre>
+<p>Face landmarks are a path of points normalized to the overall face rectangle and are in a “flipped” CIImage coordinate system. For each point, this method does the following:
+</p>
+<ol>
+<li>
+<p>Flips the point to core graphics orientation, with the origin in the upper left.
+</p></li>
+
+<li>
+<p>Scales the normalized point to the face’s size.
+</p></li>
+
+<li>
+<p>Translates the point to the face’s origin.
+</p></li>
+</ol>
+
+<p>The result is a <code>CGPoint</code> array in the image view’s coordinates that form the contour of the given feature.
+</p>
+<p>If <code>drawDebug</code> is still set to <code>true</code>, you can build and run to see lines drawn around the eyes.
+</p><div><img src="graphics/img140.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Adding the sunglasses</h3>
+
+<p>Now that the eyes are identified, you can go ahead and draw some sunglasses.
+</p>
+<p>In <em>AnnotationView.swift</em> replace <code>drawGlasses(left:right:)</code> with:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawGlasses</span><span class="hljs-params">(<span class="hljs-keyword">left</span>: [CGPoint], <span class="hljs-keyword">right</span>: [CGPoint])</span></span> {
+  <span class="hljs-keyword">let</span> total = <span class="hljs-keyword">left</span> + <span class="hljs-keyword">right</span>
+  <span class="hljs-keyword">let</span> minX = total.<span class="hljs-built_in">reduce</span>(<span class="hljs-type">CGFloat</span>.infinity) { <span class="hljs-built_in">min</span>($<span class="hljs-number">0</span>, $<span class="hljs-number">1</span>.x) }
+  <span class="hljs-keyword">let</span> minY = total.<span class="hljs-built_in">reduce</span>(<span class="hljs-type">CGFloat</span>.infinity) { <span class="hljs-built_in">min</span>($<span class="hljs-number">0</span>, $<span class="hljs-number">1</span>.y) }
+  <span class="hljs-keyword">let</span> maxX = total.<span class="hljs-built_in">reduce</span>(<span class="hljs-number">0</span>) { <span class="hljs-built_in">max</span>($<span class="hljs-number">0</span>, $<span class="hljs-number">1</span>.x) }
+  <span class="hljs-keyword">let</span> maxY = total.<span class="hljs-built_in">reduce</span>(<span class="hljs-number">0</span>) { <span class="hljs-built_in">max</span>($<span class="hljs-number">0</span>, $<span class="hljs-number">1</span>.y) }
+
+  <span class="hljs-keyword">let</span> width = <span class="hljs-built_in">max</span>(maxX - minX, <span class="hljs-number">16.0</span>)
+  <span class="hljs-keyword">let</span> x = (maxX - minX) / <span class="hljs-number">2.0</span> + minX - width / <span class="hljs-number">2.0</span>
+
+  <span class="hljs-keyword">let</span> height = <span class="hljs-built_in">max</span>(maxY - minY, <span class="hljs-number">8.0</span>)
+  <span class="hljs-keyword">let</span> y = (maxY - minY) / <span class="hljs-number">2.0</span> + minY - height / <span class="hljs-number">2.0</span>
+
+  <span class="hljs-keyword">let</span> eyesRect = <span class="hljs-type">CGRect</span>(x: x, y: y,
+                        width: width, height: height)
+
+  glasses.draw(<span class="hljs-keyword">in</span>: eyesRect)
+}</pre>
+<p>In order to have sunglasses that sit across the face, they have to cover both eyes. Since the eyes are represented by a series of points, this method finds a box that encloses all the points from both eyes. Then it makes sure the bounds are at least 16 points wide and 8 points tall so that the image is discernible when drawn. Finally, it takes the sunglass image and draws it in the calculated rectangle.
+</p>
+<p>Wanna see sunglasses in action? Build and run.
+</p><div><img src="graphics/img141.png"  alt="" title="" /></div>
+<p>It’s also a good time to check out an image with people on a beach. If you don’t have one handy, drag in <em>kids</em><em>_</em><em>at</em><em>_</em><em>beach.jpg</em> and open it up!
+</p><div><img src="graphics/img142.png"  alt="" title="" /></div>
+<p>Oops! The kids have both ranger hats and sunglasses. You’ll need to determine whether this is a hiking or beach scene somehow.
+</p>
+<h2 class="segment-chapter">Core ML: Scene Classification</h2>
+
+<p>The app’s goal is to draw a situation-appropriate accessory on the heads in an image. In this case, it’s a ranger hat in a forest and sunglasses on a beach. Right now the app is doing both, so you’re going to fix that.
+</p>
+<p>In an iOS 10 world, you might present a chooser to the user to select what type of scene is depicted. In iOS 11, you can access machine learning through Core ML. That means you can have a neural network automatically identify the image. Apple provides several ready-to-use models for image classification at <a href="https://developer.apple.com/machine-learning/">https://developer.apple.com/machine-learning/</a>. This means no need to learn Python and code train a model yourself!
+</p>
+<h3 class="segment-chapter">The Core ML Model</h3>
+
+<p>This app uses the <em>Places205-GoogLeNet</em> model. This model tries to categorize the background of an image’s scene as one of 205 places, such as a lighthouse, igloo, shoe shop, train platform, and so on. It has already been included in the project, as <em>GoogLeNetPlaces.mlmodel</em>. Open the model in the Project Navigator.
+</p><div class="image-80"><img src="graphics/img143.png"  alt="" title="" /></div>
+<p>The top section is the model’s metadata. The most important value is the model Type, which is a Neural Network Classifier. A classifier looks at the input and assigns a label. In this case, the neural network evaluates an image and returns a location description. And if neural networks are not good enough for you, Core ML also supports tree ensembles, support vector machines, and pipeline models.
+</p>
+<div class="note">
+<p><em>Note</em>: You can find more information about these models and how Core ML supports them in Apple’s developer documentation at <a href="http://apple.co/2sjpAXw">http://apple.co/2sjpAXw</a>.
+</p></div>
+
+<p>The bottom section, Model Evaluation Parameters, describes the inputs and outputs of the model.
+</p>
+<p>There is one input: <code>sceneImage</code>. This is a 224x224 RGB image. Vision automatically massages the input image so it fits a model’s required size.
+</p>
+<p>There are two outputs: <code>sceneLabel</code>, and <code>sceneLabelProbs</code>. <code>sceneLabel</code> is the classification label. This is the most likely scene type and is a <code>String</code>. <code>sceneLabelProbs</code> is a dictionary that lists the probabilities that the image is of every known scene. Machine learning is imprecise, and some images can be hard to classify. Therefore, images might have multiple labels that are close in probability, or all labels might have really low probability. This means the most likely <code>sceneLabel</code> might just be noise.
+</p>
+<p>For example, a picture of a rooftop garden at a hotel bar with a mountain in the background might score almost as well for a bar, garden, hotel, and mountain since it contains features for all of those classifications. Depending on the inputs that were used to train the model, several classifications might be equally probably, or one type of classification might be a clear winner. Either way, only one value with the highest absolute probability will be the <code>sceneLabel</code> in this case.
+</p>
+<p>In the middle of the model file’s editor is the Model Class. Core ML exposes a model to the app’s code through an automatically generated class.
+</p>
+<p>Click the arrow next to <code>GoogLeNetPlaces</code> to open the Swift file. It has a class <code>GoogLeNetPlacesInput</code> for the inputs, <code>GoogLeNetPlacesOutput</code> for the outputs, and <code>GoogLeNetPlaces</code> for the model itself. The input class wraps a <code>CVPixelBuffer</code> for the image. As you’ll see in the next section, Vision handles building the input for you.
+</p>
+<h3 class="segment-chapter">Using the Model</h3>
+
+<p>Vision provides a special request type, <code>VNCoreMLRequest</code> for running a Core ML classification on an image. Back to <em>ImageViewController.swift</em>, in <code>viewWillAppear(_:)</code> replace everything after:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> handler = <span class="hljs-type">VNImageRequestHandler</span>(cgImage: cgImage,
+                                    orientation: orientation)</pre>
+<p>...with:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> requests: [<span class="hljs-type">VNRequest</span>] = [faceRequest]
+
+<span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">let</span> leNetPlaces = <span class="hljs-type">GoogLeNetPlaces</span>()
+<span class="hljs-comment">// 2</span>
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> model = <span class="hljs-keyword">try</span>? <span class="hljs-type">VNCoreMLModel</span>(<span class="hljs-keyword">for</span>: leNetPlaces.model) {
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">let</span> mlRequest = <span class="hljs-type">VNCoreMLRequest</span>(model: model,
+                    completionHandler: handleClassification)
+  requests.append(mlRequest)
+}
+
+<span class="hljs-type">DispatchQueue</span>.global(qos: .userInteractive).async {
+  <span class="hljs-keyword">do</span> {
+    <span class="hljs-comment">// 4</span>
+    <span class="hljs-keyword">try</span> handler.perform(requests)
+  } <span class="hljs-keyword">catch</span> {
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"Error handling vision request <span class="hljs-subst">\(error)</span>"</span>)
+  }
+}</pre>
+<p>Taking each numbered comment in turn:
+</p>
+<ol>
+<li>
+<p>This first creates an instance of the model <code>GoogLeNetPlaces</code>.
+</p></li>
+
+<li>
+<p>The model is wrapped in a <code>VNCoreMLModel</code> container.
+</p></li>
+
+<li>
+<p>The model is fed to a <code>VNCoreMLRequest</code>.
+</p></li>
+
+<li>
+<p>The request handler then performs this request, along with the original face landmarks request.
+</p></li>
+</ol>
+
+<p>Fix the compilation error by adding the following method:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">handleClassification</span><span class="hljs-params">(request: VNRequest, error: Error?)</span></span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> observations = request.results
+    <span class="hljs-keyword">as</span>? [<span class="hljs-type">VNClassificationObservation</span>] <span class="hljs-keyword">else</span> {
+      <span class="hljs-built_in">print</span>(<span class="hljs-string">"unexpected result type from VNCoreMLRequest"</span>)
+      <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> bestResult = observations.first <span class="hljs-keyword">else</span> {
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"Did not a valid classification"</span>)
+    <span class="hljs-keyword">return</span>
+  }
+
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-keyword">let</span> scene = <span class="hljs-type">SceneType</span>(classification: bestResult.identifier)
+    <span class="hljs-keyword">self</span>.annotationView.classification = scene
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">"Scene: '<span class="hljs-subst">\(bestResult.identifier)</span>' "</span>
+        + <span class="hljs-string">"<span class="hljs-subst">\(bestResult.confidence)</span>%"</span>)
+  }
+}</pre>
+<p>The classification will be returned as a <code>VNClassificationObservation</code> in the results field of the request. This result is then wrapped as a custom <code>SceneType</code> enum and passed to the annotation view, which will choose which annotations to draw.
+</p>
+<p>GoogLeNetPlaces provides a whopping 205 possible places for an image scene. However, this is hardly exhaustive. In fact, neither forest or beach is in its list of known places! Check out <em>IndoorOutdoor</em><em>_</em><em>places205.csv</em> in the project directory for a complete listing. The <code>SceneType</code> enum helps map some of the known places to a possible forest or beach. As more types of places are added to the things the app cares about, this logic could get quite interesting.
+</p>
+<p>Build and run. This time when an image is opened, the best classification is printed in the console. For our hiker, it guesses <code>Scene: &apos;rope_bridge&apos; 0.202607%</code>. This seems like a reasonable guess given his stance. For a bigger shocker, try the kids on the beach. This says: <code>Scene: &apos;playground&apos; 0.0852083%</code>. Only 9% is not very confidence-inspiring, since the image is not of a playground!
+</p>
+<h3 class="segment-chapter">Using only one at a time</h3>
+
+<p>With the classification done and with the help of a magic enum, the app is now ready to use the classification to draw only one type of accessory.
+</p>
+<p>Open <em>AnnotationView.swift</em>. At the top of <code>drawHat(faceRect:)</code>, add:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> classification == .forest <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }</pre>
+<p>At the top of <code>drawGlasses(left:right:)</code>, add:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> classification == .beach <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }</pre>
+<p>Build and run, and now only one type of accessory will be drawn on an image. You can also set <code>drawDebug</code> back to <code>false</code> for a cleaner result.
+</p><div><img src="graphics/img144.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Tipping the hat</h2>
+
+<p>These overlay accessories sure look great, but they aren’t always believable. Heads are not always going to be lined up vertically like it’s a mug shot. The way to determine a face’s orientation is with its median line, which is literally a line down the middle of a face. It will be oriented in the same direction as the face, so if the face is tilted then the line will be at a corresponding angle, rather than straight up and down.
+</p>
+<p>Go back to <em>ImageViewController.swift</em>, locate <code>handleFaces(observations:)</code> and replace the last half of the <code>for face in observations</code> loop with:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> leftEye: [<span class="hljs-type">CGPoint</span>]?
+<span class="hljs-keyword">var</span> rightEye: [<span class="hljs-type">CGPoint</span>]?
+<span class="hljs-keyword">var</span> median: [<span class="hljs-type">CGPoint</span>]?
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> landmarks = face.landmarks {
+  leftEye = compute(feature: landmarks.leftEye,
+                    faceBox: faceBox)
+  rightEye = compute(feature: landmarks.rightEye,
+                     faceBox: faceBox)
+  median = compute(feature: landmarks.medianLine,
+                   faceBox: faceBox)
+}
+
+<span class="hljs-keyword">let</span> face = <span class="hljs-type">FaceDimensions</span>(faceRect: faceBox,
+                          leftEye: leftEye,
+                          rightEye: rightEye,
+                          median: median)
+faces.append(face)</pre>
+<p>This retrieves the <code>medianLine</code> property from the landmarks and adds it to data passed to the annotation view.
+</p>
+<p>Next, in <em>AnnotationView.swift</em> add the following method:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawAngled</span><span class="hljs-params">(to median: [CGPoint]?,
+                        <span class="hljs-keyword">in</span> accessoryRect: CGRect,
+                        image: UIImage)</span></span> {
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> median = median, median.<span class="hljs-built_in">count</span> &gt;= <span class="hljs-number">2</span> {
+
+    <span class="hljs-keyword">let</span> top = median.first!
+    <span class="hljs-keyword">let</span> bottom = median.last!
+    <span class="hljs-keyword">let</span> estimatedSlope = (top.y - bottom.y)
+      / (top.x - bottom.x )
+    <span class="hljs-keyword">let</span> degrees = atan2(<span class="hljs-number">1</span>, estimatedSlope)
+      + (estimatedSlope &lt; <span class="hljs-number">0</span> ? <span class="hljs-type">CGFloat</span>.pi : <span class="hljs-number">0</span>)
+
+    <span class="hljs-keyword">let</span> context = <span class="hljs-type">UIGraphicsGetCurrentContext</span>()
+    context?.saveGState()
+
+    context?.translateBy(x: accessoryRect.midX,
+                         y: accessoryRect.midY)
+    <span class="hljs-keyword">let</span> angle: <span class="hljs-type">CGFloat</span> = -degrees
+    context?.rotate(by: angle)
+
+    context?.translateBy(x: -accessoryRect.width / <span class="hljs-number">2</span>
+      - (accessoryRect.midX - top.x),
+                         y: -accessoryRect.height / <span class="hljs-number">2</span>)
+    <span class="hljs-keyword">let</span> drawRect = <span class="hljs-type">CGRect</span>(origin: .zero,
+                          size: accessoryRect.size)
+    image.draw(<span class="hljs-keyword">in</span>: drawRect)
+
+    context?.restoreGState()
+  } <span class="hljs-keyword">else</span> {
+    image.draw(<span class="hljs-keyword">in</span>: accessoryRect)
+  }
+}</pre>
+<p>This computes a face angle by finding the slope between the top and bottom points of the median line. Then it rotates the draw context around the face midpoint and draws the accessory image.
+</p>
+<p>Make sure this new method gets called by both drawing methods.
+</p>
+<p>In <code>drawFaceAnnotations()</code> replace the call to <code>drawHat(faceRect:)</code> with:
+</p><pre class="code-block">drawHat(faceRect: faceRect, median: face.median)</pre>
+<p>Then update the signature of <code>drawHat(faceRect:)</code> to:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawHat</span><span class="hljs-params">(faceRect: CGRect, median: [CGPoint]?)</span></span> {</pre>
+<p>Then replace <code>hat.draw(in: hatRect)</code> with:
+</p><pre class="code-block">drawAngled(to: median, <span class="hljs-keyword">in</span>: hatRect, image: hat)</pre>
+<p>Next do the same for the sunglasses. In <code>drawEyeAnnotations()</code> replace the call to <code>drawGlasses</code> with:
+</p><pre class="code-block">drawGlasses(<span class="hljs-keyword">left</span>: <span class="hljs-keyword">left</span>, <span class="hljs-keyword">right</span>: <span class="hljs-keyword">right</span>, median: face.median)</pre>
+<p>Change the signature of <code>drawGlasses(left:right:)</code> to:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawGlasses</span><span class="hljs-params">(<span class="hljs-keyword">left</span>: [CGPoint], <span class="hljs-keyword">right</span>: [CGPoint],
+                         median: [CGPoint]? )</span></span> {</pre>
+<p>And finally replace <code>glasses.draw(in: eyesRect)</code> with:
+</p><pre class="code-block">drawAngled(to: median, <span class="hljs-keyword">in</span>: eyesRect, image: glasses)</pre>
+<p>Build and run. Boom! The hats and glasses are now aligned with each face’s rotation.
+</p><div><img src="graphics/img145.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>One obvious next step is adding more fun accessories, based on other scenes and face landmarks. For example, adding clown noses to people at a circus. Additional scenes can be mapped from the classification labels to the <code>SceneType</code> enum.
+</p>
+<p>In addition, the Vision Framework provides lots of other new functionality. Image registration can be used to straighten pictures or stitch together multiple photos into a single image. Rectangle detection can be used to pick out signs, flat surfaces, or boxes. Barcode detection can identify all sorts of common bar codes. Text detection can pick out words and letters from an image, and you could combine that with OCR or Core ML to do a live translation.
+</p>
+<p>In addition to images, all Vision requests also work with video content. That means these annotations can be combined with the camera to provide live filters. For video content, the Vision framework provides object tracking: An identified object, such as a face or rectangle, can be tracked across multiple frames, even if it moves, scales, and rotates!
+</p>
+<p>You could solve the beach scene confidence issue by replacing GoogLeNetPlaces with a broader or more accurate classifier. Or you could create a model that automatically determines the most appropriate fun accessory. Or even replace one background in a scene with another. We can’t wait to see what you come up with!
+</p></body></html>

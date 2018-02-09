@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 7: Advanced Drag and Drop</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Advanced Drag and Drop</h1>
+
+<p>Drag and drop has finally arrived with iOS 11, and once you’ve experienced it, you’ll realize how important this feature really is. While Apple’s implementation is quite straightforward, there’s a lot to know to use it effectively.
+</p>
+<p>In Chapter 6, “Beginning Drag and Drop”, you learned the basics while focusing on collection views. In this chapter you’ll learn how to drag and drop between apps. You’ll also dive deeper, and learn some flexible APIs for working with custom views.
+</p>
+<p>The stars of this show are <code>UIDragInteractionDelegate</code> and <code>UIDropInteractionDelegate</code>. These protocols define behavior for dragging and dropping, respectively. Their core functionality is similar to <code>UICollectionViewDragDelegate</code> and <code>UICollectionViewDropDelegate</code>, but they offer far more options for customization, particularly around animation and security.
+</p>
+<p>A drag starts in the source app, and generates a <i>drag session</i>: an OS-managed object that oversees the drag. The drop occurs in the destination app, and generates a drop session. <code>UIDragSession</code> and <code>UIDropSession</code> provide the drag and drop delegates with information about the items being dragged, including their locations, and the actual data.
+</p>
+<p>For a view to accept drags, it needs a <code>UIDragInteraction</code> configured with a <code>UIDragInteractionDelegate</code>. When a drag is initiated on that view, the delegate must return one, or more, <code>UIDragItem</code> objects. Each <code>UIDragItem</code> uses an <code>NSItemProvider</code> to share the object being dragged.
+</p>
+<p>When the user releases the drag over a view containing a <code>UIDropInteraction</code>, the corresponding <code>UIDropInteractionDelegate</code> is asked if it can handle the drop. The delegate can then obtain the <code>UIDragItem</code> objects from the drop session, and load their data using <code>NSItemProvider</code> objects.
+</p><div class="image-100"><img src="graphics/img111.jpg"  alt="" title="" /></div>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>You’ll be working with two sample apps in this chapter. <em>National Parks</em> allows you to view basic info about various U.S. National Parks. It will act as the source app. <em>Hike Journal</em> presents a map of a park you’ll be hiking, and allows you to record notes, and pictures. It will act as the destination app.
+</p>
+<p>Open <em>ParkHiker.xcworkspace</em> in the starter project folder. Select the <em>NationalParks</em> scheme, and chose any iPad simulator, or device.
+</p><div class="image-40"><img src="graphics/img112.png"  alt="" title="" /></div>
+<p>Build and run <em>NationalParks</em>, and you’ll see a paging view that displays park names, descriptions, and coordinates.
+</p><div class="image-65"><img src="graphics/img113.jpeg"  alt="" title="" /></div>
+<p>To make setting up split screen a little easier, drag <em>NationalParks</em> from the Springboard to your dock.
+</p><div class="image-50"><img src="graphics/img114.png"  alt="" title="" /></div>
+<p>Now build and run the <em>HikeJournal</em> scheme on the same device. You’ll see various blank views you’ll use for displaying info about your hike.
+</p>
+<p>Swipe up from the bottom to reveal the dock. Drag National Parks to the left of Hike Journal, taking half the screen. You’ll work in this configuration through most of this chapter.
+</p><div class="image-75"><img src="graphics/img115.jpeg"  alt="" title="" /></div>
+<h2 class="segment-chapter">Adding drag support</h2>
+
+<p>Tap and hold the park image in National Parks, and nothing will happen. Making the image draggable is a great place to start.
+</p>
+<p>For a view to respond to drags, it needs a <code>UIDragInteraction</code> to accept the gesture, and a <code>UIDragInteractionDelegate</code> to respond to <code>UIDragSession</code> requests. The system creates a <code>UIDragSession</code> when a view with a <code>UIDragInteraction</code> is touched. The session then asks the interaction’s delegate if it should proceed with a <i>lift</i>.
+</p>
+<p>Open <em>ParkViewController.swift</em>, and add the following extension at the end of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">ParkViewController</span>: <span class="hljs-title">UIDragInteractionDelegate</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(<span class="hljs-number">_</span> interaction: UIDragInteraction,
+                       itemsForBeginning session: UIDragSession)</span></span>
+    -&gt; [<span class="hljs-type">UIDragItem</span>] {
+      <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> parkImage = imageView.image <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> [] }
+      <span class="hljs-keyword">let</span> provider = <span class="hljs-type">NSItemProvider</span>(object: parkImage)
+      <span class="hljs-keyword">let</span> dragItem = <span class="hljs-type">UIDragItem</span>(itemProvider: provider)
+      <span class="hljs-keyword">return</span> [dragItem]
+  }
+}</pre>
+<p>You’ve implemented <code>dragInteraction(_:itemsForBeginning:)</code>, the only required method in <code>UIDragInteractionDelegate</code>. It contains information about the <code>UIDragSession</code>, and returns an array of <code>UIDragItem</code> objects representing the content being dragged.
+</p>
+<p>This creates an <code>NSItemProvider</code>, passing it the unwrapped <code>imageView.image</code> corresponding to the park photo you’ll be dragging. <code>NSItemProvider</code> is considered as a promise made by the drag session to deliver the given item. <code>UIDragItem</code>, the object representing the data to the session, is created with the provider and returned.
+</p>
+<p>When <code>dragInteraction(_:itemsForBeginning:)</code> returns a <code>UIDragItem</code>, the session gives the thumbs up to proceed with a lift. Before it can happen, something has to create a session to make the request!
+</p>
+<p>Add the following code in <code>viewDidLoad</code> just after the call to <code>super</code>:
+</p><pre class="code-block">imageView.isUserInteractionEnabled = <span class="hljs-literal">true</span>
+<span class="hljs-keyword">let</span> dragInteraction = <span class="hljs-type">UIDragInteraction</span>(delegate: <span class="hljs-keyword">self</span>)
+stackView.addInteraction(dragInteraction)</pre>
+<p><code>isUserInteractionEnabled</code> is first set to <code>true</code> to allow the user to interact with the <code>imageView</code>. A <code>UIDragInteraction</code> is then created with <code>self</code> as the delegate, allowing it to call the <code>UIDragInteractionDelegate</code> method you just defined. <code>addInteraction</code> ties the interaction to the <code>stackView</code> containing all of the park info.
+</p>
+<p>Build and run the <em>NationalParks</em> scheme, and long press anywhere on the park listing. The entire stack view lifts up, but has nowhere to go!
+</p>
+<p>Hike Journal isn’t yet set up for image drops, but <em>Photos.app</em> is! Position the Photos app in Hike Journal’s pane, and drag a park image to it. When you drag over Photos, a <em>+</em> badge will appears over it indicating the view can accept that drop. Release, and the park image will be copied to your photo library.
+</p><div class="image-75"><img src="graphics/img116.png"  alt="" title="" /></div>
+<p>A number of cool things just happened for free. A drag preview icon was created that matches the source view (the park’s <code>stackView</code>). You also saw animations at the start of the drag, and during the drop. You’ll see later in this chapter how easy these are to customize.
+</p>
+<h2 class="segment-chapter">Multiple representations with item providers</h2>
+
+<p>The image you just dragged worked because <code>UIImage</code> conforms to the <code>NSItemProviderWriting</code> protocol. This means a <code>UIImage</code> is able to tell its <code>NSItemProvider</code> what types of data it can provide, and then actually load it.
+</p>
+<p>The <code>Park</code> model used in this example has more than the image data you just transferred to Photos. It also contains the park name, description, and coordinates. Wouldn’t it be handy if portions of the data, or even the entire object, were made available, depending on what the receiving app could handle?
+</p>
+<p>Open <em>Park.swift</em>, and add the following lines just below the existing imports:
+</p><pre class="code-block"><span class="hljs-keyword">import</span> MobileCoreServices
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">let</span> parkTypeId = <span class="hljs-string">"com.razeware.park"</span></pre>
+<p><code>MobileCoreServices</code> contains UTI definitions which are used by drag and drop to identify types of data. To learn more about UTI, read up here: <a href="http://apple.co/2t5cN7E">apple.co/2t5cN7E</a>. <code>parkTypeId</code> is a custom ID string that will be used to identify a <code>Park</code> object.
+</p>
+<p>Next, add an extension to the bottom of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Park</span>: <span class="hljs-title">NSItemProviderWriting</span> </span>{
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">var</span> writableTypeIdentifiersForItemProvider:
+    [<span class="hljs-type">String</span>] {
+    <span class="hljs-keyword">return</span> [parkTypeId,
+            kUTTypePNG <span class="hljs-keyword">as</span> <span class="hljs-type">String</span>,
+            kUTTypePlainText <span class="hljs-keyword">as</span> <span class="hljs-type">String</span>]
+  }
+  
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">loadData</span><span class="hljs-params">(
+    withTypeIdentifier typeIdentifier: String,
+    forItemProviderCompletionHandler completionHandler:
+    @escaping <span class="hljs-params">(Data?, Error?)</span></span></span> -&gt; <span class="hljs-type">Void</span>) -&gt; <span class="hljs-type">Progress</span>? {
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">if</span> typeIdentifier == kUTTypePNG <span class="hljs-keyword">as</span> <span class="hljs-type">String</span> {
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> imageData = <span class="hljs-type">UIImagePNGRepresentation</span>(image) {
+        completionHandler(imageData, <span class="hljs-literal">nil</span>)
+      } <span class="hljs-keyword">else</span> {
+        completionHandler(<span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>)
+      }
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> typeIdentifier == kUTTypePlainText <span class="hljs-keyword">as</span> <span class="hljs-type">String</span> {
+      completionHandler(name.data(using: .utf8), <span class="hljs-literal">nil</span>)
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> typeIdentifier == parkTypeId {
+      <span class="hljs-keyword">let</span> data =
+        <span class="hljs-type">NSKeyedArchiver</span>.archivedData(withRootObject: <span class="hljs-keyword">self</span>)
+      completionHandler(data, <span class="hljs-literal">nil</span>)
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+  }
+}</pre>
+<p><code>Park</code> now fully conforms to <code>NSItemProviderWriting</code>. Here’s a closer look at what’s happening:
+</p>
+<ol>
+<li>
+<p><code>writableTypeIdentifiersForItemProvider</code> needs to return an array of UTI Strings to identify types of data this object can provide. These must be provided in fidelity order, with the highest fidelity item first. Here, the entire <code>Park</code> object is preferred, followed by PNG, with plain text being the least preferred.
+</p></li>
+
+<li>
+<p>When a drop session requests data from an item provider, it calls <code>loadData</code> to get it. <code>typeIdentifier</code> indicates the data format preferred by the requesting drop session. The closure is responsible for loading data based on the requested type.
+</p></li>
+
+<li>
+<p>For the custom <code>parkTypeId</code>, <code>NSKeyedArchiver</code> is used to archive the <code>Park</code> object. For <code>kUTTTypePNG</code>, <code>UIImagePNGRepresentation</code> is used to load data from the Park’s <code>image</code>. For <code>kUTTypePlainText</code>, the Park <code>name</code> is encoded with <code>utf8</code>.
+</p></li>
+</ol>
+
+<p>Open <em>ParkViewController.swift</em>, and locate <code>dragInteraction(_:itemsForBeginning)</code>. Replace the contents with the following:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> park = park <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> [] }
+<span class="hljs-keyword">let</span> provider = <span class="hljs-type">NSItemProvider</span>(object: park)
+<span class="hljs-keyword">let</span> dragItem = <span class="hljs-type">UIDragItem</span>(itemProvider: provider)
+<span class="hljs-keyword">return</span> [dragItem]</pre>
+<p>This now passes the entire <code>park</code> object to <code>NSItemProvider</code>, rather than the image.
+</p>
+<p>Build and run the <em>NationalParks</em> scheme, drag a park to Photos, then to Reminders. You’ll see the park image drop for Photos, and the name for Reminders.
+</p>
+<div class="note">
+<p><em>Note</em>: If you get a compiler error complaining that <code>park</code> does not conform to <code>NSItemProviderWriting</code>, you may need to restart Xcode. The build actually succeeds but the error may still be flagged in the Xcode source editor window.
+</p></div>
+<div class="image-75"><img src="graphics/img117.png"  alt="" title="" /></div>
+<p>Nothing exists that can accept the entire <code>Park</code> object — <i>yet</i>. Time to make that happen!
+</p>
+<h2 class="segment-chapter">Adding drop support</h2>
+
+<p>When you drag a park from the National Parks app you want it to populate the title label, map, and first image in the Hike Journal when dropped. First, you need to implement the other <code>NSItemProvider</code> protocol: <code>NSItemProviderReading</code>.
+</p>
+<p>Open <em>Park.swift</em>, and the following to the bottom of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Park</span>: <span class="hljs-title">NSItemProviderReading</span> </span>{
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">var</span> readableTypeIdentifiersForItemProvider:
+    [<span class="hljs-type">String</span>] {
+    <span class="hljs-keyword">return</span> [parkTypeId]
+  }
+}</pre>
+<p><code>readableTypeIdentifiersForItemProvider</code> looks just like its <code>NSItemProviderWriting</code> counterpart, but provides UTI types the item provider can read. You pass <code>parkTypeId</code> because Hike Journal will only accept <code>Park</code> object drops.
+</p>
+<p><code>NSItemProviderReading</code> also requires another method. Add the following at the bottom of the extension you just created:
+</p><pre class="code-block"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">object</span><span class="hljs-params">(withItemProviderData data: Data,
+                       typeIdentifier: String)</span></span> <span class="hljs-keyword">throws</span> -&gt; <span class="hljs-type">Self</span> {
+    <span class="hljs-keyword">switch</span> typeIdentifier {
+    <span class="hljs-keyword">case</span> parkTypeId:
+      <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> park = <span class="hljs-type">NSKeyedUnarchiver</span>
+        .unarchiveObject(with: data) <span class="hljs-keyword">as</span>? <span class="hljs-type">Park</span>
+        <span class="hljs-keyword">else</span> { <span class="hljs-keyword">throw</span> <span class="hljs-type">EncodingError</span>.invalidData }
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>.<span class="hljs-keyword">init</span>(park)
+    <span class="hljs-keyword">default</span>:
+      <span class="hljs-keyword">throw</span> <span class="hljs-type">EncodingError</span>.invalidData
+    }
+  }</pre>
+<p><code>data</code> contains the <code>Data</code> you formatted via <code>loadData</code> in the <code>Park</code> class. <code>typeIdentifier</code> is the UTI String identifying the data type. Between these, the method has the archived <code>Data</code>, and knows it contains a <code>Park</code> object. It accordingly initializes a <code>Park</code>.
+</p>
+<p><code>Park</code> is now capable of being dropped as a <code>UIDragItem</code>. The next step is to prepare Hike Journal to receive it by implementing <code>UIDropInteractionDelegate</code>.
+</p>
+<p>Open <em>HikeViewController.swift</em>, and add the following at the bottom:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">HikeViewController</span>: <span class="hljs-title">UIDropInteractionDelegate</span> </span>{
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dropInteraction</span><span class="hljs-params">(
+    <span class="hljs-number">_</span> interaction: UIDropInteraction,
+    canHandle session: UIDropSession)</span></span> -&gt; <span class="hljs-type">Bool</span> {
+      <span class="hljs-keyword">return</span> session.canLoadObjects(ofClass: <span class="hljs-type">Park</span>.<span class="hljs-keyword">self</span>)
+  }
+  
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dropInteraction</span><span class="hljs-params">(<span class="hljs-number">_</span> interaction: UIDropInteraction,
+                       sessionDidUpdate session: UIDropSession)</span></span>
+    -&gt; <span class="hljs-type">UIDropProposal</span> {
+      <span class="hljs-keyword">return</span> <span class="hljs-type">UIDropProposal</span>(operation: .copy)
+  }
+  
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dropInteraction</span><span class="hljs-params">(<span class="hljs-number">_</span> interaction: UIDropInteraction,
+                       performDrop session: UIDropSession)</span></span> {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> dropItem = session.items.last <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-comment">// 4</span>
+    dropItem.itemProvider.loadObject(ofClass: <span class="hljs-type">Park</span>.<span class="hljs-keyword">self</span>) {
+      [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] object, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+      <span class="hljs-keyword">self</span>.park = object <span class="hljs-keyword">as</span>? <span class="hljs-type">Park</span>
+      <span class="hljs-comment">// 5</span>
+      <span class="hljs-type">DispatchQueue</span>.main.async {
+        <span class="hljs-keyword">self</span>.displayPark()
+      }
+    }
+  }
+}</pre>
+<p><code>UIDropInteractionDelegate</code> has no required methods, but a few that need to be implemented for a drop to work. Here’s a look at those you’ve added:
+</p>
+<ol>
+<li>
+<p><code>dropInteraction(_:canHandle:)</code> is the first method called by a drop session. Its response indicates if the interaction is interested in the drop. <code>canLoadObjects</code> is called to determine if the session has any <code>Park</code> drop items. If it does, you want to accept the drop.
+</p></li>
+
+<li>
+<p><code>dropInteraction(_:sessionDidUpdate:)</code> is called when a drag enters the interaction’s view, and repeatedly as the drag continues. Its primary responsibility is to return a <code>UIDropProposal</code> to tell the session what it wants to do with the item. In this case it returns a proposal for a copy operation, indicating it wants a copy of the object being dropped.
+</p></li>
+
+<li>
+<p><code>dropInteraction(_:performDrop:)</code> is called when the user releases the item over the view, and is your only opportunity for requesting data from the drop items. You access the drop items via the session (<code>session.items</code>), pulling only the <code>last</code> because this view expects a single item.
+</p></li>
+
+<li>
+<p><code>loadObject</code> asynchronously loads the dropped data, and fires a closure when done. In the closure, the view controller’s <code>park</code> property is set to the newly loaded <code>object</code>.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>Because loading occurs on a background thread, you need to dispatch on the main queue before updating the UI. <code>displayPark</code> is included in the starter, and populates the Hike Journal UI with data from the newly stored <code>park</code>.
+</p></li>
+</ol>
+
+<div class="note">
+<p><em>Note</em>: There are several drop operation types in addition to <code>copy</code>:
+</p>
+<p><code><em>cancel</em></code> indicates no data should be transferred. A default badge is added to these previews showing a drop there would cancel.
+</p>
+<p><code><em>forbidden</em></code> indicates a location where a move or copy would normally be available, but isn’t currently. This also uses a unique badge.
+</p>
+<p><code><em>move</em></code> indicates the drop will result in data being removed from the source, and copied to the destination.
+</p></div>
+
+<p>In <code>viewDidLoad</code>, add the following after the call to <code>super</code>:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> dropInteraction = <span class="hljs-type">UIDropInteraction</span>(delegate: <span class="hljs-keyword">self</span>)
+view.addInteraction(dropInteraction)</pre>
+<p>This defines the drop interaction, and adds it to the <code>view</code>. Hike Journal is now ready to accept Park drops!
+</p>
+<p>Build and run <em>HikeJournal</em>. In split view, drag a park from National Parks over to Hike Journal. You’ll now see the park name, map location, and first image load from the dropped Park!
+</p><div class="image-75"><img src="graphics/img118.png"  alt="" title="" /></div>
+<div class="note">
+<p><em>Note</em>: Again, you may get a compiler error complaining that <code>park</code> does not conform to <code>NSItemProviderReading</code>. As before, you may need to restart Xcode. The build actually succeeds but the error may still be flagged in the Xcode source editor window.
+</p></div>
+
+<h2 class="segment-chapter">Animating drag &amp; drop</h2>
+
+<p>You’re now successfully dragging and dropping a park between two apps, though the visuals leave something to be desired.
+</p>
+<p>When you drop, there’s no indication anything has happened until the data suddenly appears after a delay. If you cancel a drag outside of a drop area by lifting your finger, the preview expands out from the touch point, and disappears. These behaviors kill the illusion that you’ve actually dragged the park from one area to another.
+</p>
+<p>Fortunately, <code>UIDragInteractionDelegate</code> and <code>UIDropInteractionDelegate</code> have you covered! Here’s a high-level look at the delegate calls involved in animation, and the order in which they act.
+</p>
+<p>First, the <code>UIDragInteractionDelegate</code> side triggers:
+</p>
+<ol>
+<li>
+<p><code>dragInteraction(_:previewForLifting:session:)</code> lets you provide a preview for the dragged item.
+</p></li>
+
+<li>
+<p><code>dragInteraction(_:willAnimateLiftWith:)</code> lets you add your own animations to the source view, alongside system animations.
+</p></li>
+
+<li>
+<p><code>dragInteraction(_:didEndWith:)</code> is called when the drag ends, either by canceling, or successfully dropping. This is your opportunity to revert any changes you made to the view during the drag.
+</p></li>
+
+<li>
+<p><code>dragInteraction(_:previewForCancelling:withDefault:)</code> allows you to provide a preview image for each canceled drag item along with info on where they should animate to in the source view.
+</p></li>
+
+<li>
+<p><code>dragInteraction(_:item:willAnimateCancelWith:)</code> is called when the cancel animation is about to start, and allows you to animate changes alongside the system animation.
+</p></li>
+</ol>
+
+<p><code>UIDropInteractionDelegate</code> provides similar callbacks on the destination end:
+</p>
+<ol>
+<li>
+<p><code>dropInteraction(_:sessionDidUpdate:)</code> is called when the drag enters the drop interaction’s view, and periodically as it moves. It can be used to alter the destination view based on location of the drag.
+</p></li>
+
+<li>
+<p><code>dropInteraction(_:previewForDropping:withDefault:)</code> is called when the drop occurs, and is responsible for creating a preview, and animation, to move dropped items to their final position.
+</p></li>
+
+<li>
+<p><code>dropInteraction(_:item:willAnimateDropWith:)</code> is called when the drop is about to occur, and allows you to animate changes to the destination view along with the system animations.
+</p></li>
+
+<li>
+<p><code>dropInteraction(_:concludeDrop)</code> is called when the drop completes, and is responsible for configuring the destination view to its final state.
+</p></li>
+</ol>
+
+<p>There is a <i>lot</i> to digest here (and this isn’t even all of the available calls), but these provide you control throughout the progression of a drag and drop. You’re also given the opportunity to customize the drag previews, and sync custom animations alongside the system’s. Fear not, you’ll walk through most of these in the pages ahead!
+</p>
+<h2 class="segment-chapter">Adding animation</h2>
+
+<p>You’ll start where it all begins: the lift. Currently, the entire park stack view lifts off the view. It would be nicer to have a more concise drag representation, so you’ll create a custom preview.
+</p>
+<p>Open <em>ParkViewController.swift</em>, and add the following to the <code>UIDragInteractionDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(<span class="hljs-number">_</span> interaction: UIDragInteraction,
+                     previewForLifting item: UIDragItem,
+                     session: UIDragSession)</span></span>
+  -&gt; <span class="hljs-type">UITargetedDragPreview</span>? {
+    <span class="hljs-comment">// 1</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> park = park, <span class="hljs-keyword">let</span> dragView = interaction.view
+      <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-type">UITargetedDragPreview</span>(view: interaction.view!)
+    }
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">let</span> parkView = <span class="hljs-type">ParkDragView</span>(park.image, name: park.name)
+    <span class="hljs-keyword">let</span> parameters = <span class="hljs-type">UIDragPreviewParameters</span>()
+    parameters.visiblePath =
+      <span class="hljs-type">UIBezierPath</span>(roundedRect: parkView.bounds, 
+                   cornerRadius: <span class="hljs-number">20</span>)
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">let</span> dragPoint = session.location(<span class="hljs-keyword">in</span>: dragView)
+    <span class="hljs-keyword">let</span> target = <span class="hljs-type">UIDragPreviewTarget</span>(container: dragView,
+                                     center: dragPoint)
+    <span class="hljs-keyword">return</span> <span class="hljs-type">UITargetedDragPreview</span>(view: parkView,
+                                 parameters: parameters,
+                                 target: target)
+}</pre>
+<p>This method creates a <code>UITargetedDragPreview</code> which consists of a view, and target location from which it animates. Here’s a closer look:
+</p>
+<ol>
+<li>
+<p>You grab a reference to <code>interaction.view</code>, which is the stack view where the drag interaction was configured. If this, or the <code>park</code>, are unavailable, you create a preview from the source view. This would be the default behavior, had you not implemented this method.
+</p></li>
+
+<li>
+<p><code>ParkDragView</code> displays the park name above its image, surrounded by a white border. You configure it with the <code>park</code>. <code>UIDragPreviewParameters</code> are used to apply a <code>UIBezierPath</code> to round the corners of the visible preview.
+</p></li>
+
+<li>
+<p><code>location(in:)</code> helps you identify the point in the source view’s frame where the drag occurred. The point is used to create a <code>UIDragPreviewTarget</code> to specify where the preview should originate. You then return a <code>UITargetedDragPreview</code> that will result in your rounded preview image presenting from the drag point.
+</p></li>
+</ol>
+
+<p>Build and run <em>NationalParks</em>, and long tap on a park until it lifts. This time you’ll see the new preview image appear from your touch point!
+</p><div class="image-40"><img src="graphics/img119.png"  alt="" title="" /></div>
+<p>
+</p>
+<p>It looks a bit strange that the preview represents the park during the drag while the park is still fully visible. Dimming it is a great way to emphasize what the drag preview represents, so you’ll do that next.
+</p>
+<p>Add the following to the <code>UIDragInteractionDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> interaction: UIDragInteraction,
+  willAnimateLiftWith animator: UIDragAnimating,
+  session: UIDragSession)</span></span> {
+  animator.addAnimations {
+    <span class="hljs-keyword">self</span>.imageView.alpha = <span class="hljs-number">0.25</span>
+  }
+}
+
+<span class="hljs-comment">// 2</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(<span class="hljs-number">_</span> interaction: UIDragInteraction,
+                     session: UIDragSession,
+                     didEndWith operation: UIDropOperation)</span></span> {
+  <span class="hljs-keyword">if</span> operation == .copy {
+    imageView.alpha = <span class="hljs-number">1.0</span>
+  }
+}
+
+<span class="hljs-comment">// 3</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> interaction: UIDragInteraction,
+  item: UIDragItem,
+  willAnimateCancelWith animator: UIDragAnimating)</span></span> {
+  animator.addAnimations {
+    <span class="hljs-keyword">self</span>.imageView.alpha = <span class="hljs-number">1.0</span>
+  }
+}</pre>
+<p>Here’s some detail on the three methods you implemented:
+</p>
+<ol>
+<li>
+<p><code>UIDragAnimating</code> allows you to add animations to run along with system animations. <code>addAnimations</code> takes an animation closure which you use to dim the park <code>imageView</code> via its <code>alpha</code>.
+</p></li>
+
+<li>
+<p>When the drop completes, you need to revert the dimmed state for <code>copy</code> operations because the item should still be there. If you were doing a move, this is where you’d want to clear the data from the source view.
+</p></li>
+
+<li>
+<p>For drag cancellations, you’re again provided an <code>animator</code> to gracefully revert your source view changes. In this case, you fade the <code>imageView</code> back in.
+</p></li>
+</ol>
+
+<p>Build and run, and you’ll see the background dim as the preview image animates in. Drag, and cancel it. Next, try dragging all the way to a successful drop in Hike Journal. In both cases, the park image will return to its prior state.
+</p><div class="image-40"><img src="graphics/img120.png"  alt="" title="" /></div>
+<p>Try dragging the preview within National Parks, and dropping before getting to Hike Journal. You’ll see the preview explode out from its current position and fade away. It would make more sense in this case if it popped back towards the park image to clarify the drag was ineffective.
+</p>
+<p>Add the following to the <code>UIDragInteractionDelegate</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> interaction: UIDragInteraction,
+  previewForCancelling item: UIDragItem,
+  withDefault defaultPreview: UITargetedDragPreview)</span></span>
+  -&gt; <span class="hljs-type">UITargetedDragPreview</span>? {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> superview = imageView.superview
+      <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> defaultPreview }
+    
+    <span class="hljs-keyword">let</span> target = <span class="hljs-type">UIDragPreviewTarget</span>(container: superview,
+                                     center: imageView.center)
+    <span class="hljs-keyword">return</span> <span class="hljs-type">UITargetedDragPreview</span>(
+      view: imageView,
+      parameters: <span class="hljs-type">UIDragPreviewParameters</span>(),
+      target: target)
+}</pre>
+<p>This returns a <code>UITargetedDragPreview</code> that provides a view, and target location for the cancel. <code>defaultPreview</code> is the behavior you observed when testing cancel, and you return it if the <code>guard</code> fails.
+</p>
+<p>A <code>UIDragPreviewTarget</code> is created from the center of the <code>imageView</code> in the source view. The same <code>imageView</code> is used as the <code>UITargetedDragPreview</code> view. Together, this means the drag preview will animate into the <code>imageView</code> frame while transforming from the drag preview to the <code>imageView</code>.
+</p>
+<p>Build and run, and test dragging to the far end of the National Parks view then releasing. You’ll see the image snap back in place.
+</p><div class="image-40"><img src="graphics/img121.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Indicating progress</h2>
+
+<p>It can take a while to load many data items, or even a single large data item, in <code>dropInteraction(_:performDrop:)</code>. You’ve probably noticed some lag when dropping in Hike Journal. You’re going to address this by adding a drop preview with a loading indicator.
+</p>
+<p>In <em>HikeViewController.swift</em>, add the following properties near the top of the class:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> progress: <span class="hljs-type">Progress</span>?
+<span class="hljs-keyword">var</span> loadingView: <span class="hljs-type">LoadingView</span>?</pre>
+<p><code>Progress</code> is a Foundation object allowing you to track progress and cancel processes. It’s used by item providers for both of these purposes. You’ll be relying on default behavior of <code>loadData</code> in <code>NSItemProviderWriting</code> to update this, but you can also do so manually by returning a <code>Progress</code> value in that method.
+</p>
+<p><code>LoadingView</code> is a custom view included in the starter project that displays a blurred background with a label in the center for displaying progress complete.
+</p>
+<p>Now you’ll place a progress indicator view over the entire Hike Journal while the drop loads. Add the following to your <code>UIDropInteractionDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dropInteraction</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> interaction: UIDropInteraction,
+  item: UIDragItem,
+  willAnimateDropWith animator: UIDragAnimating)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> progress = progress,
+    <span class="hljs-keyword">let</span> interactionView = interaction.view <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-comment">// 2</span>
+  loadingView = <span class="hljs-type">LoadingView</span>(interactionView.bounds, 
+                            progress: progress)
+  <span class="hljs-comment">// 3</span>
+  interactionView.addSubview(loadingView!)
+}</pre>
+<p><code>dropInteraction(_:item:willAnimateDropWith:)</code> is called when the drop animation is ready to start. In this case, you’re not actually animating the drop, but hiding it behind a blurred loading screen. Here’s how you did it:
+</p>
+<ol>
+<li>
+<p>Unwrap the <code>progress</code> property as well as the drop interaction’s view (<code>interaction.view</code>). You&apos;ll populate <code>progress</code> shortly.
+</p></li>
+
+<li>
+<p><code>LoadingView</code> will produce a blurred background covering the <code>interactionView.bounds</code>, and update a label with <code>progress</code> values using KVO. Open <em>LoadingView.swift</em>, part of the starter, and check out <code>observeValue</code> to see how <code>progress.fractionCompleted</code> is used to display percent completed.
+</p></li>
+
+<li>
+<p>Add <code>loadingView</code> to the <code>interactionView</code>, temporarily covering it.
+</p></li>
+</ol>
+
+<p>When the drag is completed, and the data loaded, you want to remove this loading view to unveil the copied park.
+</p>
+<p>Add the following to the top of <code>dropInteraction(:performDrop:)</code>, just below the <code>guard</code>:
+</p><pre class="code-block">session.progressIndicatorStyle = .<span class="hljs-keyword">none</span></pre>
+<p><code>progressIndicatorStyle</code> is an enum with two values: <code>none</code>, and <code>default</code>. The default will pop up an alert based progress indicator for long running loads (you may have seen it in earlier testing). As you’ve now implemented your own indicator, you’ve turned the default one off.
+</p>
+<p>In this same method, replace the existing <code>loadObject</code> call, and its closure, with:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+progress = dropItem.itemProvider.loadObject(ofClass: <span class="hljs-type">Park</span>.<span class="hljs-keyword">self</span>)
+{ [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] object, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-keyword">self</span>.park = object <span class="hljs-keyword">as</span>? <span class="hljs-type">Park</span>
+  
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-keyword">self</span>.displayPark()
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">self</span>.loadingView?.removeFromSuperview()
+    <span class="hljs-keyword">self</span>.loadingView = <span class="hljs-literal">nil</span>
+  }
+}</pre>
+<p>You’ve made two changes here:
+</p>
+<ol>
+<li>
+<p>The return value of <code>loadObject</code> is now stored in <code>progress</code>. This controller will now have access to progress updates, which the loading view observes.
+</p></li>
+
+<li>
+<p>Once the UI is updated with the loaded park, you remove the <code>loadingView</code> to unveil the updated destination view.
+</p></li>
+</ol>
+
+<p>Build and run <em>HikeJournal</em>, and drag a park from National Parks. This time, you’ll see a progress view cover the journal, displaying percent complete, and dismissing when complete.
+</p><div class="image-75"><img src="graphics/img122.png"  alt="" title="" /></div>
+<p>In this case, there isn’t much data to transfer, so you’re not likely to see this view for long. Consider a case where your drop has to pull data from iCloud, or another network source. Then, you shouldn’t count on the destination app running, much less being in the foreground, by completion.
+</p>
+<p>In such a case, you’d want to use a <code>FileProvider</code> extension for background loading. You can read more about it here: <a href="http://apple.co/2eG2qF3">apple.co/2eG2qF3</a>
+</p>
+<div class="note">
+<p><em>Note</em>: You’ve obfuscated the actual drop animation with the loading view. This makes sense because the <code>Park</code> isn’t dropping to any specific subview, but rather updating the entire Hiking Journal.
+</p></div>
+
+<div class="note">
+<p>Another common use case would be dropping one, or more, items into specific views, such as the image views in Hike Journal. In this case, you’d use <code>dropInteraction(_:previewForDropping:withDefault:)</code> to create a drop preview, and target it to land in the destination frame.
+</p></div>
+
+<h2 class="segment-chapter">Data privacy</h2>
+
+<p>When you’re enabling the ability to drag any kind of data to other apps, security and privacy should be at the forefront of your mind. The good news is drag and drop allows granular control over where your data can be dropped.
+</p>
+<p>In this chapter, you initialized <code>NSItemProvider</code> directly with objects conforming to <code>NSItemProviderWriting</code>. However, the item provider offers several other methods for registering data.
+</p>
+<p>One example is <code>registerDataRepresentationforTypeIdentifier:visibility:loadHandler:)</code>, which takes a type identifier and a closure that loads the required data. The <code>visibility</code> parameter is where it differs from what you’ve done thus far.
+</p>
+<p><code>NSItemProviderRepresentationVisibility</code> dictates which apps can accept a drag from this item provider. It allows data access based on the following options:
+</p>
+<ul>
+<li>
+<p><em>all</em>: Allows any app.
+</p></li>
+
+<li>
+<p><em>group</em>: Allows apps sharing the same app group.
+</p></li>
+
+<li>
+<p><em>ownProcess</em>: Allows only the source app.
+</p></li>
+
+<li>
+<p><em>team</em>: Allows any process created by the same development team.
+</p></li>
+</ul>
+
+<p>An even simpler method is available for restricting drags to the source application. Open <em>ParkViewController.swift</em>, and add the following to the <code>UIDragInteractionDelegate</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> interaction: UIDragInteraction,
+  sessionIsRestrictedToDraggingApplication 
+    session: UIDragSession)</span></span> -&gt; <span class="hljs-type">Bool</span> { 
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> 
+}</pre>
+<p>This returns a <code>Bool</code> indicating whether the drag session should be limited to the current app.
+</p>
+<p>Build and run <em>NationalParks</em>, and attempt to drag to Hike Journal. You’ll no longer see a <em>+</em> badge when the drag preview enters Hike Journal, and releasing will cancel the drag. Your public domain park data is now safe from misguided thieves!
+</p><div class="image-60"><img src="graphics/img123.png"  alt="" title="" /></div>
+<p>Since this isn’t really necessary or helpful for this example, replace the <code>return</code> in <code>dragInteraction(_:sessionIsRestrictedToDraggingApplication:)</code> with:
+</p><pre class="code-block">{ <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> }</pre>
+<p>Changing the return type to <code>false</code> again allows drops to Hike Journal. Make sure you build <em>NationalParks</em> again to load this update.
+</p>
+<h2 class="segment-chapter">Spring loading</h2>
+
+<p>Spring loading allows controls to fire their actions when receiving a drop. It also allows you to launch apps by dropping onto their icons in the SpringBoard, or Dock.
+</p>
+<p>You may have noticed the trash can in the bottom right of Hike Journal. Tapping it will clear your current hike data. You’re going to take it a step further by spring loading that operation when dragging your hike data.
+</p>
+<p>First, you need to enable dragging. Open <em>HikeViewController.swift</em>, and add the following extension:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">HikeViewController</span>: <span class="hljs-title">UIDragInteractionDelegate</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragInteraction</span><span class="hljs-params">(<span class="hljs-number">_</span> interaction: UIDragInteraction,
+                       itemsForBeginning session: UIDragSession)</span></span>
+    -&gt; [<span class="hljs-type">UIDragItem</span>] {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> park = park <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> [] }
+    <span class="hljs-keyword">let</span> provider =
+      <span class="hljs-type">NSItemProvider</span>(object: <span class="hljs-type">NSString</span>(string: park.name))
+    <span class="hljs-keyword">let</span> dragItem = <span class="hljs-type">UIDragItem</span>(itemProvider: provider)
+    
+    <span class="hljs-keyword">return</span> [dragItem]
+  }
+}</pre>
+<p>You’ve implemented <code>dragInteraction(_:itemsForBeginning:)</code>, and provided the current park’s name to the item provider.
+</p>
+<p>In <code>viewDidLoad()</code>, add the following after the code that adds a <code>dropInteraction</code> to the view:
+</p><pre class="code-block">clearButton.isSpringLoaded = <span class="hljs-literal">true</span>
+<span class="hljs-keyword">let</span> dragInteraction = <span class="hljs-type">UIDragInteraction</span>(delegate: <span class="hljs-keyword">self</span>)
+stackView.addInteraction(dragInteraction)</pre>
+<p><code>clearButton</code> is the trash can, and setting <code>isSpringLoaded</code> is all you need to do to force it to fire when hovered over by a drag. You also add a drag interaction to the <code>stackView</code> containing your journal info so it can be dragged to the trash.
+</p>
+<p>Build and run <em>HikeJournal</em>, and drag a park from National Parks. Next, drag the Hike Journal, and hover over the trash icon for about a second. You’ll see the button action fire, and the journal clear:
+</p><div class="image-70"><img src="graphics/img124.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>With little work, you set up a basic drag and drop between custom views in two different apps, complete with some canned animation. With a little more work, you were able to smooth out the edges and make it look natural. You also implemented a basic progress indicator, and learned how to protect your data with visibility controls.
+</p>
+<p>There is still a lot more to learn:
+</p>
+<ul>
+<li>
+<p><em>Multiple Item Drag</em> is simple to implement, and allows you to add items to a drag with a tap.
+</p></li>
+
+<li>
+<p><em>More Animations and Visual Indicators</em> are possible with a more methods in <code>UIDragInteractionDelegate</code>, and <code>UIDropInteractionDelegate</code> as well as capabilities of <code>NSItemProvider</code>.
+</p></li>
+
+<li>
+<p><em>Sharing File URLs</em> is possible with <code>NSItemProvider</code>, and allows you to edit files in place; sharing updates made in the destination app with the source app!
+</p></li>
+</ul>
+
+<p>There are several great WWDC sessions from 2017 that cover these topics, and more:
+</p>
+<ul>
+<li>
+<p>Introducing Drag and Drop: <a href="http://apple.co/2vO46Q4">apple.co/2vO46Q4</a>
+</p></li>
+
+<li>
+<p>Mastering Drag and Drop: <a href="http://apple.co/2vOhvYA">apple.co/2vOhvYA</a>
+</p></li>
+
+<li>
+<p>Data Delivery with Drag and Drop: <a href="http://apple.co/2tszCCm">apple.co/2tszCCm</a>
+</p></li>
+</ul>
+
+<p>Also be sure to check out our video tutorials on Drag and Drop:
+</p>
+<ul>
+<li>
+<p>Multiple Data Representations and Custom Views: <a href="http://bit.ly/2eGhceO">bit.ly/2eGhceO</a>
+</p></li>
+
+<li>
+<p>Table and Collection Views: <a href="http://bit.ly/2unOBAH">bit.ly/2unOBAH</a>
+</p></li>
+</ul>
+
+<p>Sorry to say, if you were waiting around for info on dragons, you misheard the keynote. It happens to the best of us!
+</p></body></html>

@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 12: PDFKit</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 12: PDFKit</h1>
+
+<p>The PDF specification was first made available by Adobe in 1993, and has since gone through many changes and improvements. However, these changes have seen the PDF Reference grow to over 1300 pages, which can be a little daunting for the average developer.
+</p>
+<p>Working easily with PDFs is something macOS developers have been able to do for years with PDFKit. Meanwhile, iOS developers have been forced to use low-level code or third-party libraries to accomplish those same PDF tasks.
+</p>
+<p>Apple has finally made PDFKit available to iOS developers in iOS 11, and they have also introduced many improvements to simplify working with PDFs for everyone!
+</p>
+<p>In this chapter, you will learn how to use PDFKit in your iOS applications. You’ll see how to create thumbnail previews of your documents and how to add text, input fields, radio buttons, checkboxes, watermarks, and more to your PDF projects.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Open <em>WenderlichBeverage.xcodeproj</em> in the starter project folder for this chapter. The application is a tool used by the fictional sales representatives for Ray’s new fictional beverage company, Wenderlich Beverages. The sales reps will need to be able to show sales documents and draw up contracts with customers.
+</p>
+<p>Build and run the app to get familiar with it:
+</p><div class="image-35"><img src="graphics/img165.png"  alt="" title="" /></div>
+<p>The initial screen has two image view placeholders you’ll change later. The first thing you’re going to add is the ability to show a PDF when you tap on one of these images.
+</p>
+<h2 class="segment-chapter">Displaying a PDF</h2>
+
+<p>Open <em>HomeViewController.swift</em> and replace <code>showDocument(_:)</code> with the following:
+</p><pre class="code-block"><span class="hljs-meta">@IBAction</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">showDocument</span><span class="hljs-params">(<span class="hljs-number">_</span> sender: UITapGestureRecognizer)</span></span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> view = sender.view <span class="hljs-keyword">as</span>? <span class="hljs-type">UIImageView</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-keyword">let</span> document: <span class="hljs-type">String</span>
+  <span class="hljs-keyword">if</span> view === imageView1 {
+    document = <span class="hljs-type">SalesDocument</span>.wbCola.nameWithExtension()
+  } <span class="hljs-keyword">else</span> {
+    document = <span class="hljs-type">SalesDocument</span>.wbRaysReserve.nameWithExtension()
+  }
+  <span class="hljs-keyword">let</span> urlPath = <span class="hljs-type">URL</span>(fileURLWithPath:
+      <span class="hljs-type">FileUtilities</span>.documentsDirectory()
+        .appending(<span class="hljs-string">"/<span class="hljs-subst">\(document)</span>"</span>))
+  <span class="hljs-keyword">let</span> pdfDocument = <span class="hljs-type">PDFDocument</span>(url: urlPath)
+  performSegue(withIdentifier:
+    <span class="hljs-type">SegueIdentifiers</span>.showDocumentSegue.rawValue,
+               sender: pdfDocument)
+}</pre>
+<p>Here’s what you’re doing above:
+</p>
+<ol>
+<li>
+<p>Determine which image was tapped, and get the corresponding PDF document’s URL.
+</p></li>
+
+<li>
+<p>Create a <code>PDFDocument</code> object with the URL.
+</p></li>
+</ol>
+
+<p>It’s very simple to create a <code>PDFDocument</code> object, and displaying one is no different.
+</p>
+<p>Next, replace <code>prepare(for:sender:)</code> with the following:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">prepare</span><span class="hljs-params">(<span class="hljs-keyword">for</span> segue: UIStoryboardSegue, 
+                      sender: Any?)</span></span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> identifier = segue.identifier <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-keyword">if</span> identifier == <span class="hljs-type">SegueIdentifiers</span>.showDocumentSegue.rawValue {
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> document = sender <span class="hljs-keyword">as</span>? <span class="hljs-type">PDFDocument</span>,
+      <span class="hljs-keyword">let</span> upcoming = segue.destination
+        <span class="hljs-keyword">as</span>? <span class="hljs-type">DocumentViewController</span> {
+      upcoming.document = document
+      upcoming.title = <span class="hljs-string">"Sales Document"</span>
+    }
+  }
+}</pre>
+<p>This code simply passes the <code>PDFDocument</code> you created in the previous step to the <code>DocumentViewController</code>. At this point, however, the view controller has no way to display the PDF.
+</p>
+<p>Open <em>Main.storyboard</em> and find the <em>DocumentViewController</em> scene. Add a <code>UIView</code> to the scene, and set the constraints to <em>0</em> for all four sides, as shown:
+</p><div class="image-50"><img src="graphics/img166.png"  alt="" title="" /></div>
+<p>With the <code>UIView</code> selected, open the Identity Inspector and change the sublcass to <em>PDFView</em>. Finally, connect the <code>PDFView</code> to a new outlet in <em>DocumentViewController.swift</em> named <code>pdfView</code>.
+</p>
+<div class="note">
+<p><em>Note:</em> You will not be able to select <em>PDFView</em> from the drop-down list. You must type it in explicitly.
+</p></div>
+
+<p>In <em>DocumentViewController.swift</em>, replace <code>viewDidLoad()</code> with the following:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewDidLoad</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.viewDidLoad()
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> document = document {
+    pdfView.displayMode = .singlePageContinuous
+    pdfView.backgroundColor =
+      <span class="hljs-type">UIColor</span>.lightGray.withAlphaComponent(<span class="hljs-number">0.25</span>)
+    pdfView.autoScales = <span class="hljs-literal">true</span>
+    pdfView.document = document
+    
+    <span class="hljs-keyword">if</span> addAnnotations {
+      <span class="hljs-comment">// This will come later.</span>
+    } <span class="hljs-keyword">else</span> {
+      navigationItem.rightBarButtonItem = <span class="hljs-literal">nil</span>
+    }
+  }
+}</pre>
+<p>Here’s what this code does:
+</p>
+<ul>
+<li>
+<p>Sets the display mode of the <code>pdfView</code>.
+</p></li>
+
+<li>
+<p>Enables <code><em>autoScales</em></code> on the view. With this set, a <code>PDFView</code> will automatically make the document’s pages to scale to fit the view in which they’re displayed.
+</p></li>
+
+<li>
+<p>Sets the <code>document</code> object of the <code>PDFView</code>. This is all you need to do to show a PDF to a user.
+</p></li>
+</ul>
+
+<p>There are a total of four display modes that are available to you, and they all display PDFs differently:
+</p>
+<ol>
+<li>
+<p><code><em>singlePage</em></code>:  Shows one page at a time, with scrolling only affecting the displayed page.
+</p></li>
+
+<li>
+<p><code><em>singlePageContinuous</em></code>: The document displays all of the pages to user, defaulting to a vertical flow.
+</p></li>
+
+<li>
+<p><code><em>twoUp</em></code>: Show two pages, side by side, with scrolling applying to only the two pages.
+</p></li>
+
+<li>
+<p><code><em>twoUpContinuous</em></code>: Show all the pages of the document, by twos, side by side.
+</p></li>
+</ol>
+
+<p>Build and run, and select either of the grey images. You’ll be directed to the <em>DocumentViewController</em>, with the PDF in full splendor:
+</p><div class="image-35"><img src="graphics/img167.png"  alt="" title="" /></div>
+<p>Sometimes, the default vertical direction won’t work for your PDFs. Fortunately, it’s very simple to change the document to scroll horizontally.
+</p>
+<p>Test this out by adding the following to <em>DocumentViewController.swift</em>, inside <code>viewDidLoad()</code>, just before the point where you set the <code>displayMode</code>:
+</p><pre class="code-block">pdfView.displayDirection = .horizontal</pre>
+<p>Build and run, go to either document, and you’ll see the display direction has now changed. You can remove the added line of code when you’ve finished exploring.
+</p>
+<h2 class="segment-chapter">Under my thumb…nail</h2>
+
+<p>You’ve seen that displaying PDFs in iOS 11 is quite easy to do. However, there are times when you won’t want to keep all of your PDF document data around, but still need to display a single page to the user. Keeping with the theme of “easy”, <code>PDFDocument</code> provides a simple way to get thumbnail images from your PDFs.
+</p>
+<p>Open <em>HomeViewController.swift</em>, and add the following methods below <code>preloadDocuments()</code>:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">loadDocumentThumbnails</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-comment">// 1.</span>
+  <span class="hljs-keyword">let</span> document1Path = <span class="hljs-type">FileUtilities</span>.documentsDirectory()
+    .appending(<span class="hljs-string">"/<span class="hljs-subst">\(SalesDocument.wbCola.nameWithExtension()</span>)"</span>)
+  <span class="hljs-keyword">let</span> colaDocument =
+    <span class="hljs-type">PDFDocument</span>(url: <span class="hljs-type">URL</span>(fileURLWithPath: document1Path))
+  <span class="hljs-keyword">let</span> document2Path = <span class="hljs-type">FileUtilities</span>.documentsDirectory()
+    .appending(
+      <span class="hljs-string">"/<span class="hljs-subst">\(SalesDocument.wbRaysReserve.nameWithExtension()</span>)"</span>)
+  <span class="hljs-keyword">let</span> rrDocument = <span class="hljs-type">PDFDocument</span>(url: 
+        <span class="hljs-type">URL</span>(fileURLWithPath: document2Path))
+  <span class="hljs-comment">// 3.</span>
+  imageView1.image = thumbnailImageForPDFDocument(document: colaDocument)
+  imageView2.image = thumbnailImageForPDFDocument(document: rrDocument)
+}
+
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">thumbnailImageForPDFDocument</span><span class="hljs-params">(
+        document: PDFDocument?)</span></span> -&gt; <span class="hljs-type">UIImage</span>? {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> document = document,
+      <span class="hljs-keyword">let</span> page = document.page(at: <span class="hljs-number">0</span>) <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> }
+    <span class="hljs-comment">// 2.</span>
+    <span class="hljs-keyword">return</span> page.thumbnail(
+      of: <span class="hljs-type">CGSize</span>(
+        width: documentsStackView.frame.size.width,
+        height: documentsStackView.frame.size.height / <span class="hljs-number">2</span>),
+      <span class="hljs-keyword">for</span>: .cropBox)
+}</pre>
+<p>Breaking down what you’ve added:
+</p>
+<ol>
+<li>
+<p>For each PDF thumbnail you want, you first create a <code>PDFDocument</code> object.
+</p></li>
+
+<li>
+<p>Get the page for your thumbnail and call <code>thumbnail(of:for:)</code>. You need to supply the size of the image you want along with the type of <code>PDFDisplayBox</code> you need.
+</p></li>
+
+<li>
+<p>Add the thumbnail images to the <code>imageView</code>s.
+</p></li>
+</ol>
+
+<p><code>PDFDisplayBox</code> defines how much content should display from your PDF page. Sometimes PDFs contain additional content, such as bleed marks for printing and cutting physical paper. If you’re working with content different from this tutorial, you’ll need to read up on these options in the <i>API Reference</i> at <a href="http://apple.co/2v5LDlN">http://apple.co/2v5LDlN</a>.
+</p>
+<p>Next, in <em>HomeViewController.swift</em>, replace <code>viewDidLoad()</code> with the following:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewDidLoad</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.viewDidLoad()
+  preloadDocuments()
+  loadDocumentThumbnails()
+}</pre>
+<p>Finally, open <em>Main.storyboard</em>. In the <em>Wenderlich Beverages Scene</em>, change the background color of both <em>UIImageViews</em> to <em>default</em>.
+</p>
+<p>Build and run, and you’ll see beautiful thumbnails of your sales documents:
+</p><div class="image-35"><img src="graphics/img168.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Annotations</h2>
+
+<p>You’ll often run into PDF content that users can interact with. You may need to add some shapes to call attention to edits in a document, or have a user fill out a form. Regardless of the need, you’ll find Apple has made it easy, yet again, to get the job done.
+</p>
+<p>Build and run, and navigate to the <em>Contracts</em> tab. Tap on <em>+</em> in the top right. The app will show you a contract form, but it looks a little empty. Tapping on the lines doesn’t bring up the keyboard, and there are no other elements to interact with.
+</p><div class="image-35"><img src="graphics/img169.png"  alt="" title="" /></div>
+<p>To add your first interactive widget to the PDF, add the following extension to <em>DocumentViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">DocumentViewController</span> </span>{
+
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">addContractAnnotations</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> page = document?.page(at: <span class="hljs-number">0</span>) <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-keyword">let</span> pageBounds = page.bounds(<span class="hljs-keyword">for</span>: .cropBox)
+    
+    <span class="hljs-comment">// Add Name Box</span>
+    <span class="hljs-keyword">let</span> textFieldNameBounds = <span class="hljs-type">CGRect</span>(
+      x: <span class="hljs-number">128</span>,
+      y: pageBounds.size.height - <span class="hljs-number">142</span>,
+      width: <span class="hljs-number">230</span>,
+      height: <span class="hljs-number">23</span>)
+    <span class="hljs-keyword">let</span> textFieldName = textWidget(
+      bounds: textFieldNameBounds,
+      fieldName: <span class="hljs-type">FieldNames</span>.name.rawValue)
+    page.addAnnotation(textFieldName)
+  }
+  
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">textWidget</span><span class="hljs-params">(bounds: CGRect, fieldName: String?)</span></span> 
+    -&gt; <span class="hljs-type">PDFAnnotation</span> {
+
+    <span class="hljs-keyword">let</span> textWidget = <span class="hljs-type">PDFAnnotation</span>(
+      bounds: bounds,
+      forType: .widget,
+      withProperties: <span class="hljs-literal">nil</span>
+    )
+    textWidget.widgetFieldType = .text
+    textWidget.font = <span class="hljs-type">UIFont</span>.systemFont(ofSize: <span class="hljs-number">18</span>)
+    textWidget.fieldName = fieldName
+    <span class="hljs-keyword">return</span> textWidget
+  }
+}</pre>
+<p>Here’s what you added:
+</p>
+<ul>
+<li>
+<p><code>addContractAnnotations()</code> creates a <code>PDFAnnotation</code>, and adds it to the page, according to the <code>CGRect</code> provided
+</p></li>
+
+<li>
+<p><code>textWidget(bounds:fieldName:)</code> is a convenience method that can create <code>PDFAnnotations</code> with a widget type of <code>text</code>.
+</p></li>
+</ul>
+
+<p>Inside <code>viewDidLoad()</code>, replace the comment <code>// This will come later</code> with the following:
+</p><pre class="code-block">addContractAnnotations()</pre>
+<p>Build and run, navigate to the new contract page, and tap in the area above the line next to <em>Full Name</em>. The keyboard will present itself, and you can now enter your name:
+</p><div class="image-35"><img src="graphics/img170.png"  alt="" title="" /></div>
+<p>Add the rest of the text field annotations in <code>addContractAnnotations()</code>:
+</p><pre class="code-block"><span class="hljs-comment">// Add Birthday Box</span>
+<span class="hljs-keyword">let</span> textFieldDateBounds = <span class="hljs-type">CGRect</span>(
+  x: <span class="hljs-number">198</span>, y: pageBounds.size.height - <span class="hljs-number">166</span>,
+  width: <span class="hljs-number">160</span>, height: <span class="hljs-number">23</span>)
+<span class="hljs-keyword">let</span> textFieldDate = textWidget(
+  bounds: textFieldDateBounds,
+  fieldName: <span class="hljs-literal">nil</span>
+)
+textFieldDate.maximumLength = <span class="hljs-number">10</span>
+textFieldDate.hasComb = <span class="hljs-literal">true</span>
+page.addAnnotation(textFieldDate)
+
+<span class="hljs-comment">// Add Price Boxes</span>
+<span class="hljs-keyword">let</span> textFieldPriceColaBounds = <span class="hljs-type">CGRect</span>(
+  x: <span class="hljs-number">182</span>,
+  y: pageBounds.size.height - <span class="hljs-number">190</span>,
+  width: <span class="hljs-number">176</span>, height: <span class="hljs-number">23</span>)
+<span class="hljs-keyword">let</span> textFieldPriceCola = textWidget(
+  bounds: textFieldPriceColaBounds,
+  fieldName: <span class="hljs-type">FieldNames</span>.colaPrice.rawValue)
+page.addAnnotation(textFieldPriceCola)
+
+<span class="hljs-keyword">let</span> textFieldPriceRRBounds = <span class="hljs-type">CGRect</span>(
+  x: <span class="hljs-number">200</span>,
+  y: pageBounds.size.height - <span class="hljs-number">214</span>,
+  width: <span class="hljs-number">158</span>, height: <span class="hljs-number">23</span>)
+<span class="hljs-keyword">let</span> textFieldPriceRR = textWidget(
+  bounds: textFieldPriceRRBounds,
+  fieldName: <span class="hljs-type">FieldNames</span>.rrPrice.rawValue)
+page.addAnnotation(textFieldPriceRR)</pre>
+<p>In order to select a day of the week, you’ll need a radio button annotation. First, add the following method below <code>textWidget(bounds:fieldName:)</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">radioButton</span><span class="hljs-params">(fieldName: String, startingState: String,
+                 bounds: CGRect)</span></span> -&gt; <span class="hljs-type">PDFAnnotation</span> {
+
+  <span class="hljs-keyword">let</span> radioButton = <span class="hljs-type">PDFAnnotation</span>(bounds: bounds,
+                                  forType: .widget,
+                                  withProperties: <span class="hljs-literal">nil</span>)
+  radioButton.widgetFieldType = .button
+  radioButton.widgetControlType = .radioButtonControl
+  <span class="hljs-keyword">return</span> radioButton
+}</pre>
+<p>This method will generate another <code>PDFAnnotation</code> type of <code>button</code>. There are a few different subtypes of buttons, and in this case, you’re using <code>radioButtonControl</code>.
+</p>
+<p>In <code>addContractAnnotations()</code>, add the following radio button annotations after the text fields:
+</p><pre class="code-block"><span class="hljs-comment">// Add radio buttons</span>
+<span class="hljs-keyword">let</span> buttonSize = <span class="hljs-type">CGSize</span>(width: <span class="hljs-number">18</span>, height: <span class="hljs-number">18</span>)
+<span class="hljs-keyword">let</span> buttonYOrigin = pageBounds.size.height - <span class="hljs-number">285</span>
+
+<span class="hljs-keyword">let</span> sundayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Sun"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">105</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(sundayButton)
+
+<span class="hljs-keyword">let</span> mondayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Mon"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">160</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(mondayButton)
+
+<span class="hljs-keyword">let</span> tuesdayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Tue"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">215</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(tuesdayButton)
+
+<span class="hljs-keyword">let</span> wednesdayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Wed"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">267</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(wednesdayButton)
+
+<span class="hljs-keyword">let</span> thursdayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Thr"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">320</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(thursdayButton)
+
+<span class="hljs-keyword">let</span> fridayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Fri"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">370</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(fridayButton)
+
+<span class="hljs-keyword">let</span> saturdayButton = radioButton(
+  fieldName: <span class="hljs-string">"WEEK"</span>,
+  startingState: <span class="hljs-string">"Sat"</span>,
+  bounds: <span class="hljs-type">CGRect</span>(origin: <span class="hljs-type">CGPoint</span>(x: <span class="hljs-number">420</span>, y: buttonYOrigin),
+                 size: buttonSize))
+page.addAnnotation(saturdayButton)</pre>
+<p>Build and run, and navigate to a new contract. You’ll be able to interact with all of the annotations now. Try to select more than one of the radio buttons as well:
+</p><div class="image-35"><img src="graphics/img171.png"  alt="" title="" /></div>
+<p>Something isn’t quite right. You shouldn’t be able to select multiple days of the week. To remedy this, add the following two lines before the <code>return</code> call in <code>radioButton(fieldName:startingState:bounds:)</code>:
+</p><pre class="code-block">radioButton.fieldName = fieldName
+radioButton.buttonWidgetStateString = startingState</pre>
+<p>Each radio button provides the same title, which is assigned to <code>fieldName</code>. By doing this, you tell your <code>PDFDocument</code> which radio buttons are grouped together. When all buttons are grouped together with the same field name, the only way you can tell which one is selected is through the <code>buttonWidgetStateString</code>. You’ll need to set this unique value anytime you group radio buttons.
+</p>
+<p>Build and run, create a contract, and you’ll see that you can only select one radio button at a time:
+</p>
+<p>Next, add a check box widget below the radio buttons in <code>addContractAnnotations()</code> with the following code:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> checkBoxAgreeBounds = <span class="hljs-type">CGRect</span>(
+  x: <span class="hljs-number">75</span>,
+  y: pageBounds.size.height - <span class="hljs-number">375</span>,
+  width: <span class="hljs-number">18</span>, 
+  height: <span class="hljs-number">18</span>)
+<span class="hljs-keyword">let</span> checkBox = <span class="hljs-type">PDFAnnotation</span>(
+  bounds: checkBoxAgreeBounds,
+  forType: .widget,
+  withProperties: <span class="hljs-literal">nil</span>)
+checkBox.widgetFieldType = .button
+checkBox.widgetControlType = .checkBoxControl
+page.addAnnotation(checkBox)</pre>
+<h2 class="segment-chapter">Performing custom actions</h2>
+
+<p>Finally, there may be situations where you want to perform some action when a button is pressed. In this case, you’re going to add a button that will clear some fields in the form, while leaving others filled in.
+</p>
+<p>Again in <code>addContractAnnotations()</code>, after the checkbox widget, add the following:
+</p><pre class="code-block"><span class="hljs-comment">// 1.</span>
+<span class="hljs-keyword">let</span> clearButtonBounds = <span class="hljs-type">CGRect</span>(
+  x: <span class="hljs-number">75</span>,
+  y: pageBounds.size.height - <span class="hljs-number">450</span>,
+  width: <span class="hljs-number">106</span>,
+  height: <span class="hljs-number">32</span>)
+<span class="hljs-keyword">let</span> clearButton = <span class="hljs-type">PDFAnnotation</span>(
+  bounds: clearButtonBounds,
+  forType: .widget,
+  withProperties: <span class="hljs-literal">nil</span>)
+clearButton.widgetFieldType = .button
+clearButton.widgetControlType = .pushButtonControl
+<span class="hljs-comment">// 2.</span>
+clearButton.caption = <span class="hljs-string">"Clear"</span>
+clearButton.fieldName = <span class="hljs-type">FieldNames</span>.clearButton.rawValue
+page.addAnnotation(clearButton)
+
+<span class="hljs-comment">// 3.</span>
+<span class="hljs-keyword">let</span> resetFormAction = <span class="hljs-type">PDFActionResetForm</span>()
+<span class="hljs-comment">// 4.</span>
+resetFormAction.fields = [
+  <span class="hljs-type">FieldNames</span>.colaPrice.rawValue,
+  <span class="hljs-type">FieldNames</span>.rrPrice.rawValue
+]
+resetFormAction.fieldsIncludedAreCleared = <span class="hljs-literal">false</span>
+<span class="hljs-comment">// 5.</span>
+clearButton.action = resetFormAction</pre>
+<p>Breaking down what you added:
+</p>
+<ol>
+<li>
+<p>You create a new button widget with the type <code>pushButtonControl</code>
+</p></li>
+
+<li>
+<p>Next, you add a <code>caption</code>. This will set the text you see on the button.
+</p></li>
+
+<li>
+<p>Then you create a <code>PDFActionResetForm</code> action.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>Adding an array of fields to the action indicates which the fields you do <i>not</i> want to be cleared. By setting <code>fieldsIncludedAreCleared</code> to <code>false</code>, the form will not reset the fields provided.
+</p></li>
+
+<li>
+<p>Finally, you attach the action to the <code>clearButton</code>’s <code>action</code> property.
+</p></li>
+</ol>
+
+<p>Build and run, create a new contract, and fill out all the fields. Tap <em>Clear</em>, and all the fields except for the price fields reset.
+</p>
+<h2 class="segment-chapter">Saving PDFs</h2>
+
+<p>Now that you can fill out a form, you’d probably like to save it somewhere. While saving a PDF isn’t a difficult task, there are a few things to be aware of. For instance, any annotations you have created on a PDF page will also be saved to your document, and will be seen each time you open it thereafter. You can also set ownership levels for a document to prevent people from making changes to the original document, or to give them varying levels of capabilities within the document.
+</p>
+<p>Open <em>DocumentViewController.swift</em> and replace <code>saveAnnotations(_:)</code> with the following code:
+</p><pre class="code-block"><span class="hljs-meta">@IBAction</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">saveAnnotations</span><span class="hljs-params">(<span class="hljs-number">_</span> sender: Any)</span></span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> document = document,
+    <span class="hljs-keyword">let</span> page = document.page(at: <span class="hljs-number">0</span>) <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  
+  <span class="hljs-keyword">var</span> contracteeName: <span class="hljs-type">String</span>?
+  <span class="hljs-keyword">for</span> annotation <span class="hljs-keyword">in</span> page.annotations {
+    <span class="hljs-keyword">if</span> annotation.fieldName == <span class="hljs-type">FieldNames</span>.clearButton.rawValue {
+      <span class="hljs-comment">// 1</span>
+      page.removeAnnotation(annotation)
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> annotation.fieldName == <span class="hljs-type">FieldNames</span>.name.rawValue {
+      <span class="hljs-comment">// 2</span>
+      contracteeName = annotation
+        .value(forAnnotationKey: .widgetValue) <span class="hljs-keyword">as</span>? <span class="hljs-type">String</span>
+    }
+  }
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> name = contracteeName {
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">var</span> displayName = name
+      .replacingOccurrences(of: <span class="hljs-string">" "</span>, with: <span class="hljs-string">"_"</span>)
+    displayName += <span class="hljs-string">".pdf"</span>
+    <span class="hljs-keyword">let</span> savePath = <span class="hljs-type">FileUtilities</span>.contractsDirectory()
+      .appending(<span class="hljs-string">"/<span class="hljs-subst">\(displayName)</span>"</span>)
+    <span class="hljs-comment">// 4</span>
+    document.write(
+      to: <span class="hljs-type">URL</span>(fileURLWithPath: savePath),
+      withOptions: [.ownerPasswordOption: <span class="hljs-string">"SoMuchSecurity"</span>])
+    delegate?.didSaveDocument()
+    navigationController?.popViewController(animated: <span class="hljs-literal">true</span>)
+  }
+}</pre>
+<p>This is quite straightforward code:
+</p>
+<ol>
+<li>
+<p>You’ll need to loop through each annotation to find the <em>Clear</em> button and remove it. This will ensure the saved document doesn’t display this button in the future.
+</p></li>
+
+<li>
+<p>Get the text from the name field, which you will use for the document name.
+</p></li>
+
+<li>
+<p>Set the save path and document name.
+</p></li>
+
+<li>
+<p>Write the document to the save path, with an owner password option, and password.
+</p></li>
+</ol>
+
+<p>There are two <code>PDFDocumentWriteOption</code>s available to users:
+</p>
+<ol>
+<li>
+<p><code><em>ownerPasswordOption</em></code>: Designates the password to unlock all editable features of the document.
+</p></li>
+
+<li>
+<p><code><em>userPasswordOption</em></code>: Indicates users will have limited access to change, save or print the PDF file.
+</p></li>
+</ol>
+
+<p>You’ll need to pick which options work best for your documents. You can find the <i>API Reference</i> documentation at <a href="http://apple.co/2tAUCHk">http://apple.co/2tAUCHk</a>.
+</p>
+<p>Build and run, enter a new contract, and select Save. You’ll now see your contract in the list. Select your document and open it, but when you try to alter the document, you’ll find that it’s locked.
+</p>
+<div class="note">
+<p><em>Note:</em> There appears to be a bug in iOS 11.0 that prevents the annotations from actually being locked. At the moment, you <i>will</i> be given a keyboard and allowed to alter the fields. The way the app is structured, however, you will not be able to save any changes. Thus, the document is more “locked-ish”.
+</p></div>
+
+<p>Finally, there may be times you would like to change the way the document is presented on the page. By subclassing <code>PDFPage</code>, you can do nearly anything you like.
+</p>
+<p>Still in <em>DocumentViewController.swift</em>, add the following to <code>viewDidLoad()</code> just before setting the document’s <code>displayMode</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">if</span> document.isEncrypted || document.isLocked {
+  <span class="hljs-comment">// 2</span>
+  document.delegate = <span class="hljs-keyword">self</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> page = document.page(at: <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">for</span> annotation <span class="hljs-keyword">in</span> page.annotations {
+      <span class="hljs-comment">// 3</span>
+      annotation.isReadOnly = <span class="hljs-literal">true</span>
+    }
+  }
+}</pre>
+<p>Then add the following extension to the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">DocumentViewController</span>: <span class="hljs-title">PDFDocumentDelegate</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">classForPage</span><span class="hljs-params">()</span></span> -&gt; <span class="hljs-type">AnyClass</span> {
+    <span class="hljs-comment">// 4</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-type">LockedMark</span>.<span class="hljs-keyword">self</span>
+  }
+}</pre>
+<p>Taking each commented section in turn:
+</p>
+<ol>
+<li>
+<p>Check if the document is encrypted or locked. You should always check your document for these fields, so you can properly handle if the user can edit, view or print the PDF.
+</p></li>
+
+<li>
+<p>Set the document’s delegate. This will come in handy in step 4 below.
+</p></li>
+
+<li>
+<p>Set the annotations in the document to read only. This will prevent users from modifying the document.
+</p></li>
+
+<li>
+<p>Indicate that you want the <code>LockedMark</code> class to take control of drawing the pages of the document.
+</p></li>
+</ol>
+
+<p><em>LockedMark.swift</em> has been provided as part of the starter project. Here’s how it works:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">draw</span><span class="hljs-params">(with box: PDFDisplayBox, 
+                   to context: CGContext)</span></span> {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">super</span>.draw(with: box, to: context)
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-type">UIGraphicsPushContext</span>(context)
+  context.saveGState()
+  <span class="hljs-keyword">let</span> pageBounds = <span class="hljs-keyword">self</span>.bounds(<span class="hljs-keyword">for</span>: box)
+  context.translateBy(x: <span class="hljs-number">0.0</span>, y: pageBounds.size.height)
+  context.scaleBy(x: <span class="hljs-number">1.0</span>, y: -<span class="hljs-number">1.0</span>)
+  
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">let</span> string: <span class="hljs-type">NSString</span> = <span class="hljs-string">"SIGNED"</span>
+  <span class="hljs-keyword">let</span> attributes: [<span class="hljs-type">NSAttributedStringKey</span>: <span class="hljs-type">Any</span>] = [
+    <span class="hljs-type">NSAttributedStringKey</span>.foregroundColor: 
+        #colorLiteral(red: <span class="hljs-number">0.5</span>, 
+                      green: <span class="hljs-number">0.5</span>, 
+                      blue: <span class="hljs-number">0.5</span>, 
+                      alpha: <span class="hljs-number">0.5</span>),
+    <span class="hljs-type">NSAttributedStringKey</span>.font: 
+        <span class="hljs-type">UIFont</span>.boldSystemFont(ofSize: <span class="hljs-number">30</span>)
+  ]
+  <span class="hljs-comment">// 4</span>
+  string.draw(at: <span class="hljs-type">CGPoint</span>(x:<span class="hljs-number">250</span>, y:<span class="hljs-number">40</span>), 
+              withAttributes: attributes)
+  context.restoreGState()
+  <span class="hljs-type">UIGraphicsPopContext</span>()
+}</pre>
+<ol>
+<li>
+<p>When performing custom drawing of your page, you can choose whether you want your document to be drawn <i>before</i> or <i>after</i> your custom code. In this case, you want your content drawn <i>over</i> the document’s content, so you call <code>super.draw(with:to:)</code> first. If you want your content drawn <i>below</i> the document’s content, call it at the end of the method.
+</p></li>
+
+<li>
+<p>This code gathers the information about the drawing context of the page in order to understand the size and location your custom drawing.
+</p></li>
+
+<li>
+<p>This code draws the word <em>SIGNED</em> at the top of any saved contract. Then it sets up the attributes of the text, like size and color.
+</p></li>
+
+<li>
+<p>Finally, the string is drawn on the page, based on the coordinates provided.
+</p></li>
+</ol>
+
+<p>Build and run the app. You’ll now see the word <em>SIGNED</em> appear at the top.
+</p><div class="image-35"><img src="graphics/img172.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>In this chapter, you learned how simple and powerful PDFKit can be. It isn’t difficult to get up and running, and doing some powerful things with the framework is quite easy. Apple has removed a lot of the guesswork and pain that used to be involved working with PDFs, which means your users are sure to have a better experience themselves.
+</p>
+<p>For more information, checkout <em>Apple’s PDFKit Documentation</em>. <a href="https://developer.apple.com/documentation/pdfkit">https://developer.apple.com/documentation/pdfkit</a>
+</p>
+<p>You can also learn more from the WWDC 2017 video covering the topic:
+</p>
+<ul>
+<li>
+<p>Introducing PDFKit on iOS (Session 241) - <a href="https://developer.apple.com/videos/play/wwdc2017/241/">https://developer.apple.com/videos/play/wwdc2017/241/</a>
+</p></li>
+</ul>
+</body></html>

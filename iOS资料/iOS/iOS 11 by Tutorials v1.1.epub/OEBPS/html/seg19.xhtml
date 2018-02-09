@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 14: Password AutoFill</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 14: Password AutoFill</h1>
+
+<p>Friction is the resistance that one surface encounters when moving against another surface. Without it, you wouldn’t be able to drive, run, or even hold your phone.
+</p>
+<p>However, if you’re a developer, friction is bad. One source of friction your users encounter regularly is the dreaded login screen. Maybe it’s an app for a website you just signed up for, or perhaps you were just logged out from a frequently used app. It really doesn’t matter, though — these all are a source of pain for users.
+</p>
+<p>New in iOS 11 is Password AutoFill. With a few small additions to your login screen, you can provide a login experience with the least amount of friction possible.
+</p>
+<p>In this chapter, you’ll learn how to use iOS 11’s two new <code>UITextContentType</code> attributes to enable Password AutoFill, and use Associated Domains to link your website’s saved credentials with your native iOS application.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Open the <em>AppManager</em> starter project found in the <em>iOS</em> directory of the starter project folder for this chapter. Build and run.
+</p><div><img src="graphics/img177.png"  alt="" title="" /></div>
+<p>App Manager is your next big idea for an app that will safely store all of your top secret project ideas. Therefore, you’ll need users to log in. The app already has a login screen, but it doesn’t have any validation checks and lets you log in without any username or password.
+</p>
+<p>To fix this, open <em>LoginViewController.swift</em>, and add the following two methods to <code>LoginViewController</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">validate</span><span class="hljs-params">(username: String?, password: String?)</span></span> 
+  -&gt; <span class="hljs-type">Bool</span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> username = username,
+    <span class="hljs-keyword">let</span> password = password,
+    username.<span class="hljs-built_in">count</span> &gt;= <span class="hljs-number">5</span>,
+    password.<span class="hljs-built_in">count</span> &gt;= <span class="hljs-number">5</span> <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+}
+<span class="hljs-comment">// 2</span>
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">enableLoginButton</span><span class="hljs-params">(<span class="hljs-number">_</span> enable: Bool)</span></span> {
+  loginButton.isEnabled = enable
+  loginButton.alpha = enable ? <span class="hljs-number">1.0</span> : <span class="hljs-number">0.5</span>
+}</pre>
+<p>Here’s what you added:
+</p>
+<ol>
+<li>
+<p><code>validate(username:password:)</code> does a simple check to ensure that the username and password fields have enough characters to be valid. In this case, the rule is that both fields must have at least five characters.
+</p></li>
+
+<li>
+<p><code>enableLoginButton(_:)</code> is a convenience method to disable and gray out the login button if the fields are invalid.
+</p></li>
+</ol>
+
+<p>Next, update <code>viewDidLoad()</code> by adding the following line after call to <code>super</code>:
+</p><pre class="code-block">enableLoginButton(<span class="hljs-literal">false</span>)</pre>
+<p>As it stands, the app will now disable the login button, but it won’t re-enable it — even if the validation requirements are met. To fix that, you’ll need to implement two <code>UITextFieldDelegate</code> methods:
+</p>
+<ul>
+<li>
+<p><code>textField(_:shouldChangeCharactersIn:replacementString:)</code>
+</p></li>
+
+<li>
+<p><code>textFieldShouldReturn(_:)</code>
+</p></li>
+</ul>
+
+<p>Start by adding <code>textField(_:shouldChangeCharactersIn:replacementString:)</code> to <em>LoginViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">LoginViewController</span>: <span class="hljs-title">UITextFieldDelegate</span> </span>{
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">textField</span><span class="hljs-params">(<span class="hljs-number">_</span> textField: UITextField, 
+    shouldChangeCharactersIn range: NSRange, 
+    replacementString string: String)</span></span> -&gt; <span class="hljs-type">Bool</span> {
+    
+    <span class="hljs-keyword">var</span> usernameText = username.text
+    <span class="hljs-keyword">var</span> passwordText = password.text
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> text = textField.text {
+      <span class="hljs-comment">// 3</span>
+      <span class="hljs-keyword">let</span> proposed = (text <span class="hljs-keyword">as</span> <span class="hljs-type">NSString</span>)
+        .replacingCharacters(<span class="hljs-keyword">in</span>: range, with: string)
+      <span class="hljs-keyword">if</span> textField == username {
+        usernameText = proposed
+      } <span class="hljs-keyword">else</span> {
+        passwordText = proposed
+      }
+    }
+    <span class="hljs-comment">// 4</span>
+    <span class="hljs-keyword">let</span> isValid = validate(username: usernameText, 
+                           password: passwordText)
+    enableLoginButton(isValid)
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+
+  <span class="hljs-comment">// More to come next</span>
+}</pre>
+<p>Taking this step-by-step:
+</p>
+<ol>
+<li>
+<p>To keep things organized, add an extension to <code>LoginViewController</code> and make it conform to <code>UITextFieldDelegate</code>.
+</p></li>
+
+<li>
+<p>Implement <code>textField(_:shouldChangeCharactersIn:replacementString:)</code>.
+</p></li>
+
+<li>
+<p>Get the value of the text the user is trying to enter, not what is displayed on the screen at this moment. This lets the next step work in real-time as the user types.
+</p></li>
+
+<li>
+<p>Validate that the text entered is a valid username/password combination, and enable the login button if it is. This means the login button will become enabled the moment the validation rules are met.
+</p></li>
+</ol>
+
+<p>Finally, add <code>textFieldShouldReturn(_:)</code> to the extension after <code>// More to come next</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">textFieldShouldReturn</span><span class="hljs-params">(<span class="hljs-number">_</span> textField: UITextField)</span></span> -&gt; <span class="hljs-type">Bool</span> {
+  <span class="hljs-keyword">if</span> textField == username {
+    password.becomeFirstResponder()
+  } <span class="hljs-keyword">else</span> {
+    password.resignFirstResponder()
+    <span class="hljs-keyword">if</span> validate(username: username.text, 
+      password: password.text) {
+      login(loginButton)
+    }
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+}</pre>
+<p>If the validation rules are met, the app will automatically log in when the user taps <em>Done</em> on the keyboard. This will provide a smooth experience for your user.
+</p>
+<p>Build and run, and try out the new validation behavior. You’re still able to enter any combination of words, so long as both contain at least five characters.
+</p>
+<p>Now that the foundation of your login screen has been laid, it’s time to add Password AutoFill.
+</p>
+<h2 class="segment-chapter">Basic autofill</h2>
+
+<p>Autofill has two distinct modes in which it can work.
+</p>
+<p>The first mode provides users a link to their saved passwords from the device/iCloud Keychain. By doing this, your app will automatically show a QuickType bar with a lock button.
+</p><div class="image-70"><img src="graphics/img178.png"  alt="" title="" /></div>
+<p>The second way Password AutoFill can work is by prompting the user with a username and password in the QuickType bar without having to select the lock button. At the moment, it will suggest up to two usernames that can be auto populated. This makes logging in even easier than the previous step.
+</p><div class="image-70"><img src="graphics/img179.png"  alt="" title="" /></div>
+<p>You’ll start by implementing the first mode: providing a link to the user’s passwords.
+</p>
+<p>To add this, open <em>Main.Storyboard</em>, and select the <em>Username</em> field in the <em>Login View Controller</em> scene. Select the <em>Attributes inspector</em>, and under <em>Text Input Traits</em>, change <em>Content Type</em> to <em>Username</em>.
+</p><div class="image-100"><img src="graphics/img180.png"  alt="" title="" /></div>
+<p>Repeat the same thing for the password field, but choose <em>Passsword</em> for the <em>Content Type</em>. With these two changes, your app is now ready to autofill passwords!
+</p>
+<div class="note">
+<p><em>Note</em>: In this app, usernames are simply strings that contain five or more characters. However, your app may be using email addresses as the username. While there is a <em>Content Type</em> for email, you’ll need to set it to <em>Username</em> in order for Password AutoFill to work. To make emails work properly as a username, all you need to do is set the <em>Keyboard Type</em> to <em>E-mail Address</em>.
+</p></div>
+
+<p>Before you can test this, you’ll need to have a saved password on your device. If you don’t have one, iOS won’t display the QuickType bar.
+</p>
+<p>If you’re using the simulator, navigate to <em>Settings/Safari/Autofill</em> and turn on <em>Names and Passwords</em>.
+</p><div class="image-30"><img src="graphics/img181.png"  alt="" title="" /></div>
+<p>Still in the simulator, open <em>Safari</em> and navigate to <a href="https://appmanager-rw.herokuapp.com">https://appmanager-rw.herokuapp.com</a>. This is a sample website that was created specifically for this tutorial and <i>it does not record or save your input in any way</i>. For now, enter any username and password combo that you would like, and select <em>Login</em>. Be sure to save the password when prompted.
+</p>
+<p>Now, build and run your app, and select the username or password field. You’ll see that you have the QuickType bar with the lock button.
+</p><div class="image-30"><img src="graphics/img182.png"  alt="" title="" /></div>
+<p>If you select the lock button on the Simulator, you’ll be prompted with a password screen. The password is your <i>device’s</i> password. On a Touch ID enabled device, you will be prompted to authenticate with your fingerprint. You’ll then see a screen with all your saved passwords.
+</p>
+<div class="note">
+<p><em>Note</em>: If you’re running on the Simulator and did not set a passcode, just enter a single space when prompted for the passcode.
+</p></div>
+<div><img src="graphics/img183.png"  alt="" title="" /></div>
+<p>When you select any of the saved passwords, the modal dialog will dismiss, your app’s username and password fields will be filled in, and you can continue logging in.
+</p>
+<p>That takes care of the first way to implement Password Autofill. Next, you’ll implement the second method by associating your website and using the user’s login info for your site.
+</p>
+<h2 class="segment-chapter">Associating your website</h2>
+
+<p>Instead of coding in this section, you’re going to use the sample Vapor project included in the <em>Server</em> directory of the starter project. You’re going to deploy a website to Heroku, which has SSL/HTTPS configured. Having an SSL-configured website is required for this next section to work.
+</p>
+<p>In order to continue, there are a few requirements:
+</p>
+<ol>
+<li>
+<p>Use a physical device. The Simulator does not currently work with this feature.
+</p></li>
+
+<li>
+<p>Have a developer account with Apple.
+</p></li>
+
+<li>
+<p>Sign up for a free Heroku account at <a href="http://heroku.com">http://heroku.com</a>. There is no need to configure any site, as you’ll do this later. Just remember your username and password.
+</p></li>
+
+<li>
+<p>Have some familiarity with the command-line.
+</p></li>
+
+<li>
+<p>Have your Apple developer <em>Team ID</em>. This is not the ID found in an Xcode project settings, but the one on developer.apple.com, under your account’s <em>Membership</em> page.
+</p></li>
+</ol>
+<div class="image-100"><img src="graphics/img184.png"  alt="" title="" /></div>
+<p>In the <em>Server</em> directory of this chapter’s starter files, unzip <em>AppManager-server.zip</em>. In Terminal, navigate into the <em>AppManager-server</em> directory of this chapter’s starter project directory:
+</p><pre class="code-block"><span class="hljs-built_in">cd</span> Path/To/Starter/Server/AppManager-server</pre>
+<p>Verify that you have Homebrew installed on your machine by entering the following command in Terminal:
+</p><pre class="code-block">brew <span class="hljs-built_in">help</span></pre>
+<div class="note">
+<p><em>Note</em>: If you get an error message that <code>brew</code> is not a command, follow the steps to install it at <a href="https://brew.sh">https://brew.sh</a>.
+</p></div>
+
+<p>Next, you’ll need to install Vapor to build the project and deploy it to Heroku. Run the following commands to install Vapor:
+</p><pre class="code-block">brew tap vapor/homebrew-tap
+brew update
+brew install vapor</pre>
+<div class="note">
+<p><em>Note</em>: If you get an error that Vapor cannot be built, and that you need to install GCC compiler, run <code>brew install gcc</code> command in Terminal. You may also see <code>brew</code> complaining about <code>xcrun</code>. If that happens, you need to set the Command Line Tools via Xcode preferences. Go to <em>Xcode/Preferences/Locations</em> and set <em>Command Line Tools</em> by selecting the appropriate version of Xcode from the drop-down menu.
+</p></div>
+<div class="image-100"><img src="graphics/img185.png"  alt="" title="" /></div>
+<p>Finally, you need to install the Heroku command line tools by running the following:
+</p><pre class="code-block">brew install heroku</pre>
+<p>When finished, login to Heroku with the following command:
+</p><pre class="code-block">heroku login</pre><div class="image-30"><img src="graphics/img186.png"  alt="" title="Are we there yet?" /></div>
+<p>You’re almost there. There’s only a few more steps left!
+</p>
+<p>Next, enter your Heroku credentials. To finish the setup process, initialize a git repo for the project:
+</p><pre class="code-block">git init
+git add .
+git commit -m <span class="hljs-string">"Initial Commit"</span></pre>
+<p>This will prepare your project to be deployed to Heroku.
+</p>
+<p>Next, deploy your project to Heroku by running the following:
+</p><pre class="code-block">vapor heroku init</pre>
+<p>This will prompt you with several questions. Answer the questions with the following:
+</p>
+<ul>
+<li>
+<p><em>Would you like to provide a custome Heroku app name?</em> y
+</p></li>
+
+<li>
+<p><em>Custom app name:</em> Name this something simple and relevant, so long as it does not contain capital letters, or special characters.
+</p></li>
+
+<li>
+<p><em>Would you like to push to Heroku now?</em> y
+</p></li>
+</ul>
+
+<p>All other answers can be <em>n</em>.
+</p>
+<p>This process will take several minutes to complete. At this point, your project code is uploading to Heroku and installing the Swift tools necessary to build on the server. Once this is complete, pushing your code will be much quicker.
+</p>
+<p>While the code is being uploaded to Heroku, you can set up the associated domains in Xcode.
+</p>
+<h3 class="segment-chapter">Enabling associated domains</h3>
+
+<p>Open the <em>AppManager</em> Xcode project and select <em>AppManager</em> in the Project navigator.
+</p><div class="image-100"><img src="graphics/img187.png"  alt="" title="" /></div>
+<p>Select <em>AppManager</em> target in the Editor pane, and make sure the <em>General</em> tab is selected. Under <em>Signing</em>, verify <em>Automatically manage signing</em> is checked, and select your Team from the dropdown.
+</p>
+<p>While you’re still on that page, change the <em>Bundle ID</em> to be something unique for you. Remember to keep the standard reverse domain name pattern:
+</p><pre class="code-block">com.&lt;yourdomain&gt;.<span class="hljs-type">AppManager</span></pre>
+<p>Now, switch to <em>Capabilities</em>, and enable <em>Associated Domains</em>.
+</p><div class="image-70"><img src="graphics/img188.png"  alt="" title="" /></div>
+<p>Select the <em>+</em> under the table. Now you will see an entry with the text <code>webcredentials:example.com</code>. This is a key for Apple to know which website’s credentials will be associated with this application. In the text field, after <code>webcredentials:</code>, replace <code>example.com</code> with the Heroku custom name you set up in the previous step, plus the Heroku app domain, like the following:
+</p><pre class="code-block">webcredentials:&lt;yourcustomname&gt;.herokuapp.com</pre>
+<div class="note">
+<p><em>Note</em>: Do not put <code>https://</code> in this entry. Apple will take care of handling this check for you, so keep it restricted to domain names.
+</p></div>
+
+<h3 class="segment-chapter">Finishing up</h3>
+
+<p>Go back to Terminal and verify the Heroku deploy is finished. Then open the server project in Xcode with the following command:
+</p><pre class="code-block">vapor xcode</pre>
+<p>When prompted, enter <em>y</em> to open the Xcode project. Open <em>Public/.well-known/apple-app-site-association</em>, and replace the tokens in the file with your <em>Team ID</em> and your app’s <em>Bundle ID</em>. <em>apple-app-site-association</em> is a file, which lives on your domain, that Apple will look for if you enable the Associated Domains capability in your app.
+</p>
+<p>Apple recommends you put the file in a directory named <em>.</em><em>well-known</em>, but it can live at the root of your domain as well. Password AutoFill will check that your Team ID combined with the Bundle ID are found under the <code>apps</code> node of the file. This ensures a secure link between your app and your website without having to do any security on your end.
+</p>
+<p>Go back to Terminal, commit your changes and deploy them to Heroku by entering the following commands:
+</p><pre class="code-block">git add .
+git commit -m <span class="hljs-string">"Added webcredentials"</span>
+vapor heroku push</pre>
+<div class="note">
+<p><em>Note</em>: The push to Heroku may take a few minutes.
+</p></div>
+
+<p>You can test that the changes worked by going to Safari on your iOS device and navigating to <a href="https://yourherokudomain.herokuapp.com/">https://yourherokudomain.herokuapp.com/</a> and log in. When prompted, save your password.
+</p>
+<p>Finally, go back to the AppManager Xcode project. Build and run, and select the username or password field.
+</p><div><img src="graphics/img189.png"  alt="" title="" /></div>
+<p>You’ll now see a suggested username in the QuickType bar. Selecting it will fill in your credentials, thus eliminating nearly all friction your users would have faced otherwise.
+</p>
+<p>Notice that you don’t have to write <i>any</i> code to make this feature work. Simply setting the Content Type of your username and password fields will automatically enable this feature if a properly-configured <em>apple-app-site-association</em> file is found on your domain.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>In this chapter, you learned how to enable Password AutoFill in your application, and how to associate your app and your SSL-configured website that has login capabilities. It’s clear that Apple is doing everything possible to make it easy for developers to enable this feature, so that it’s even easier for your users to log in!
+</p>
+<p>You can learn more from the WWDC 2017 video covering the topic, “WWDC17 Session 206 - Introducing Password AutoFill for Apps”: <a href="http://apple.co/2vV8ekS">http://apple.co/2vV8ekS</a>.
+</p></body></html>

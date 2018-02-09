@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 6: Beginning Drag and Drop</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 6: Beginning Drag and Drop</h1>
+
+<p>One of the most anticipated announcements at WWDC ’17 was the introduction of Drag and Drop — a true game-changer for mobile devices.  In typical Apple fashion, their engineers went above and beyond to deliver an interaction that feels as natural as it does intuitive.
+</p>
+<p>If you haven’t yet experienced Drag and Drop in iOS 11 then I highly recommend putting down this book and having a play. If the concept of Drag and Drop interests you now — and it must, you are reading this chapter after all! — your enthusiasm will increase ten-fold once you’ve actually experienced it.
+</p>
+<p>For developers, the <code>UIKit</code> team provided two sets of APIs to integrate drag and drop in your apps. There are a standard set of APIs that provide for every aspect of the interaction, and then there are a set of higher-level abstractions built specifically for <code>UICollectionView</code> and <code>UITableView</code>.
+</p>
+<p>In this chapter you’ll dive straight in and get your hands dirty with the latter set of APIs, by integrating drag and drop into an iPad bug-tracking app known as <em>Bugray</em>.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>The Razeware folks take their engineering efforts pretty seriously, and record each and every bug and feature request in Bugray, which breaks those items into three contexts: <em>To Do</em>, <em>In Progress</em>, and <em>Done</em>. Every item begins its life belonging to the <em>To Do</em> context, and moves through the other two contexts as it’s worked on.
+</p>
+<p>However, productivity at Razeware has fallen off a cliff since introducing Bugray as there’s one massive flaw in the app — it’s not quite finished! You see, items can’t be moved between the different contexts by the user. It requires a developer to learn and understand the high-level Drag and Drop APIs in iOS 11, and then dive in and finish it.
+</p>
+<p>That developer is <i>you</i>.
+</p>
+<p>Locate and open <em>Bugray.xcodeproj</em> with Xcode 9. When Xcode has finished launching, select the <em>iPad Pro (10.5-inch)</em> simulator and hit Build and Run.
+</p><div class="image-80"><img src="graphics/img104.png"  alt="" title="" /></div>
+<p>Before jumping in and changing any code, take this brief tour through the existing files and structure of the app.
+</p>
+<p>Open <em>Main.storyboard</em> and you’ll see everything’s been set up for you. The main structure of Bugray looks like this:
+</p><div class="image-60"><img src="graphics/img105.png"  alt="" title="" /></div>
+<p>Bugray comprises just two view controllers:
+</p>
+<ul>
+<li>
+<p>The main container view controller embeds three instances of the smaller view controller to provide the look and feel of a kanban board.
+</p></li>
+
+<li>
+<p>The smaller view controller displays a list of all the items in a given context using a collection view. It also displays the number of items in that context in the upper-left corner.
+</p></li>
+</ul>
+
+<p>These view controllers are implemented respectively by the following two <code>UIViewController</code> subclasses:
+</p>
+<ol>
+<li>
+<p><code>ContainerViewController</code>: Provides each instance of <code>BugListViewController</code> with the context it’s responsible for displaying.
+</p></li>
+
+<li>
+<p><code>BugListViewController</code>: Manages the collection view that displays the items in the current context.
+</p></li>
+</ol>
+
+<p><code>Bug</code> is the model object used throughout the app, whereas <code>BugStore</code> is a singleton that’s responsible for managing all the items in app. It uses <code>Codable</code> to load the items from a JSON file that’s part of the bundle, and provides methods to insert or remove items from the store.
+</p>
+<p>Now that you’re familiar with Bugray and how it works, it’s time to knuckle down and add support for Drag and Drop!
+</p>
+<div class="note">
+<p><em>Note</em>: This chapter deals exclusively with the drag and drop APIs for <code>UICollectionView</code>, but Apple and the <code>UIKit</code> team have done a tremendous job providing consistency and parity between <code>UICollectionView</code> and <code>UITableView</code>. What you learn in this chapter should be directly transferable when working with table views.
+</p></div>
+
+<h2 class="segment-chapter">Starting a drag</h2>
+
+<p>Configuring a <code>UICollectionView</code> to allow dragging is incredibly easy: You simply declare an object as conforming to the <code>UICollectionViewDragDelegate</code> protocol, implement a single method, and then set an instance of that object as the <code>dragDelegate</code> of the collection view. To keep things simple, you’ll update <code>BugListViewController</code> so it conforms to the protocol, and then set it as the drag delegate of the collection view.
+</p>
+<p>To begin with, open <em>BugListViewController.swift</em> and add the following to the bottom of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">BugListViewController</span>: <span class="hljs-title">UICollectionViewDragDelegate</span> </span>{
+
+}</pre>
+<p>Here you’ve created an extension of <code>BugListViewController</code> that declares conformance to <code>UICollectionViewDragDelegate</code>. Using extensions in this way keeps your code uncluttered and well-organized.
+</p>
+<p>Inside the extension, add the following method:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">collectionView</span><span class="hljs-params">(<span class="hljs-number">_</span> collectionView: UICollectionView, 
+  itemsForBeginning session: UIDragSession, 
+  at indexPath: IndexPath)</span></span> -&gt; [<span class="hljs-type">UIDragItem</span>] {
+  
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> item = <span class="hljs-type">UIDragItem</span>(itemProvider: <span class="hljs-type">NSItemProvider</span>())
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">return</span> [item]
+}</pre>
+<p>This is the only method that <code>UICollectionViewDragDelegate</code> requires you to implement. All others are optional. Inside the method you do the following two things:
+</p>
+<ol>
+<li>
+<p>Initialize an instance of <code>UIDragItem</code> with an empty <code>NSItemProvider</code>. Internal drag and drop — that is,  between views within the same app — doesn’t require the use of <code>NSItemProvider</code>, hence why you’re passing an empty instance here.
+</p></li>
+</ol>
+
+<p>You can find out more about inter-app drag and drop, and the role <code>NSItemProvider</code> plays in that, in Jeff Rames’ <em>Advanced Drag and Drop</em> chapter later in this book.
+</p>
+<ol>
+<li>
+<p>Return an array of type <code>UIDragItem</code>, which in this case contains just the drag item you initialized in the previous step.
+</p></li>
+</ol>
+
+<p>The final step to adopting dragging is to set the controller as the <code>dragDelegate</code> of the collection view.
+</p>
+<p>Still in <em>BugListViewController.swift</em>, find <code>viewDidLoad()</code> and add the following statement to the very bottom:
+</p><pre class="code-block">collectionView.dragDelegate = <span class="hljs-keyword">self</span></pre>
+<p>That’s all there is to it! Build and run using the <em>iPad Pro (10.5-inch)</em> simulator, and then tap-and-hold on any cell in any of the three collection views.
+</p><div class="image-80"><img src="graphics/img106.png"  alt="" title="" /></div>
+<p>You’ll find that the tapped cell, after a short delay, will raise up and allow you to drag it around at will. However, lifting your finger — or mouse button — to drop the cell doesn’t actually result in a drop at that location, but instead the collection view simply animates the cell back to its origin.
+</p>
+<h2 class="segment-chapter">Accepting the drop</h2>
+
+<p>Dragging is useless without the dropping, right? Apple’s invested significantly in providing consistency across their Drag and Drop APIs, and configuring the collection view to respond to a user dropping a dragged cell is almost identical to the process you used earlier:
+</p>
+<ol>
+<li>
+<p>Declare an object as conforming to the <code>UICollectionViewDropDelegate</code> protocol.
+</p></li>
+
+<li>
+<p>Implement the single required method.
+</p></li>
+
+<li>
+<p>Set an instance of that object as the <code>dropDelegate</code> of the collection view.
+</p></li>
+</ol>
+
+<p>With those steps in-mind, open <em>BugListViewController.swift</em> and add the following at the foot of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">BugListViewController</span>: <span class="hljs-title">UICollectionViewDropDelegate</span> </span>{
+
+}</pre>
+<p>Just as before, you create an extension of <code>BugListViewController</code>, but this time declare that it conforms to <code>UICollectionViewDropDelegate</code>.
+</p>
+<p>Within the extension, add the following method:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">collectionView</span><span class="hljs-params">(<span class="hljs-number">_</span> collectionView: UICollectionView, 
+  canHandle session: UIDropSession)</span></span> -&gt; <span class="hljs-type">Bool</span> {
+  
+  <span class="hljs-keyword">return</span> session.localDragSession != <span class="hljs-literal">nil</span> ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>
+}</pre>
+<p>This method allows you to inform the drag process as to whether or not you’re willing to handle the drop. It’s an optional method, and you’re using it here to restrict drag and drop to just those sessions initiated from within the same app. The restriction is enforced by checking if <code>localDragSession</code> on the provided <code>UIDropSession</code> instance is <code>nil</code>. If it is, then it means the drag was initiated from outside of the app, so you return <code>false</code> to let the drag process know you’re not interested in handling the drop.
+</p>
+<p>Next, you need to implement the only required method of <code>UICollectionViewDropDelegate</code> that allows you to handle the drop in all cases where the above method returns <code>true</code>.
+</p>
+<p>Still working within the extension, add the following code below the method added in the previous step:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">collectionView</span><span class="hljs-params">(<span class="hljs-number">_</span> collectionView: UICollectionView, 
+  performDropWith coordinator: UICollectionViewDropCoordinator)</span></span>{
+  
+  <span class="hljs-comment">// Intentionally left blank</span>
+}</pre>
+<p>For now, just having an empty method stub is enough to change the behavior of drag and drop, as you’ll see shortly. You’ll flesh out this method later in the chapter.
+</p>
+<p>To wrap up <i>basic</i> drop handling, you need to set the controller as the <code>dropDelegate</code> of the collection view.
+</p>
+<p>In <em>BugListViewController.swift</em>, locate <code>viewDidLoad()</code> and add the following snippet to the bottom of the method:
+</p><pre class="code-block">collectionView.dropDelegate = <span class="hljs-keyword">self</span></pre>
+<p>Build and run using the <em>iPad Pro (10.5-inch)</em> simulator, and then tap-and-hold on any cell to initiate a drag session. Drag the cell into either of the other collection views and you’ll notice a small green icon appear in the upper-right corner of the dragged cell:
+</p><div class="image-55"><img src="graphics/img107.png"  alt="" title="" /></div>
+<p>This indicates the collection view is willing to accept the drop. Lift your finger and you’ll see a different animation this time: Instead of returning to its origin, the cell now appears <i>drop</i> into place. Well... at least until the animation has finished, at which point the cell returns to its original collection view because you’ve not yet updated the model data and persisted the change.
+</p>
+<p>You’ll get to that shortly. But before you do, you need to provide some visual feedback to the user regarding the intent of the drop.
+</p>
+<h3 class="segment-chapter">Declaring your intent with drop proposals</h3>
+
+<p>As the user drags an object over your collection view, the collection view will ask its drop delegate how it proposes to handle the drop, should the user release their finger at its current location. It will then react visually in a number of different ways depending on how you respond.
+</p>
+<p>The proposal you provide is split into two parts: what operation you’ll perform when receiving the drop, and your intention of how to process that operation. Operations are instances of <code>UIDropOperation</code>, an enumeration providing the following options:
+</p>
+<ul>
+<li>
+<p><code><em>.cancel</em></code>: Indictates an operation that doesn’t cause data transfer. If you return a drop proposal with this operation then <code>collectionView(_:performDropWith:)</code> won’t be called on your drop delegate.
+</p></li>
+
+<li>
+<p><code><em>.forbidden</em></code>: Indicates that this interaction would usually perform a different operation, but is explicitly forbidden at this time. You might want to use this when your underlying data model is being updated by a network request on a background thread, and therefore can’t be changed at this time. If you use system-provided drag images, then a special symbol will be displayed on that image to provide visual feedback to the user.
+</p></li>
+
+<li>
+<p><code><em>.copy</em></code>: Indicates an operation that will <i>copy</i> the dropped item from its source to the destination.
+</p></li>
+
+<li>
+<p><code><em>.move</em></code>: Indicates an operation that’s the opposite of <code>.copy</code>, and used for operations that <i>move</i> the dropped item from its source to the destination.
+</p></li>
+</ul>
+
+<p>Intentions are instances of <code>UICollectionViewDropIntent</code>, and can be one of the following:
+</p>
+<ul>
+<li>
+<p><code><em>.insertAtDestinationIndexPath</em></code>: Signals that the dropped item(s) will be inserted at the destination location. A gap will open up at that drop location to simulate the final layout, should the item be dropped now.
+</p></li>
+
+<li>
+<p><code><em>.insertIntoDestinationIndexPath</em></code>: Signals that the item at the drop location is a container, and the dropped item will be placed within it. This intention doesn’t open a gap but instead highlights the item at the drop location.
+</p></li>
+
+<li>
+<p><code><em>.unspecified</em></code>: Signals that you will accept the drop but are unsure how the items will be processed. This intention doesn’t provide any visual feedback.
+</p></li>
+</ul>
+
+<p>Now that you know what operations and intentions are available to you, it’s time to put them to good use. As Bugray provides a kanban-like board, it makes sense to be able to drag bugs between the different contexts, and have them stay there permanently. Therefore <code>.move</code> and <code>.insertAtDestinationIndexPath</code> look like prime candidates to propose that behavior.
+</p>
+<p>Add the following method to the <code>UICollectionViewDropDelegate</code> extension in <em>BugListViewController.swift</em>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">collectionView</span><span class="hljs-params">(<span class="hljs-number">_</span> collectionView: UICollectionView, 
+  dropSessionDidUpdate session: UIDropSession, 
+  withDestinationIndexPath destinationIndexPath: IndexPath?)</span></span> 
+  -&gt; <span class="hljs-type">UICollectionViewDropProposal</span> {
+  
+  <span class="hljs-keyword">return</span> <span class="hljs-type">UICollectionViewDropProposal</span>(operation: .move, 
+    intent: .insertAtDestinationIndexPath)
+}</pre>
+<p>Here you return an instance of <code>UICollectionViewDropProposal</code> initialized with the operation and intention decided earlier.
+</p>
+<p>Build and run. As before, tap-and-hold on any cell to initiate a drag session. Drag the cell into either of the other collection views to see the new behavior:
+</p><div class="image-60"><img src="graphics/img108.png"  alt="" title="" /></div>
+<p>Cells now move apart to open a gap, signaling where the dragged item would be dropped, and the green icon is no longer visible. This is because <code>.copy</code> is the default operation, but you’re now declaring that you intend to move items instead.
+</p>
+<p>As a nice side-effect of using the <code>.move</code> operation, you can also now drag the cell around within its current context, effectively providing bug reordering for free! Go ahead and try it.
+</p>
+<h2 class="segment-chapter">Model coordination</h2>
+
+<p>The APIs the <code>UIKit</code> team have added to <code>UICollectionView</code> — and <code>UITableView</code> — do a very good job at abstracting away the communication with the drag process and coordinating the necessary visual changes. But there’s one thing they don’t cater for and that’s updating your model layer. That’s very much left up to the developer!
+</p>
+<p>There are two approaches you can take depending on the complexity of the drag and drop interaction:
+</p>
+<ol>
+<li>
+<p>If you are dragging a single item between two views of different classes, such as a custom <code>UIView</code> and a <code>UICollectionView</code>, then you can attach the model object to <code>UIDragItem</code> via its <code>localObject</code> property. When you receive the drop, you ask the drop coordinator for the drag item, and then retrieve the model object back from <code>localObject</code>.
+</p></li>
+
+<li>
+<p>If you are dragging one or more items between two or more collection-based views, such as <code>UITableView</code>, and you need to be able to track which index paths were affected, as well as which items were dragged, then that use case is beyond what the first approach can offer. Instead, it makes more sense to create a custom coordinator object that can track things, such as the source view, the destination view, the source index paths that were flocked (multiple items in a single drag) etc., and then pass that object between the drag and drop session using the <code>localContext</code> property on <code>UIDragSession</code>.
+</p></li>
+</ol>
+
+<p>The rest of this section will focus on how to implement the latter in Bugray.
+</p>
+<h3 class="segment-chapter">Adding model coordination</h3>
+
+<p>With the theory of model coordination out of the way, it’s worth taking a moment and breaking down your implementation into practical terms. What exactly would a coordinator need to know to successfully coordinate between a drag session and a Bugray model update?
+</p>
+<p>A coordinator would need to know the following things:
+</p>
+<ul>
+<li>
+<p>The source context of the drag, so the bugs being dragged can be easily located, and later removed.
+</p></li>
+
+<li>
+<p>The index paths of the item(s) being dragged. Index paths are useful because they not only represent the visual position of the cells in the collection view in its native tongue, but you can use their indexes to locate the associated bugs in the underlying data model.
+</p></li>
+
+<li>
+<p>The destination context of the drop, so you know into which context to insert the dragged bugs.
+</p></li>
+
+<li>
+<p>The index path(s) of where the dragged item(s) will be inserted.
+</p></li>
+
+<li>
+<p>If the drag is a move or a reorder operation. You’ll leverage different <code>UICollectionView</code> APIs depending on whether a drag is a move or a reorder, so you’ll need to be able to ask the coordinator what type of drag it is.
+</p></li>
+
+<li>
+<p>If the drag operation finished, so you can update the source collection view if necessary.
+</p></li>
+</ul>
+
+<p>Now you have a checklist to work through, it’s time to get cracking!
+</p>
+<p>Right-click on the <em>Coordinators</em> group in the Project Navigator and select <em>New File...</em>. In the template chooser select <em>Swift File</em> and click <em>Next</em>. Name the file <em>BugDragCoordinator</em> and click <em>Create</em>.
+</p>
+<p>Open <em>BugDragCoordinator.swift</em> and replace its contents with the following:
+</p><pre class="code-block"><span class="hljs-keyword">import</span> UIKit
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BugDragCoordinator</span> </span>{
+  <span class="hljs-keyword">let</span> source: <span class="hljs-type">Bug</span>.<span class="hljs-type">Context</span>
+
+  <span class="hljs-keyword">init</span>(source: <span class="hljs-type">Bug</span>.<span class="hljs-type">Context</span>) {
+    <span class="hljs-keyword">self</span>.source = source
+  }
+}</pre>
+<p>This is the bare-bones implementation of the class that will be responsible for the coordination between the drag session and your data model. The initializer receives the source context of the drag and assigns it to the <code>source</code> property.
+</p>
+<p>Next, add the following property declarations to the top of <code>BugDragCoordinator</code>:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> sourceIndexPaths: [<span class="hljs-type">IndexPath</span>] = []
+<span class="hljs-keyword">var</span> sourceIndexes: [<span class="hljs-type">Int</span>] {
+  <span class="hljs-keyword">get</span> {
+    <span class="hljs-keyword">return</span> sourceIndexPaths.<span class="hljs-built_in">map</span> { $<span class="hljs-number">0</span>.item }
+  }
+}</pre>
+<p>Here you declare an array to store the index paths of the items being dragged, within the context of the source collection view. You also add a computed property that uses <code>map</code> to return an array of just the indexes from those index paths. You do this so that you can query either the collection view or the underlying data model and receive exactly the same model objects.
+</p>
+<p>With the source of the drag taken care of, it’s now time to handle the destination. Add the following properties just below those added in the previous step:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> destination: <span class="hljs-type">Bug</span>.<span class="hljs-type">Context</span>?
+<span class="hljs-keyword">var</span> destinationIndexPaths: [<span class="hljs-type">IndexPath</span>]?
+<span class="hljs-keyword">var</span> dragCompleted = <span class="hljs-literal">false</span></pre>
+<p>Both <code>destination</code> and <code>destinationIndexPaths</code> are optionals because you don’t know the destination of a drop until it happens. You store the destination context and destination index paths so you can update the data model and destination collection view respectively. You also add a <code>Bool</code> to store whether or not the drag operation has completed.
+</p>
+<p>That’s five of the six items on the list covered. All that’s remaining is a way to determine if the drag operation is a reorder.
+</p>
+<p>Add the following computed property directly below those you added in the previous step:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> isReordering: <span class="hljs-type">Bool</span> {
+  <span class="hljs-keyword">get</span> {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> destination = destination <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> }
+    <span class="hljs-keyword">return</span> source == destination
+  }
+}</pre>
+<p>In the <code>getter</code> for this property you first attempt to unwrap <code>destination</code>, and return <code>false</code> if it fails. It’s impossible to determine what kind of operation is taking place if you don’t know the destination. You then check to see if <code>source</code> and <code>destination</code> are the same, and return the result: <code>true</code> if they are, in which case it’s a reorder, and <code>false</code> otherwise.
+</p>
+<p>With every item on the list now checked off, add the following convenience method to the bottom of <code>BugDragCoordinator</code>:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dragItemForBugAt</span><span class="hljs-params">(indexPath: IndexPath)</span></span> -&gt; <span class="hljs-type">UIDragItem</span> {
+  
+  sourceIndexPaths.append(indexPath)
+  <span class="hljs-keyword">return</span> <span class="hljs-type">UIDragItem</span>(itemProvider: <span class="hljs-type">NSItemProvider</span>())
+}</pre>
+<p>You’ll remember that earlier you added code to create the drag item in <code>collectionView(_:itemsForBeginning:at:)</code>, but you move it here so that you can record the index path of the drag item by appending it to <code>sourceIndexPaths</code>.
+</p>
+<p>And that’s it for the coordinator implementation, at least for now. The next step is to update the drag and drop delegates to use the coordinator.
+</p>
+<p>Open <em>BugListViewController.swift</em> and locate <code>collectionView(_:itemsForBeginning:at:)</code> in the <code>UICollectionViewDragDelegate</code> extension. Replace the current implementation with the following:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">let</span> dragCoordinator = <span class="hljs-type">BugDragCoordinator</span>(source: context)
+<span class="hljs-comment">// 2</span>
+session.localContext = dragCoordinator
+<span class="hljs-comment">// 3</span>
+<span class="hljs-keyword">return</span> [dragCoordinator.dragItemForBugAt(indexPath: indexPath)]</pre>
+<p>Here’s the breakdown of what’s happening:
+</p>
+<ol>
+<li>
+<p>You initialize an instance of <code>BugDragCoordinator</code> using the context of the current controller. This represents the source of the drag.
+</p></li>
+
+<li>
+<p>You assign the coordinator to the <code>localContext</code> property on the drag session that’s passed to this method. This is so you can access the coordinator from the other methods in both the drag and the drop delegates.
+</p></li>
+
+<li>
+<p>You ask the coordinator to create a drag item for the bug at the provided index path, and then return it wrapped in an array.
+</p></li>
+</ol>
+
+<p>Next, find <code>collectionView(_:performDropWith:)</code> in the <code>UICollectionViewDropDelegate</code> extension and replace the comment with the following lines of code:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> dragCoordinator = 
+  coordinator.session.localDragSession?.localContext 
+  <span class="hljs-keyword">as</span>? <span class="hljs-type">BugDragCoordinator</span> 
+  <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+<span class="hljs-comment">// 2</span>
+<span class="hljs-keyword">let</span> indexPath = coordinator.destinationIndexPath ?? 
+  <span class="hljs-type">IndexPath</span>(item: collectionView.numberOfItems(inSection: <span class="hljs-number">0</span>), 
+    section: <span class="hljs-number">0</span>)
+<span class="hljs-comment">// 3</span>
+dragCoordinator.destinationIndexPaths = [indexPath]
+<span class="hljs-comment">// 4</span>
+dragCoordinator.destination = context
+<span class="hljs-comment">// 5</span>
+<span class="hljs-built_in">print</span>(dragCoordinator.source, dragCoordinator.destination!,
+  dragCoordinator.sourceIndexPaths.first!, 
+  dragCoordinator.destinationIndexPaths!.first!)</pre>
+<p>Here’s the play-by-play of what’s happening above:
+</p>
+<ol>
+<li>
+<p>This method is passed an instance of <code>UICollectionViewDropCoordinator</code>, which provides access to the drop session via its <code>session</code> property. The property returns an instance of <code>UIDropSession</code>, which itself provides access to the drag session, if available, via <code>localDragSession</code>. It’s on this property that you can access the local context to which, in the previous step, you assigned your instance of <code>BugDragCoordinator</code>. Since <code>localDragSession</code> could be <code>nil</code>, and you need to cast the value of <code>localContext</code> to the type <code>BugDragCoordinator</code>, you wrap everything up in a <code>guard</code> statement.
+</p></li>
+
+<li>
+<p><code>UICollectionViewDropCoordinator</code> will provide you with the destination index path of the drop, if the drop location is somewhere within the range of the first and last cells of the collection view, otherwise it’ll return <code>nil</code>. To account for this, you use nil coalescing (<code>??</code>) to set the value of <code>indexPath</code> to either the destination index path, or to one you instantiate that represents the next available cell. This means that if a drop happens <i>within</i> the bounds of the collection view, but <i>not</i> over an existing cell, the dropped cell will always be inserted at the end of the collection view.
+</p></li>
+
+<li>
+<p>You set <code>destinationIndexPaths</code> on the drag coordinator to an array containing the index path from step #2. An array is used so the coordinator can cope with <em>Flocking</em> — multiple items per drag session — which you’ll implement shortly.
+</p></li>
+
+<li>
+<p>You set the destination context of the drag coordinator to be the context of the current controller.
+</p></li>
+
+<li>
+<p>You print the information contained within the drag coordinator as a sanity check to make sure everything is working as expected. This is just temporary as you’ll replace this line in the next section.
+</p></li>
+</ol>
+
+<p>Build and run. Tap-and-hold the first cell in the <em>To Do</em> context to initiate a drag, then drop it at the bottom of the <em>In Progress</em>. You should see the following output in the console:
+</p><pre class="code-block">toDo inProgress [0, 0] [0, 2]</pre>
+<p>This shows that you dragged the first item in the <code>toDo</code> context, and dropped it as the third item in the <code>inProgress</code> context.
+</p>
+<h2 class="segment-chapter">Performing the drop</h2>
+
+<p>Now you’re confident that the coordinator is accurately recording the information required to successfully coordinate the drop with the underlying data model, it’s time to actually perform that drop and have those changes persist.
+</p>
+<p>Open <em>BugListViewController.swift</em> and add the following private method declaration to the <code>UICollectionViewDropDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">moveBugs</span><span class="hljs-params">(using dragCoordinator: BugDragCoordinator, 
+  performingDropWith 
+  dropCoordinator: UICollectionViewDropCoordinator)</span></span> {
+
+}</pre>
+<p>It’s within this method you’ll update the bugs data store, remove any cells from the source collection view, and insert any cells into the destination collection view. For this to happen you need access to both the drag coordinator <i>and</i> the drop coordinator, hence why they’re both passed as parameters.
+</p>
+<p>Next, add the following <code>guard</code> statement to the top of the method:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> destination = dragCoordinator.destination, 
+  <span class="hljs-keyword">let</span> destinationIndexPaths = 
+    dragCoordinator.destinationIndexPaths 
+  <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }</pre>
+<p>To be able to perform the drop you need both the destination context <i>and</i> the destination index paths. If one or both of these are missing then you exit early.
+</p>
+<p>Now, add the following just below the <code>guard</code> statement:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> bugs = <span class="hljs-type">BugStore</span>.sharedStore.deleteBugs(
+  at: dragCoordinator.sourceIndexes, <span class="hljs-keyword">in</span>: dragCoordinator.source)</pre>
+<p>Here you use <code>deleteBugs(at:in:)</code> on <code>BugStore</code> to remove the bugs at the given indexes from the source context in the underlying data store. The method returns an array of the bugs it removed, so you hold onto them as you’ll need them in just a moment.
+</p>
+<p>Next, add the following to the bottom of <code>moveBugs(using:performingDropWith:)</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">for</span> (index, item) <span class="hljs-keyword">in</span> dropCoordinator.items.enumerated() {
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> sourceIndexPath = dragCoordinator.sourceIndexPaths[index]
+  <span class="hljs-keyword">let</span> destinationIndexPath = destinationIndexPaths[index]
+  <span class="hljs-comment">// 3</span>
+  collectionView.performBatchUpdates({
+    <span class="hljs-comment">// 4</span>
+    <span class="hljs-type">BugStore</span>.sharedStore.insert(bugs: [bugs[index]], 
+      into: destination, at: destinationIndexPath.item)
+    <span class="hljs-comment">// 5</span>
+    <span class="hljs-keyword">if</span> dragCoordinator.isReordering {
+      <span class="hljs-keyword">self</span>.collectionView.moveItem(at: sourceIndexPath, 
+        to: destinationIndexPath)
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">self</span>.collectionView.insertItems(
+        at: [destinationIndexPath])
+    }
+  }, completion: { <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+    <span class="hljs-comment">// 6</span>
+    <span class="hljs-keyword">self</span>.setBugCount()
+  })
+  <span class="hljs-comment">// 7</span>
+  dropCoordinator.drop(item.dragItem, 
+    toItemAt: destinationIndexPath)
+}</pre>
+<p>Here’s the breakdown:
+</p>
+<ol>
+<li>
+<p>Iterate over the items provided by the drop coordinator, each one being an instance of <code>UICollectionViewDropItem</code>. You use <code>enumerated()</code> because you need access to both the index of the iteration and the item itself.
+</p></li>
+
+<li>
+<p>Retrieve the source and destination index paths for the given item.
+</p></li>
+
+<li>
+<p>Use <code>performBatchUpdates(_:completion:)</code> to wrap any changes to the collection view in a single batch operation, so they are performed efficiently and in parallel.
+</p></li>
+
+<li>
+<p>Take the bug at the current index from the temporary <code>bugs</code> array, and insert it into the destination context using the <code>item</code> property of <code>destinationIndexPath</code> as its new index.
+</p></li>
+
+<li>
+<p>If the current operation is a reorder then ask the collection view to move the cell at <code>sourceIndexPath</code> to <code>destinationIndexPath</code>, otherwise simply insert a new cell at <code>destinationIndexPath</code>. <code>insertItems(at:)</code> expects an array, so you provide one containing just the single index path.
+</p></li>
+
+<li>
+<p>Once the batch update has completed update the bug count displayed at the top of each context.
+</p></li>
+
+<li>
+<p>Finally, tell the drop coordinator to animate the current item’s drag item to the destination index path, completing the drop of that particular item.
+</p></li>
+</ol>
+
+<p>Once the enumeration has finished and all items have been dropped you need to tell the drag coordinator that the drag is now considered complete.
+</p>
+<p>Add the following statement to the very bottom of <code>moveBugs(using:performingDropWith:)</code>:
+</p><pre class="code-block">dragCoordinator.dragCompleted = <span class="hljs-literal">true</span></pre>
+<p>The final step to hooking everything up is to actually call this new method. Locate the <code>print</code> statement in <code>collectionView(_:performDropWith:)</code> and replace it with the following:
+</p><pre class="code-block">moveBugs(using: dragCoordinator, 
+  performingDropWith: coordinator)</pre>
+<p>Build and run using the <em>iPad Pro (10.5-inch)</em> simulator. Initiate a drag with any cell in the <em>To Do</em> context, and then drop it to a different location within that same context. You’ll see that the drop now persists and the collection view updates visually:
+</p><div class="image-70"><img src="graphics/img109.png"  alt="" title="" /></div>
+<p>However, if you try to drag a cell from one context and drop it onto another, and then drag that cell back to its original context, you’ll notice two things: the visual state of the source collection view doesn’t update giving the impression there are now multiple instances of the same bug, and the app crashes with a familiar <code>UICollectionView</code> exception:
+</p><pre class="code-block">*** Terminating app due to uncaught exception &apos;NSInternalInconsistencyException&apos;, reason: &apos;Invalid update: invalid number of items in section...</pre>
+<p>Both of these issues are caused by the fact that the visual state of the source collection view isn’t updated after a successful drag and drop, and therefore its internal state becomes out-of-sync with its data source. You’ll fix this in the following section.
+</p>
+<h2 class="segment-chapter">Updating the source</h2>
+
+<p>When a drag session ends, the drag delegate of the source collection view is informed via a delegate method. You’ll use this method to delete the cells that were dragged out of the collection view, keeping it in sync with the underlying data model.
+</p>
+<p>Open <em>BugListViewController.swift</em> and add the following delegate method to the bottom of the <code>UICollectionViewDragDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">collectionView</span><span class="hljs-params">(<span class="hljs-number">_</span> collectionView: UICollectionView, 
+  dragSessionDidEnd session: UIDragSession)</span></span> {
+}</pre>
+<p>This method is called whenever the drag session ends, regardless of whether the drop was successful or not. This is the reason you added the ability to record whether the drop was completed to <code>BugDragCoordinator</code>.
+</p>
+<p>Next, add the following <code>guard</code> statement to the top of this new method:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> dragCoordinator = session.localContext 
+  <span class="hljs-keyword">as</span>? <span class="hljs-type">BugDragCoordinator</span>,
+  dragCoordinator.source == context,
+  dragCoordinator.dragCompleted == <span class="hljs-literal">true</span>,
+  dragCoordinator.isReordering == <span class="hljs-literal">false</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }</pre>
+<p>There are four conditions being checked in this <code>guard</code> statement:
+</p>
+<ol>
+<li>
+<p>First, you make sure you can access the coordinator via <code>localContext</code> and cast it to the type <code>BugDragCoordinator</code>.
+</p></li>
+
+<li>
+<p>Next, you check whether the source context is the same as the context of the current controller. You do this because you only want to delete cells from the collection view where the drag originated.
+</p></li>
+
+<li>
+<p>Next, you make sure the current drag has completed.
+</p></li>
+
+<li>
+<p>Finally, you make sure the current operation <i>isn’t</i> a reorder, because you don’t want to delete any cells if it is.
+</p></li>
+</ol>
+
+<p>Assuming all those conditions are met, you then need to ask the collection view to delete the items located at <code>sourceIndexPaths</code>.
+</p>
+<p>Now add the following snippet just below the <code>guard</code> statement:
+</p><pre class="code-block">collectionView.performBatchUpdates({
+  collectionView.deleteItems(
+    at: dragCoordinator.sourceIndexPaths)
+}, completion: { <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+  <span class="hljs-keyword">self</span>.setBugCount()
+})</pre>
+<p>Here you once again use <code>performBatchUpdates(_:completion:)</code> to delete the items at the given index paths from the collection view, and then in the completion closure update the bug count that’s displayed at the top of each context in the kanban board.
+</p>
+<p>Build and run. You can now drag items between the different contexts and see both the source and destination collection views update accordingly, and you don’t have any more crashes! Nice work.
+</p>
+<p>You <i>could</i> consider the drag and drop implementation complete at this point, but wouldn’t it be even better if you could drag multiple bugs between contexts at the same time? It sure would! Luckily, Apple agrees and provides some APIs to allow you to do just that.
+</p>
+<h2 class="segment-chapter">Flocking</h2>
+
+<p>To enable flocking of drag items, that is, to add one or more cells to an already in-flight drag session, you simply need to implement a single method declared on the <code>UICollectionViewDragDelegate</code> protocol. Don’t you just love how easy Apple has made all of this?
+</p>
+<p>Open <em>BugListViewController.swift</em> and add the following method declaration to your <code>UICollectionViewDragDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">collectionView</span><span class="hljs-params">(<span class="hljs-number">_</span> collectionView: UICollectionView, 
+  itemsForAddingTo session: UIDragSession, 
+  at indexPath: IndexPath, point: CGPoint)</span></span> -&gt; [<span class="hljs-type">UIDragItem</span>] {
+    
+}</pre>
+<p>This method is called each time a cell is tapped and there’s already an active drag session. Within it, you need to return an array of the drag items that you wish to add to the flock. Add the following snippet to the method to achieve that:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> dragCoordinator = 
+  session.localContext <span class="hljs-keyword">as</span>? <span class="hljs-type">BugDragCoordinator</span>, 
+  dragCoordinator.source == context 
+  <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> [] }
+
+<span class="hljs-keyword">return</span> [dragCoordinator.dragItemForBugAt(indexPath: indexPath)]</pre>
+<p>Here you use a <code>guard</code> statement to make sure you can access the drag coordinator via <code>localContext</code>, and that it can be cast to the type <code>BugDragCoordinator</code>. You also make sure that the source context of the drag is the same as the context of the current controller. You do this to restrict flocking to just bugs from the same context; mixing contexts within a flock is substantially more complex and out-of-scope for this chapter. If one or both of these conditions fail you return an empty array. Otherwise, you ask the drag coordinator for a drag item corresponding to the bug at the given index path and return that, wrapped in an array.
+</p>
+<p>That takes care of adding items to the flock, but what about dropping them? The drop coordinator passed to <code>collectionView(_:performDropWith:)</code> only provides the index path of the location of the drop, which is fine for a single item, but when dealing with multiple items you need one index path per item.
+</p>
+<p>Given you know the index path of the drop, and can determine the number of items in the flock via the drop coordinator, you can add a method to the drag coordinator to take that information and calculate the necessary index paths.
+</p>
+<p>Open <em>BugDragCoordinator.swift</em> and add the following method to the bottom of the class:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">calculateDestinationIndexPaths</span><span class="hljs-params">(from indexPath: IndexPath, 
+  <span class="hljs-built_in">count</span>: Int)</span></span> {
+  
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> indexes = <span class="hljs-type">Array</span>(indexPath.item..&lt;(indexPath.item + <span class="hljs-built_in">count</span>))
+  <span class="hljs-comment">// 2</span>
+  destinationIndexPaths = 
+    indexes.<span class="hljs-built_in">map</span> { <span class="hljs-type">IndexPath</span>(item: $<span class="hljs-number">0</span>, section: <span class="hljs-number">0</span>)}
+}</pre>
+<p>Here’s what’s happening in the method above:
+</p>
+<ol>
+<li>
+<p>Instantiate an <code>Array</code> of <code>Int</code> using a range, starting at the index of <code>indexPath</code> and having <code>count</code> number of elements. This array represents the indexes of where the new items will be inserted.
+</p></li>
+
+<li>
+<p>Use <code>map</code> to convert the values of <code>indexes</code> into an array of index paths, and then set <code>destinationIndexPaths</code> to that array.
+</p></li>
+</ol>
+
+<p>Now you just need to update your drop delegate to use this new method.
+</p>
+<p>Open <em>BugListViewController.swift</em> and, in your <code>UICollectionViewDropDelegate</code> extension, find <code>collectionView(_:performDropWith:)</code>. Within that method, locate the following statement:
+</p><pre class="code-block">dragCoordinator.destinationIndexPaths = [indexPath]</pre>
+<p>Replace it with this one:
+</p><pre class="code-block">dragCoordinator.calculateDestinationIndexPaths(
+  from: indexPath, <span class="hljs-built_in">count</span>: coordinator.items.<span class="hljs-built_in">count</span>)</pre>
+<p>Bugray is now all set up to handle flocking!
+</p>
+<p>Build and run, using the <em>iPad Pro (10.5-inch)</em> simulator. Initiate a drag with the first cell in the <em>To Do</em> context, then press <em>Control</em> and release your mouse button. This will keep the drag session active while you select other cells to add to the flock. Tap each of the next two cells in the <em>To Do</em> context to add them to the flock:
+</p><div class="image-70"><img src="graphics/img110.png"  alt="" title="" /></div>
+<p>With the left mouse button pressed, you can now release <em>Control</em> and drag the flock around. Drop the flock on either of the other contexts and see all three cells inserted.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>If this is your first experience with the Drag and Drop APIs in iOS 11, I congratulate you. Not only have you acquired the knowledge you need to add the power and convenience of drag and drop to your <code>UICollectionView</code>-powered iOS apps, you’ve made the Razeware team far more productive since they can finally move bugs into the <em>In Progress</em> and <em>Done</em> contexts of their kanban board!
+</p>
+<p>Before you move on, play around with drag and drop in Bugray. Familiarize yourself with the gestures and key-combinations, see how many items you can add to a flock, and see if you can clear one of the contexts completely.
+</p>
+<p>The power of drag and drop doesn’t end here! Head over to Chapter 7, “Advanced Drag and Drop”, to learn all about <code>UIDragInteractionDelegate</code> and <code>UIDropInteractionDelegate</code>, <code>NSItemProvider</code> and <code>UIDragItem</code>, adding drag and drop support to custom views, and spring loading. See you there!
+</p></body></html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>artistName</key>
+	<string>By the raywenderlich.com Tutorial Team</string>
+	<key>book-info</key>
+	<dict>
+		<key>cover-image-hash</key>
+		<string>D57F32F47EF29E651B42C2215A6BF9A8</string>
+		<key>cover-image-path</key>
+		<string>OEBPS/html/graphics/cover-image.png</string>
+		<key>mime-type</key>
+		<string>application/epub+zip</string>
+		<key>package-file-hash</key>
+		<string>429D5F77D71F646B0504234234594419</string>
+		<key>publisher-unique-id</key>
+		<string>http://raywenderlich.com/epubs/i11t</string>
+		<key>unique-id</key>
+		<integer>-3984987520511107765</integer>
+		<key>update-level</key>
+		<integer>2</integer>
+	</dict>
+	<key>itemName</key>
+	<string>iOS 11 by Tutorials</string>
+	<key>playlistName</key>
+	<string>iOS 11 by Tutorials</string>
+</dict>
+</plist>

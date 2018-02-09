@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 5: What’s New in Layout</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">What’s New in Auto Layout</h1>
+
+<p>With a new 10.5” iPad, larger navigation bars that change size as you scroll, changes to content insets, and more, it’s almost like Apple decided to show developers at WWDC 2017 exactly why they’ve been telling people to use Auto Layout for the last few years. As if multiple device screen sizes, split screen, and rotation weren’t enough, these new features pile on to the list of reasons why Auto Layout is such a powerful tool. In fact, it’s pretty much necessary to use Auto Layout for at least part of your interface.
+</p>
+<p>In this chapter, you’ll visit the most important of these updates as you migrate an iOS 10 app to use the new Auto Layout features of iOS 11.
+</p>
+<h2 class="segment-chapter">Getting st-arrrr-ted</h2>
+
+<p>The starter app for this chapter is everyone’s favorite pirate app: Pirate Handbook. The app is in the state you left it at the end of the <a href="https://videos.raywenderlich.com/courses/75-mastering-auto-layout/lessons/1">https://videos.raywenderlich.com/courses/75-mastering-auto-layout/lessons/1</a> video tutorial series on raywenderlich.com. This app shows some different ways to handle adaptive layout, but it was built under iOS 10. In this chapter, you’re going to update it for iOS 11 and explore what’s new along the way.
+</p>
+<p>Without futher ado, let’s launch this voyage!
+</p>
+<h2 class="segment-chapter">Large titles</h2>
+
+<p>The most obvious change in iOS 11 for apps that have a navigation bar is the new large titles:
+</p><div class="image-60"><img src="graphics/img87.png"  alt="" title="" /></div>
+<p>You can control whether view controllers’ titles show in this new larger format at the <code>UINavigationController</code> level, using a property on <code>UINavigationBar</code> called <code>prefersLargeTitles</code>. You can also set it in Interface Builder by selecting the navigation bar in a navigation controller scene and then checking the <em>Prefers Large Titles</em> checkbox in the Attributes Inspector.
+</p><div class="image-100"><img src="graphics/img88.png"  alt="" title="" /></div>
+<p>This property serves as a master switch for all view controllers in the navigation controller’s hierarchy, and you’ll check the box on both of the navigation controllers in your project.
+</p>
+<p>Open the sample project, go to <em>Main.storyboard</em>, and click on one of the navigation controller scenes. Select the navigation bar, open the Attributes Inspector (<em>Command-Option-4</em> is the keyboard shortcut), and check the checkbox. Repeat for the other navigation controller scene.
+</p>
+<p>Although this property is the master switch, each view controller has its own setting to control if it should show the large or normal title. The <code>largeTitleDisplayMode</code> on <code>UINavigationItem</code> can be set to a value of <code>automatic</code>, <code>always</code>, or <code>never</code>, with a default of <code>automatic</code>. The <code>automatic</code> setting will cause a view controller to inherit the setting of the previous view controller in the navigation stack. The other settings override this behavior, turning on or off the large titles for this view controller.
+</p>
+<p>Typically, you want top-level view controllers to have large titles, but as you drill down, you want view controllers to have smaller titles. You can adjust these settings for your view controllers.
+</p>
+<p>First, select the navigation item in the <em>Menu View Controller</em> scene. This controller doesn’t yet have a title. In the Attributes Inspector, type <em>Handbook</em> for the title. You want this particular title to be large, but not the titles for the map or weather views. Therefore, you set both of those to <code>never</code>. Open the <em>Caribbean Weather Forecast</em> scene and select the navigation item. Set the <em>Large Title</em> to <em>Never</em>.
+</p>
+<p>Repeat these steps for the <em>Secret Map</em> scene.
+</p><div class="image-100"><img src="graphics/img89.png"  alt="" title="" /></div>
+<div class="note">
+<p><em>Note:</em> You can control the attributes of the large titles using the <code>largeTitleTextAttributes</code> property on <code>UINavigationBar</code> or its appearance proxy.
+</p></div>
+
+<p>Build and run, and you’ll see the large title on the home screen. Open the dictionary (in the upper right corner), and if you tap on the map or weather forecast buttons, you’ll see a nice transition animation from the large title to the smaller ones.
+</p><div class="image-65"><img src="graphics/img90.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Search controllers</h2>
+
+<p>The second change to the navigation bar is the integration of search controllers. <code>UISearchController</code> is not new, but now you can set the <code>searchController</code> property of <code>UINavigationItem</code> to an instance of a search controller and the navigation bar will show the search field drawn inside the bar. <code>UINavigationItem</code> also has a new property, called <code>hidesSearchBarWhenScrolling</code>. If you set this to <code>true</code>, the navigation bar will automatically hide the search field when you scroll. If you want the field to show even when the user is scrolling through content, set this value to <code>false</code>.
+</p>
+<p>Let’s try it out. You won’t implement search functionality, but you can still see what it would look like. Open <em>DictionaryViewController.swift</em> and add this line at the top of the class:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> searchController =
+  <span class="hljs-type">UISearchController</span>(searchResultsController: <span class="hljs-literal">nil</span>)</pre>
+<p>Then, in <code>awakeFromNib</code>, after the call to <code>super</code>, add these lines:
+</p><pre class="code-block">navigationItem.searchController = searchController
+navigationItem.hidesSearchBarWhenScrolling = <span class="hljs-literal">true</span></pre>
+<p>Build and run and tap the book icon in the upper right corner to show the dictionary. Nothing looks different at first, but if you pull down on the table, you’ll see the search field come into view. This is handy when you’re trying to text your friends who don’t speak pirate!
+</p>
+<p>Now that navigation bars can be different sizes, and even change while scrolling, you might think it would be a pain to layout your view around the navigation bar. Well, that’s where the new safe area concept comes in.
+</p><div class="image-75"><img src="graphics/img91.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Safe area</h2>
+
+<p>When iOS 7 introduced translucency in the navigation and tab bars, it became more confusing as to where the “top” and “bottom” of a view were. If you wanted your view to show through the translucent bars, you’d usually make your top-level view expand to fill the screen and show under the navigation bar.
+</p>
+<p>Then, for content inside that view, you might not want its position to start at the top of the view, but at the bottom of the navigation bar instead. That’s why <code>topLayoutGuide</code> and <code>bottomLayoutGuide</code> on <code>UIViewController</code> were introduced, to let you set constraints between your views and the edges of those bars. Those are now deprecated in favor of a new guide, <code>safeAreaLayoutGuide</code>, which is a property on <code>UIView</code> instead of the controller.
+</p>
+<p>For a view controller’s root view, this guide represents the part of the view’s visible area that is unobstructed by system views, such as the status bar, or ancestor views, such as the navigation bar. This “safe view area” is also modified and propagated down to child views, representing the portion of their view that is unobstructed.
+</p>
+<p>The <code>safeAreaLayoutGuide</code> is perfect for creating constraints between your views and the safe area. But if you only want the measurements of the safe area, <code>safeAreaInsets</code> will return those values. And if you want to know when the values change, there are two methods to help: <code>UIView.safeAreaInsetsDidChange()</code> and <code>UIViewController.viewSafeAreaInsetsDidChange()</code>. If you want to add to the safe area exclusions, you can assign values to the <code>additionalSafeAreaInsets</code> property.
+</p>
+<p>You’ll see an example of setting <code>additionalSafeAreaInsets</code> in the Scroll Views section of this chapter, but for now, you’ll turn on using safe area guides for the storyboard.
+</p>
+<p>With the storyboard open, select any element in the storyboard. Open the File Inspector and check the <em>Use Safe Area Layout Guides</em> checkbox. Xcode will automatically convert any constraints that were previously set on the top and bottom layout guides to be set on the safe area guide.
+</p>
+<p>One view that the automatic conversion won’t get right is the map view. You want the scroll view to fill the whole view, even under the bars, and later you’re going to learn how to add to the safe area, so you don’t want the scroll view constrained to it. Select the <em>Scroll View</em> in the <em>Secret Map</em> scene and double-click on any of the <em>Sibling </em><em>&amp;</em><em> Ancestor Constraints</em> that say Safe Area and change them to <em>Superview</em>.
+</p><div class="image-40"><img src="graphics/img92.png"  alt="" title="" /></div>
+<div class="note">
+<p><em>Note:</em> If you were setting constraints to <code>topLayoutGuide</code> and <code>bottomLayoutGuide</code> before, you’ll notice a switch in mindset. The <code>topLayoutGuide</code> indicated the area covered by the status bar and navigation bar, but the <code>safeAreaLayoutGuide</code> indicates the area <i>uncovered</i> by the status and navigation bars. So before, if you wanted to constrain your view to the top, you would have added a constraint between your view’s <code>topAnchor</code> and the <code>topLayoutGuide.bottomAnchor</code>. But in iOS 11, you can create a constraint between your view’s <code>topAnchor</code> and the <code>safeAreaLayoutGuide.topAnchor</code>.
+</p></div>
+<div class="image-85"><img src="graphics/img93.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">iPhone X</h3>
+
+<p>In portrait orientation, the safe area guide on the iPhone X makes space for the notch at the top (I, for one, welcome our new notch overlords), and for the home indicator at the bottom. In landscape orientation, the safe area makes room on the leading <i>and</i> trailing edges of the display for the notch, no matter which way the device is rotated. This provides for a balanced look if you want your content to avoid the notch. But it will be up to you if you want your views to extend to the edges and be cutoff by the notch or respect the safe area to avoid it.
+</p>
+<h2 class="segment-chapter">Margins</h2>
+
+<p>There are also some changes to margin behavior. The property <code>directionalLayoutMargins</code> replaces the now deprecated <code>layoutMargins</code>, although the guide remains <code>layoutMarginsGuide</code>. The new property allows for changes in reading direction, substituting <code>leading</code> and <code>trailing</code> for <code>left</code> and <code>right</code> values.
+</p>
+<p>The values in <code>directionalLayoutMargins</code> are added to the ones in <code>systemMinimumLayoutMargins</code> to determine the actual margins for a view. If you do not want to respect the system minimum margins, you can set <code>viewRespectsSystemMinimumLayoutMargins</code> to <code>false</code>.
+</p>
+<p>Finally, there is a new property that ties margins together with safe area: <code>insetsLayoutMarginsFromSafeArea</code>. With the default value of <code>true</code>, this will cause a view’s margins to be relative to the safe area. Setting this to <code>false</code> will cause the margins to be relative to the view bounds instead.
+</p>
+<h2 class="segment-chapter">Scroll views</h2>
+
+<p>When creating constraints to a scroll view prior to iOS 11, the Auto Layout system would employ some logic to determine if the constraint should be to the scroll view’s frame or its content area. This could be confusing, because you might want to create a constraint to the frame, but the constraint would attach to the content area.
+</p>
+<p>There are now two different guides for <code>UIScrollView</code>: <code>frameLayoutGuide</code> and <code>contentLayoutGuide</code>. These let you be precise when creating constraints to scroll views. Unfortunately, they’re only available in code at this point, so you won’t be able to connect to them in Interface Builder.
+</p>
+<p>Another change concerns the content inset when a scroll view is in a view controller that is the child of a navigation controller. The <code>automaticallyAdjustsScrollViewInsets</code> property of <code>UIViewController</code>, which defaulted to <code>true</code>, would cause the content inset of your scroll view to be adjusted so the content wouldn’t position under the navigation bar. If you were manually setting the content inset of your scroll view, you would have to be careful to take the system-set value into account.
+</p>
+<p>Starting with iOS 11, the system will no longer set the content inset of your scroll view. Now, <code>adjustedContentInset</code> is calculated from the safe area and the values you set in <code>contentInset</code>, controlled by <code>contentInsetAdjustmentBehavior</code>.
+</p>
+<p>To see how <code>additionalSafeAreaInsets</code> works in action, you’ll add a legend to the treasure map, and use the new guides for setting constraints.
+</p>
+<p>With the storyboard open, add a new <code>UIView</code> to the map scene. This will be the container for the rest of the views. Set the background color to <em>#B1AA9F</em> at <em>90% opacity</em>.
+</p>
+<p>Set the <em>top</em>, <em>leading</em>, and <em>width</em> constraints, but make them <i>placeholder</i> constraints by checking the <em>Remove at build time</em> checkbox on the Size Inspector of the constraint. Because these are placeholder constraints, it doesn’t matter what values you use for these constraints; simply make the view visible somewhere on the screen somewhere.
+</p>
+<p>I used 8 for leading, 518 for top and 398 for width, but you may need different values for things to look right on your storyboard.
+</p><div class="image-90"><img src="graphics/img94.png"  alt="" title="" /></div>
+<p>Next, add two image views inside the container: one with the <em>x</em> image and one with the <em>arrow</em> image. Then, add two labels to the container: one that says <em>The Spot</em> and one that says <em>This Way</em>. Change the font on both labels to <em>Marker Felt Thin</em>.
+</p><div class="image-90"><img src="graphics/img95.png"  alt="" title="" /></div>
+<p>Now, set these constraints on the “x” image view:
+</p>
+<ul>
+<li>
+<p><em>Leading space</em>: 0 to superview margin
+</p></li>
+
+<li>
+<p><em>Width</em>: 33
+</p></li>
+
+<li>
+<p><em>Aspect ratio</em>: 1:1
+</p></li>
+
+<li>
+<p><em>Top space</em>: 8 to superview
+</p></li>
+
+<li>
+<p><em>Trailing space</em>: Standard to “The Spot” label (i.e. 20)
+</p></li>
+
+<li>
+<p><em>Align center y</em>: To “The Spot” label
+</p></li>
+
+<li>
+<p><em>Bottom space</em>: 0 to the arrow image view
+</p></li>
+</ul>
+
+<p>And add these constraints to the arrow image view:
+</p>
+<ul>
+<li>
+<p><em>Leading space</em>: 0 to superview margin
+</p></li>
+
+<li>
+<p><em>Width</em>: 33
+</p></li>
+
+<li>
+<p><em>Aspect ratio</em>: 1:1
+</p></li>
+
+<li>
+<p><em>Bottom space</em>: 8 to superview
+</p></li>
+
+<li>
+<p><em>Trailing space</em>: Standard to “The Way” label (i.e. 20)
+</p></li>
+
+<li>
+<p><em>Align center y</em>: To “The Way” label
+</p></li>
+</ul>
+
+<p>Update the frames of any views that are misplaced at this time. Everything looks good, but there are two more constraints you need to add.
+</p>
+<p>On both labels, add a constraint from the trailing edge of the label to the trailing margin of the superview that is &gt;= 0. Even though it is unlikely you’ll ever need this constraint, if you ever localized your app, long text would run off the right edge. You’d prefer it to resize or clip before running off.
+</p>
+<p>With all the constraints set, your storyboard will look like this:
+</p><div class="image-100"><img src="graphics/img96.png"  alt="" title="" /></div>
+<p>Now that you have the legend, you need to add code to position it and adjust the safe area insets to account for it. Still in the storyboard, select <em>Secret Map</em> and click on the assistant editor to open <em>MapViewController.swift</em>. Create two outlets: Control-drag from the view you just added and name it <code>legendContainer</code>, and then Control-drag from the scroll view and name it <code>scrollView</code>:
+</p><pre class="code-block"><span class="hljs-meta">@IBOutlet</span> <span class="hljs-keyword">weak</span> <span class="hljs-keyword">var</span> legendContainer: <span class="hljs-type">UIView</span>!
+<span class="hljs-meta">@IBOutlet</span> <span class="hljs-keyword">weak</span> <span class="hljs-keyword">var</span> scrollView: <span class="hljs-type">UIScrollView</span>!</pre>
+<p>Next, add a couple of constants to <code>MapViewController</code>:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> scrollIndicatorMargin: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">8</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> legendCornerRadius: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">8</span></pre>
+<p>Add a helper method, <code>setupLegend()</code>, to set up the legend view:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">setupLegend</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-comment">// 1</span>
+  legendContainer.layer.cornerRadius = legendCornerRadius
+  <span class="hljs-comment">// 2</span>
+  legendContainer.leadingAnchor.constraint(
+    equalTo: scrollView.frameLayoutGuide.leadingAnchor,
+    constant: scrollIndicatorMargin)
+    .isActive = <span class="hljs-literal">true</span>
+  <span class="hljs-comment">// 3</span>
+  legendContainer.trailingAnchor.constraint(
+    equalTo: scrollView.frameLayoutGuide.trailingAnchor,
+    constant: -scrollIndicatorMargin)
+    .isActive = <span class="hljs-literal">true</span>
+  <span class="hljs-comment">// 4</span>
+  legendContainer.bottomAnchor.constraint(
+    equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+    constant: legendContainer.frame.height)
+    .isActive = <span class="hljs-literal">true</span>
+  <span class="hljs-comment">// 5</span>
+  additionalSafeAreaInsets = <span class="hljs-type">UIEdgeInsets</span>(
+    top: <span class="hljs-number">0</span>,
+    <span class="hljs-keyword">left</span>: <span class="hljs-number">0</span>,
+    bottom: legendContainer.frame.height + 
+            scrollIndicatorMargin,
+    <span class="hljs-keyword">right</span>: scrollIndicatorMargin)
+  <span class="hljs-comment">// 6</span>
+  scrollView.contentInsetAdjustmentBehavior = .never
+}</pre>
+<p>Taking this step-by-step:
+</p>
+<ol>
+<li>
+<p>You add rounded corners to make the legend container look nicer.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>Use the new <code>frameLayoutGuide</code> to constrain the legend to the frame of the scroll view. Because you don’t want the legend to scroll with the content, you constrain this to the frame and not the <code>contentLayoutGuide</code>. Note that you’re making a decision here to position the legend container over the iPhone X notch when viewed in landscape. Because the content of the legend is constrained to the view margin, and the margin respects the safe area, the content will avoid the notch.
+</p></li>
+
+<li>
+<p>The value for constant is negative here because you’re specifying the legend container first and the scroll view <code>frameLayoutGuide</code> second. You could switch the order and make this value positive; it simply depends on how your mind views the relationship.
+</p></li>
+
+<li>
+<p>On iPhone X, the safe area includes the home indicator on the bottom. You want the legend to be above that, but the next line of code adds additional space to the safe area, so you add a constraint to the bottom of the safe area, but use the constant to add back the height of the legend to position it correctly.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>The <code>additionalSafeAreaInsets</code> property lets you add your own values to the safe area. Because the x/arrow indicator uses the safe area to know where to position, setting this value will make sure the indicator doesn’t overlap the legend.
+</p></li>
+
+<li>
+<p>You want the contents of the map to start out underneath the navigation bar, so you tell the <code>scrollView</code> not to adjust its content using the safe area by setting the <code>contentInsetAdjustmentBehavior</code>.
+</p></li>
+</ol>
+
+<p>Finally, update <code>viewDidLoad()</code> by adding <code>setupLegend()</code> right after where it calls <code>super.viewDidLoad()</code>:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewDidLoad</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.viewDidLoad()
+  setupLegend()
+  <span class="hljs-comment">// ... the rest of the code.</span>
+}</pre>
+<p>Build and run and you’ll see the legend at the bottom of the map and the indicator staying above it.
+</p><div><img src="graphics/img97.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Self-sizing cells</h2>
+
+<p>Self-sizing cells have been around for a while, but in iOS 11 they’re on by default. This means that cells will use the constraints between the subviews of the cell and the cell itself to determine the height of the cell. In the past, you could trigger this by setting <code>rowHeight</code> to <code>UITableViewAutomaticDimension</code> and supplying a value for <code>estimatedRowHeight</code>.
+</p>
+<p>Now, the default value for both of these properties is <code>UITableViewAutomaticDimension</code> — not just for normal rows, but for headers and footers too. You can turn off automatic cell sizing by setting the <code>estimatedRowHeight</code> to <code>0</code>. When you add a new table view or table view controller to a storyboard in Interface Builder, these properties will also default to “Automatic”.
+</p>
+<p>If you already have a table from a project created in a previous version of Xcode, like the sample project, PirateHandbook,  you can set these values in the Size Inspector. Open <em>Main.storyboard</em>, select the <em>Table View</em> in the <em>Dictionary</em> scene, and set the <em>Row Height</em> to <em>Automatic</em> in the Size Inspector.
+</p><div class="image-100"><img src="graphics/img98.png"  alt="" title="" /></div>
+<p>You can set the Estimate value to Automatic, but loading performance of the table view will be improved if you supply a reasonable value. Therefore, set <em>Estimate</em> to <em>44</em>. Since all the cells you’re using have a built-in style, all the constraints are already set.
+</p>
+<p>Build and run and open the Dictionary view to verify that everything still works as expected.
+</p>
+<h2 class="segment-chapter">Refresh control</h2>
+
+<p>When you add a refresh control to a table view controller hosted in a navigation controller, it will automatically host the refresh control in the navigation bar. Open <em>DictionaryViewController.swift</em> and add these lines to the top of <code>awakeFromNib()</code> after the call to <code>super</code>:
+</p><pre class="code-block">refreshControl = <span class="hljs-type">UIRefreshControl</span>()
+refreshControl?.addTarget(
+  <span class="hljs-keyword">self</span>,
+  action: #selector(simulateRefresh),
+  <span class="hljs-keyword">for</span>: .valueChanged)</pre>
+<p>Then add the following to the end of <code>DictionaryViewController</code>:
+</p><pre class="code-block"><span class="hljs-meta">@objc</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">simulateRefresh</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-type">DispatchQueue</span>.main.asyncAfter(deadline: .now() + <span class="hljs-number">2.5</span>) {
+    <span class="hljs-keyword">self</span>.refreshControl?.endRefreshing()
+  }
+}</pre>
+<p>The method will wait for 2.5 seconds and then stop refreshing. This simulates a refresh that takes a couple of seconds. Now build and run, open the Dictionary view, and pull to refresh.
+</p>
+<p>You should see the refresh indicator in the navigation bar:
+</p><div><img src="graphics/img99.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Insets</h2>
+
+<p>You now have more control over how table view cells inset their content and separators. You can set the left and right inset using <code>separatorInset</code>, and those values will automatically be flipped in right-to-left languages. You can also control where those insets are measured from using <code>separatorInsetReference</code>. If this value is set to <code>fromCellEdges</code>, the insets will be measured from the edge of the cell, but if it’s set to <code>fromAutomaticInsets</code>, it will be inset from the default. You can use that to let iOS perform its usual calculations for the separators, but then add your own adjustments as well. You can also set these values in Interface Builder.
+</p>
+<p>To see this in action, open <em>Main.storyboard</em>, and select the <em>Table View</em> in the <em>Dictionary</em> scene. Open the Attributes Inspector and set the <em>Separator Inset</em> to <em>Custom</em>, then enter a value of <em>20</em> for the <em>Left</em> and <em>Right</em> inset. You should now see an inset on the left and right side for the separators.
+</p><div class="image-100"><img src="graphics/img100.png"  alt="" title="" /></div>
+<p>You can also control the content by setting <code>insetsContentViewsToSafeArea</code> on a table view. The default for this is <code>true</code>, but if you set it to <code>false</code>, the cells will ignore the safe area when sizing the content views. In interface builder, you can find this setting on the size inspector for a table view.
+</p><div class="image-40"><img src="graphics/img101.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Stack views</h2>
+
+<p>Stack views are great tools for creating flexible layouts without having to manage a lot of constraints — and iOS 11 makes them more powerful! A stack view’s strength is in laying out many views with the same spacing or alignment. But sometimes you have one view that you want to be a little different. Maybe you want to highlight one of the views by adding some spacing around it. Well, now you can.
+</p>
+<p>To illustrate this, you’ll add a feature to the weather forecast that toggles a highlight of today’s icon.
+</p>
+<p>Still in <em>Main.storyboard</em>, select the <em>Caribbean Weather Forecast</em> scene, and expand it in the document outline. Add a <em>UIButton</em> as a sibling right under the stack view. Add <em>two constraints</em> to the button: one to <em>align the center x</em> with the stack view, and one for standard, <em>20pt vertical spacing</em> between the top of the button and the stack view. Change the text of the button to <em>Today</em>. Now, select the <em>Stack View</em>. In the Attributes Inspector, notice that the Spacing parameter now has a drop-down arrow. Click that and choose <em>Use Standard Value</em>. Before, you had to supply a value, but now you can let the system determine the standard value.
+</p>
+<p>Next, use the assistant editor to create an outlet from the sun icon and name it <code>todaysWeatherIcon</code>. Finally, create an <code>IBAction</code> for the button you just added by Control-dragging from the storyboard to <code>WeatherViewController</code> and naming it <code>todayTapped()</code>.
+</p>
+<p>Now, open <em>WeatherViewController.swift</em> and add this code below the <code>IBOutlet</code>s:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> customSpacing: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">40</span>
+<span class="hljs-comment">// 2</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> highlightingToday = <span class="hljs-literal">false</span> {
+  <span class="hljs-keyword">didSet</span> {
+    <span class="hljs-keyword">let</span> spacing: <span class="hljs-type">CGFloat</span>
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">if</span> highlightingToday == <span class="hljs-literal">false</span> {
+      spacing = <span class="hljs-type">UIStackView</span>.spacingUseDefault
+    } <span class="hljs-keyword">else</span> {
+      spacing = customSpacing
+    }
+    <span class="hljs-comment">// 4</span>
+    <span class="hljs-type">UIViewPropertyAnimator</span>.runningPropertyAnimator(
+      withDuration: <span class="hljs-number">0.5</span>, delay: <span class="hljs-number">0</span>, animations: {
+        <span class="hljs-comment">// 5</span>
+        <span class="hljs-keyword">self</span>.stackView.setCustomSpacing(spacing, 
+          after: <span class="hljs-keyword">self</span>.todaysWeatherIcon)
+    })
+  }
+}</pre>
+<p>Taking this line-by-line:
+</p>
+<ol>
+<li>
+<p>It’s always a good idea to create a constant for the hard-coded numeric values you use. That gives a name and some context to the value you’re using and makes it more readable.
+</p></li>
+
+<li>
+<p>You need a Boolean toggle that indicates if you’re highlighting today’s icon, so you create that variable with a <code>didSet</code> property observer.
+</p></li>
+
+<li>
+<p>If you’re highlighting today, you’ll use the <code>customSpacing</code> value, but if you’re not, you want to set it back to the value the rest of the views in the stack view are using. The way to do that is using the <code>UIStackView.spacingUseDefault</code> value. You can also use the <code>spacingUseSystem</code> value to indicate system spacing. In this case, they’re the same thing, but be aware that they might not always be the same.
+</p></li>
+
+<li>
+<p>The <code>UIViewPropertyAnimator</code> class was introduced in iOS 10 and is good for user-interactive animations. Here, you could have also used the basic <code>UIView</code> animations - either one is fine.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>This is how you set the custom spacing in the stack view. Call <code>setCustomSpacing</code> with the spacing to use and the view to use the spacing after. If the stack view has a vertical axis, the view refers to the one below the spacing, and if it has a horizontal axis, it refers to the trailing view. You can also read the value that has been set by calling <code>customSpacing(after:)</code>.
+</p></li>
+</ol>
+
+<p>The only thing left to do is to toggle the Boolean value when the button is pressed. Update the implementation of <code>todayTapped(_:)</code> by adding this line:
+</p><pre class="code-block">highlightingToday = !highlightingToday</pre>
+<p>Build and run. Now, when you tap the button, the stack view will toggle between custom spacing after the sun icon and standard spacing after it.
+</p><div><img src="graphics/img102.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Images</h2>
+
+<p>While previous versions of Xcode and iOS would let you assign a vector image to an asset, at build time it would generate versions of that image for the different sizes needed. In Xcode 9, you can add vector artwork and tell the system to ship with the vector version using the Preserve Vector Data checkbox. This is quite useful because there are more cases than ever where your image needs multiple sizes. For example, if the user has a large text size selected in the accessibility settings, tab bars will show the tab icon and text scaled up when the user long-presses the tab. And when you rotate a tab bar to landscape, it will show a smaller version of the image side-by-side with the text.
+</p>
+<p>You can use the <code>landscapeImagePhone</code> and <code>largeContentSizeImage</code> properties on <code>UIBarItem</code> to set these to different sized images, but if you use an image with vector data, the system can scale it up or down to show these different sizes for you.
+</p>
+<div class="note">
+<p><em>Note</em>: For more information, please refer to Chapter 15, “Dynamic Types”.
+</p></div>
+
+<p>To see this in action, open <em>Assets.xcassets</em> in Xcode and select the <em>weather-cloudy</em> image. Open the Attributes Inspector and change the <em>Scales</em> value to <em>Single Scale</em>. For simplicity, you’re going to remove the Compact variant too, so change the <em>Width Class</em> value to <em>Any</em>. Now, click on one of the images and Command-click on each other image, then press the Delete key. You should be left with one box. In the folder for this chapter, find the <em>user-images</em> folder and drag <em>cloudy.pdf</em> onto the box. In the Attributes Inspector, check the <em>Preserve Vector Data</em> checkbox. Repeat for the other weather icons.
+</p>
+<p>Another accessibility setting you can take advantage of when you have vector images is <code>adjustsImageSizeForAccessibilityContentSizeCategory</code>. This property, on <code>UIButton</code> and <code>UIImageView</code>, will tell the system to automatically scale the size of the image when users have an accessibility content size set.
+</p>
+<p>Build and run and open the Weather Forecast view to verify that everything still works as expected.
+</p>
+<h2 class="segment-chapter">Navigation bar custom views</h2>
+
+<p>One last thing you’ll look at is using constraints to lay out custom views inside a <code>UINavigationBar</code> or <code>UIToolbar</code>. You’ll adjust the title of the map scene to have an image and text, and you’ll use constraints to define the size of the custom view and position of the subviews inside it. Like self-sizing cells, you want constraints to fully define the size of the containing view.
+</p>
+<p>Open <em>Main.storyboard</em>, and find the <em>Secret Map</em> scene. Drag a <code>UIView</code> out onto the title area of the navigation bar. Then, drag a <code>UIImageView</code> into that view. You’ll probably need to drag it over to the document outline to drop it on the right view. Set the image to the <em>x</em> image. Then, add a label to the view, change its text to say <em>Secret Map</em> and change the font to <em>Marker Felt Thin 22.0</em>.
+</p>
+<p>Now you’re ready to add the following constraints:
+</p>
+<ul>
+<li>
+<p><em>Leading space</em>: 0 from image view to superview
+</p></li>
+
+<li>
+<p><em>Top space</em>: 0 from image view to superview
+</p></li>
+
+<li>
+<p><em>Bottom space</em>: 0 from image view to superview
+</p></li>
+
+<li>
+<p><em>Trailing space</em>: Standard from image view to label
+</p></li>
+
+<li>
+<p><em>Image view width</em>: 44
+</p></li>
+
+<li>
+<p><em>Image view aspect ratio</em>: 1:1
+</p></li>
+
+<li>
+<p><em>Align</em>: Vertical center of image view and label
+</p></li>
+
+<li>
+<p><em>Trailing space</em>: 0 from label to superview
+</p></li>
+</ul>
+
+<div class="note">
+<p><em>Note</em>: Unfortunately, there is a bug in Xcode 9’s Interface Builder that will prevent you from seeing your layout, but if you build and run, you’ll see the view laid out as you’d expect.
+</p></div>
+
+<p>The way it is now, you’ll see a white background for the container view, but you can change that to clear and it will look correct.
+</p><div class="image-45"><img src="graphics/img103.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>There are quite a few changes in iOS 11 that impact Auto Layout. These changes add valuable mechanisms for creating adaptive layouts to handle every device and layout environment. There is lots of information scattered throughout the WWDC videos for all these changes. If I had to pick one, WWDC17 Session 204 - Updating Your App for iOS 11 <a href="http://apple.co/2syu3Tt">http://apple.co/2syu3Tt</a> has a good overview of most of what you’ve covered in this chapter.
+</p>
+<p>For more on iPhone X, see Apple’s video: Building Apps for iPhone X <a href="http://apple.co/2f5OroX">http://apple.co/2f5OroX</a>.
+</p></body></html>

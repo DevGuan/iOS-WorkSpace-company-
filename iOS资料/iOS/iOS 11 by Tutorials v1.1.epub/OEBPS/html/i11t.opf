@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<package prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/" version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid">
+	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<dc:title>iOS 11 by Tutorials</dc:title>
+		<dc:identifier id="bookid">http://raywenderlich.com/epubs/i11t</dc:identifier>
+		<dc:creator>By the raywenderlich.com Tutorial Team</dc:creator>
+		<dc:type>Text</dc:type>
+		<dc:language>en</dc:language>
+		<dc:rights>All rights reserved.</dc:rights>
+		<dc:publisher>Ray Wenderlich</dc:publisher>
+		<meta content="cover-image" name="cover" />
+		<meta property="ibooks:specified-fonts">true</meta>
+		<meta property="dcterms:modified">2017-09-21T02:58:42Z</meta>
+	</metadata>
+	<manifest>
+		<item media-type="application/xhtml+xml" href="toc.xhtml" id="ncxtoc" properties="nav" />
+		<item id="Menlo-Regular" href="fonts/Menlo-Regular.ttf" media-type="application/x-font-ttf" />
+		<item id="Lato-Bold" href="fonts/Lato-Bold.ttf" media-type="application/x-font-ttf" />
+		<item id="PT_Serif-Web-Bold" href="fonts/PT_Serif-Web-Bold.ttf" media-type="application/x-font-ttf" />
+		<item id="PT_Serif-Web-BoldItalic" href="fonts/PT_Serif-Web-BoldItalic.ttf" media-type="application/x-font-ttf" />
+		<item id="PT_Serif-Web-Italic" href="fonts/PT_Serif-Web-Italic.ttf" media-type="application/x-font-ttf" />
+		<item id="PT_Serif-Web-Regular" href="fonts/PT_Serif-Web-Regular.ttf" media-type="application/x-font-ttf" />
+		<item id="style" href="i11t.css" media-type="text/css" />
+		<item id="seg1" media-type="application/xhtml+xml" href="seg1.xhtml" />
+		<item id="cover-image" media-type="image/png" href="graphics/cover-image.png" />
+		<item id="seg2" media-type="application/xhtml+xml" href="seg2.xhtml" />
+		<item id="seg3" media-type="application/xhtml+xml" href="seg3.xhtml" />
+		<item id="seg4" media-type="application/xhtml+xml" href="seg4.xhtml" />
+		<item id="img1" media-type="image/jpeg" href="graphics/img1.jpg" />
+		<item id="img2" media-type="image/jpeg" href="graphics/img2.jpg" />
+		<item id="img3" media-type="image/jpeg" href="graphics/img3.jpg" />
+		<item id="img4" media-type="image/jpeg" href="graphics/img4.jpg" />
+		<item id="img5" media-type="image/png" href="graphics/img5.png" />
+		<item id="img6" media-type="image/jpeg" href="graphics/img6.jpg" />
+		<item id="img7" media-type="image/jpeg" href="graphics/img7.jpg" />
+		<item id="img8" media-type="image/jpeg" href="graphics/img8.jpg" />
+		<item id="img9" media-type="image/jpeg" href="graphics/img9.jpg" />
+		<item id="img10" media-type="image/jpeg" href="graphics/img10.jpg" />
+		<item id="img11" media-type="image/jpeg" href="graphics/img11.jpg" />
+		<item id="img12" media-type="image/png" href="graphics/img12.png" />
+		<item id="img13" media-type="image/jpeg" href="graphics/img13.jpg" />
+		<item id="img14" media-type="image/jpeg" href="graphics/img14.jpg" />
+		<item id="img15" media-type="image/jpeg" href="graphics/img15.jpg" />
+		<item id="img16" media-type="image/jpeg" href="graphics/img16.jpg" />
+		<item id="img17" media-type="image/jpeg" href="graphics/img17.jpg" />
+		<item id="img18" media-type="image/png" href="graphics/img18.png" />
+		<item id="seg5" media-type="application/xhtml+xml" href="seg5.xhtml" />
+		<item id="seg6" media-type="application/xhtml+xml" href="seg6.xhtml" />
+		<item id="img19" media-type="image/png" href="graphics/img19.png" />
+		<item id="img20" media-type="image/png" href="graphics/img20.png" />
+		<item id="img21" media-type="image/png" href="graphics/img21.png" />
+		<item id="img22" media-type="image/png" href="graphics/img22.png" />
+		<item id="img23" media-type="image/png" href="graphics/img23.png" />
+		<item id="img24" media-type="image/png" href="graphics/img24.png" />
+		<item id="img25" media-type="image/png" href="graphics/img25.png" />
+		<item id="img26" media-type="image/png" href="graphics/img26.png" />
+		<item id="seg7" media-type="application/xhtml+xml" href="seg7.xhtml" />
+		<item id="img27" media-type="image/png" href="graphics/img27.png" />
+		<item id="img28" media-type="image/png" href="graphics/img28.png" />
+		<item id="img29" media-type="image/png" href="graphics/img29.png" />
+		<item id="img30" media-type="image/png" href="graphics/img30.png" />
+		<item id="img31" media-type="image/png" href="graphics/img31.png" />
+		<item id="img32" media-type="image/png" href="graphics/img32.png" />
+		<item id="img33" media-type="image/png" href="graphics/img33.png" />
+		<item id="seg8" media-type="application/xhtml+xml" href="seg8.xhtml" />
+		<item id="img34" media-type="image/png" href="graphics/img34.png" />
+		<item id="img35" media-type="image/png" href="graphics/img35.png" />
+		<item id="img36" media-type="image/png" href="graphics/img36.png" />
+		<item id="img37" media-type="image/png" href="graphics/img37.png" />
+		<item id="img38" media-type="image/png" href="graphics/img38.png" />
+		<item id="img39" media-type="image/png" href="graphics/img39.png" />
+		<item id="img40" media-type="image/png" href="graphics/img40.png" />
+		<item id="img41" media-type="image/png" href="graphics/img41.png" />
+		<item id="img42" media-type="image/png" href="graphics/img42.png" />
+		<item id="img43" media-type="image/png" href="graphics/img43.png" />
+		<item id="img44" media-type="image/png" href="graphics/img44.png" />
+		<item id="img45" media-type="image/png" href="graphics/img45.png" />
+		<item id="img46" media-type="image/png" href="graphics/img46.png" />
+		<item id="img47" media-type="image/png" href="graphics/img47.png" />
+		<item id="img48" media-type="image/png" href="graphics/img48.png" />
+		<item id="img49" media-type="image/png" href="graphics/img49.png" />
+		<item id="img50" media-type="image/png" href="graphics/img50.png" />
+		<item id="img51" media-type="image/png" href="graphics/img51.png" />
+		<item id="img52" media-type="image/png" href="graphics/img52.png" />
+		<item id="img53" media-type="image/png" href="graphics/img53.png" />
+		<item id="img54" media-type="image/png" href="graphics/img54.png" />
+		<item id="img55" media-type="image/png" href="graphics/img55.png" />
+		<item id="img56" media-type="image/png" href="graphics/img56.png" />
+		<item id="img57" media-type="image/png" href="graphics/img57.png" />
+		<item id="img58" media-type="image/png" href="graphics/img58.png" />
+		<item id="img59" media-type="image/png" href="graphics/img59.png" />
+		<item id="img60" media-type="image/png" href="graphics/img60.png" />
+		<item id="img61" media-type="image/png" href="graphics/img61.png" />
+		<item id="img62" media-type="image/png" href="graphics/img62.png" />
+		<item id="img63" media-type="image/png" href="graphics/img63.png" />
+		<item id="img64" media-type="image/png" href="graphics/img64.png" />
+		<item id="img65" media-type="image/png" href="graphics/img65.png" />
+		<item id="img66" media-type="image/png" href="graphics/img66.png" />
+		<item id="img67" media-type="image/png" href="graphics/img67.png" />
+		<item id="img68" media-type="image/png" href="graphics/img68.png" />
+		<item id="img69" media-type="image/png" href="graphics/img69.png" />
+		<item id="img70" media-type="image/png" href="graphics/img70.png" />
+		<item id="seg9" media-type="application/xhtml+xml" href="seg9.xhtml" />
+		<item id="img71" media-type="image/png" href="graphics/img71.png" />
+		<item id="img72" media-type="image/png" href="graphics/img72.png" />
+		<item id="img73" media-type="image/png" href="graphics/img73.png" />
+		<item id="img74" media-type="image/png" href="graphics/img74.png" />
+		<item id="img75" media-type="image/png" href="graphics/img75.png" />
+		<item id="img76" media-type="image/png" href="graphics/img76.png" />
+		<item id="img77" media-type="image/png" href="graphics/img77.png" />
+		<item id="img78" media-type="image/jpeg" href="graphics/img78.jpeg" />
+		<item id="img79" media-type="image/jpeg" href="graphics/img79.jpeg" />
+		<item id="img80" media-type="image/png" href="graphics/img80.png" />
+		<item id="img81" media-type="image/png" href="graphics/img81.png" />
+		<item id="img82" media-type="image/png" href="graphics/img82.png" />
+		<item id="img83" media-type="image/png" href="graphics/img83.png" />
+		<item id="img84" media-type="image/png" href="graphics/img84.png" />
+		<item id="img85" media-type="image/png" href="graphics/img85.png" />
+		<item id="img86" media-type="image/png" href="graphics/img86.png" />
+		<item id="seg10" media-type="application/xhtml+xml" href="seg10.xhtml" />
+		<item id="img87" media-type="image/png" href="graphics/img87.png" />
+		<item id="img88" media-type="image/png" href="graphics/img88.png" />
+		<item id="img89" media-type="image/png" href="graphics/img89.png" />
+		<item id="img90" media-type="image/png" href="graphics/img90.png" />
+		<item id="img91" media-type="image/png" href="graphics/img91.png" />
+		<item id="img92" media-type="image/png" href="graphics/img92.png" />
+		<item id="img93" media-type="image/png" href="graphics/img93.png" />
+		<item id="img94" media-type="image/png" href="graphics/img94.png" />
+		<item id="img95" media-type="image/png" href="graphics/img95.png" />
+		<item id="img96" media-type="image/png" href="graphics/img96.png" />
+		<item id="img97" media-type="image/png" href="graphics/img97.png" />
+		<item id="img98" media-type="image/png" href="graphics/img98.png" />
+		<item id="img99" media-type="image/png" href="graphics/img99.png" />
+		<item id="img100" media-type="image/png" href="graphics/img100.png" />
+		<item id="img101" media-type="image/png" href="graphics/img101.png" />
+		<item id="img102" media-type="image/png" href="graphics/img102.png" />
+		<item id="img103" media-type="image/png" href="graphics/img103.png" />
+		<item id="seg11" media-type="application/xhtml+xml" href="seg11.xhtml" />
+		<item id="img104" media-type="image/png" href="graphics/img104.png" />
+		<item id="img105" media-type="image/png" href="graphics/img105.png" />
+		<item id="img106" media-type="image/png" href="graphics/img106.png" />
+		<item id="img107" media-type="image/png" href="graphics/img107.png" />
+		<item id="img108" media-type="image/png" href="graphics/img108.png" />
+		<item id="img109" media-type="image/png" href="graphics/img109.png" />
+		<item id="img110" media-type="image/png" href="graphics/img110.png" />
+		<item id="seg12" media-type="application/xhtml+xml" href="seg12.xhtml" />
+		<item id="img111" media-type="image/jpeg" href="graphics/img111.jpg" />
+		<item id="img112" media-type="image/png" href="graphics/img112.png" />
+		<item id="img113" media-type="image/jpeg" href="graphics/img113.jpeg" />
+		<item id="img114" media-type="image/png" href="graphics/img114.png" />
+		<item id="img115" media-type="image/jpeg" href="graphics/img115.jpeg" />
+		<item id="img116" media-type="image/png" href="graphics/img116.png" />
+		<item id="img117" media-type="image/png" href="graphics/img117.png" />
+		<item id="img118" media-type="image/png" href="graphics/img118.png" />
+		<item id="img119" media-type="image/png" href="graphics/img119.png" />
+		<item id="img120" media-type="image/png" href="graphics/img120.png" />
+		<item id="img121" media-type="image/png" href="graphics/img121.png" />
+		<item id="img122" media-type="image/png" href="graphics/img122.png" />
+		<item id="img123" media-type="image/png" href="graphics/img123.png" />
+		<item id="img124" media-type="image/png" href="graphics/img124.png" />
+		<item id="seg13" media-type="application/xhtml+xml" href="seg13.xhtml" />
+		<item id="img125" media-type="image/png" href="graphics/img125.png" />
+		<item id="img126" media-type="image/png" href="graphics/img126.png" />
+		<item id="img127" media-type="image/png" href="graphics/img127.png" />
+		<item id="img128" media-type="image/png" href="graphics/img128.png" />
+		<item id="img129" media-type="image/png" href="graphics/img129.png" />
+		<item id="img130" media-type="image/png" href="graphics/img130.png" />
+		<item id="img131" media-type="image/png" href="graphics/img131.png" />
+		<item id="img132" media-type="image/png" href="graphics/img132.png" />
+		<item id="seg14" media-type="application/xhtml+xml" href="seg14.xhtml" />
+		<item id="img133" media-type="image/png" href="graphics/img133.png" />
+		<item id="img134" media-type="image/png" href="graphics/img134.png" />
+		<item id="img135" media-type="image/png" href="graphics/img135.png" />
+		<item id="img136" media-type="image/png" href="graphics/img136.png" />
+		<item id="img137" media-type="image/png" href="graphics/img137.png" />
+		<item id="img138" media-type="image/png" href="graphics/img138.png" />
+		<item id="img139" media-type="image/png" href="graphics/img139.png" />
+		<item id="img140" media-type="image/png" href="graphics/img140.png" />
+		<item id="img141" media-type="image/png" href="graphics/img141.png" />
+		<item id="img142" media-type="image/png" href="graphics/img142.png" />
+		<item id="img143" media-type="image/png" href="graphics/img143.png" />
+		<item id="img144" media-type="image/png" href="graphics/img144.png" />
+		<item id="img145" media-type="image/png" href="graphics/img145.png" />
+		<item id="seg15" media-type="application/xhtml+xml" href="seg15.xhtml" />
+		<item id="img146" media-type="image/png" href="graphics/img146.png" />
+		<item id="img147" media-type="image/png" href="graphics/img147.png" />
+		<item id="img148" media-type="image/png" href="graphics/img148.png" />
+		<item id="img149" media-type="image/png" href="graphics/img149.png" />
+		<item id="img150" media-type="image/png" href="graphics/img150.png" />
+		<item id="img151" media-type="image/png" href="graphics/img151.png" />
+		<item id="img152" media-type="image/png" href="graphics/img152.png" />
+		<item id="img153" media-type="image/png" href="graphics/img153.png" />
+		<item id="img154" media-type="image/png" href="graphics/img154.png" />
+		<item id="img155" media-type="image/png" href="graphics/img155.png" />
+		<item id="seg16" media-type="application/xhtml+xml" href="seg16.xhtml" />
+		<item id="img156" media-type="image/png" href="graphics/img156.png" />
+		<item id="img157" media-type="image/png" href="graphics/img157.png" />
+		<item id="img158" media-type="image/png" href="graphics/img158.png" />
+		<item id="img159" media-type="image/png" href="graphics/img159.png" />
+		<item id="img160" media-type="image/png" href="graphics/img160.png" />
+		<item id="img161" media-type="image/png" href="graphics/img161.png" />
+		<item id="img162" media-type="image/png" href="graphics/img162.png" />
+		<item id="img163" media-type="image/png" href="graphics/img163.png" />
+		<item id="img164" media-type="image/png" href="graphics/img164.png" />
+		<item id="seg17" media-type="application/xhtml+xml" href="seg17.xhtml" />
+		<item id="img165" media-type="image/png" href="graphics/img165.png" />
+		<item id="img166" media-type="image/png" href="graphics/img166.png" />
+		<item id="img167" media-type="image/png" href="graphics/img167.png" />
+		<item id="img168" media-type="image/png" href="graphics/img168.png" />
+		<item id="img169" media-type="image/png" href="graphics/img169.png" />
+		<item id="img170" media-type="image/png" href="graphics/img170.png" />
+		<item id="img171" media-type="image/png" href="graphics/img171.png" />
+		<item id="img172" media-type="image/png" href="graphics/img172.png" />
+		<item id="seg18" media-type="application/xhtml+xml" href="seg18.xhtml" />
+		<item id="img173" media-type="image/png" href="graphics/img173.png" />
+		<item id="img174" media-type="image/png" href="graphics/img174.png" />
+		<item id="img175" media-type="image/png" href="graphics/img175.png" />
+		<item id="img176" media-type="image/png" href="graphics/img176.png" />
+		<item id="seg19" media-type="application/xhtml+xml" href="seg19.xhtml" />
+		<item id="img177" media-type="image/png" href="graphics/img177.png" />
+		<item id="img178" media-type="image/png" href="graphics/img178.png" />
+		<item id="img179" media-type="image/png" href="graphics/img179.png" />
+		<item id="img180" media-type="image/png" href="graphics/img180.png" />
+		<item id="img181" media-type="image/png" href="graphics/img181.png" />
+		<item id="img182" media-type="image/png" href="graphics/img182.png" />
+		<item id="img183" media-type="image/png" href="graphics/img183.png" />
+		<item id="img184" media-type="image/png" href="graphics/img184.png" />
+		<item id="img185" media-type="image/png" href="graphics/img185.png" />
+		<item id="img186" media-type="image/png" href="graphics/img186.png" />
+		<item id="img187" media-type="image/png" href="graphics/img187.png" />
+		<item id="img188" media-type="image/png" href="graphics/img188.png" />
+		<item id="img189" media-type="image/png" href="graphics/img189.png" />
+		<item id="seg20" media-type="application/xhtml+xml" href="seg20.xhtml" />
+		<item id="img190" media-type="image/png" href="graphics/img190.png" />
+		<item id="img191" media-type="image/png" href="graphics/img191.png" />
+		<item id="img192" media-type="image/png" href="graphics/img192.png" />
+		<item id="img193" media-type="image/png" href="graphics/img193.png" />
+		<item id="img194" media-type="image/png" href="graphics/img194.png" />
+		<item id="img195" media-type="image/png" href="graphics/img195.png" />
+		<item id="img196" media-type="image/png" href="graphics/img196.png" />
+		<item id="img197" media-type="image/png" href="graphics/img197.png" />
+		<item id="img198" media-type="image/png" href="graphics/img198.png" />
+		<item id="img199" media-type="image/png" href="graphics/img199.png" />
+		<item id="img200" media-type="image/png" href="graphics/img200.png" />
+		<item id="img201" media-type="image/png" href="graphics/img201.png" />
+		<item id="seg21" media-type="application/xhtml+xml" href="seg21.xhtml" />
+	</manifest>
+	<spine>
+		<itemref idref="seg2" linear="yes" />
+		<itemref idref="seg3" linear="yes" />
+		<itemref idref="seg4" linear="yes" />
+		<itemref idref="seg5" linear="yes" />
+		<itemref idref="seg6" linear="yes" />
+		<itemref idref="seg7" linear="yes" />
+		<itemref idref="seg8" linear="yes" />
+		<itemref idref="seg9" linear="yes" />
+		<itemref idref="seg10" linear="yes" />
+		<itemref idref="seg11" linear="yes" />
+		<itemref idref="seg12" linear="yes" />
+		<itemref idref="seg13" linear="yes" />
+		<itemref idref="seg14" linear="yes" />
+		<itemref idref="seg15" linear="yes" />
+		<itemref idref="seg16" linear="yes" />
+		<itemref idref="seg17" linear="yes" />
+		<itemref idref="seg18" linear="yes" />
+		<itemref idref="seg19" linear="yes" />
+		<itemref idref="seg20" linear="yes" />
+		<itemref idref="seg21" linear="yes" />
+	</spine>
+</package>

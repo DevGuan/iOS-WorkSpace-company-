@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 13: MusicKit</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">MusicKit</h1>
+
+<p>You could say music is at the heart of the iPhone. Before we even had the iPhone, the iPod revolutionized the music player industry by putting 10,000 songs in your pocket! Of course, now that the iPhone has made having the whole internet in your pocket commonplace, it’s possible to have every song in your pocket through the miracle of streaming.
+</p>
+<p>MusicKit makes all the songs from Apple Music and the user’s own iTunes library available for your app to play.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>You’re getting a two-for-one deal in this chapter! The sample app for this chapter will use an iMessage app with live views, which is new to iOS 11. Because this chapter is about MusicKit, it won’t explain much about iMessage live views, but the starter project has a working iMessage application that lets you send guess-that-song music quizzes back and forth with your friends, using Apple Music library!
+</p>
+<h2 class="segment-chapter">Developer token</h2>
+
+<p>The MusicKit API is a little different than most other iOS APIs. Because all the information is on Apple’s servers, you’ll be making web service calls instead of calling methods in a framework. Each call you make will include an authorization header. Since only trusted developers and members of Apple’s Developer Program are allowed to use the service, your authorization header will include information that uniquely identifies you to Apple. First you’ll see how to create the token, then you’ll learn how to keep it secure.
+</p>
+<h3 class="segment-chapter">Creating a MusicKit private key</h3>
+
+<p>The first step in creating a developer token is to create a key. This key is how Apple knows that the token is from you. The key doesn’t expire, but you can revoke it if your key or token is ever compromised.
+</p>
+<p>First, go to the <em>Certificates, Identifiers, and Profiles</em> section of your developer account at <a href="http://apple.co/2vsfGmP">http://apple.co/2vsfGmP</a>. Under <em>Identifiers</em>, select <em>Music IDs</em> and click the Plus button (<em>+</em>) in the upper-right corner to create a new Music ID.
+</p><div class="image-30"><img src="graphics/img173.png"  alt="" title="" /></div>
+<p>Enter a description. This will be the name of the product shown to users when asking for their permission to let your app access their music accounts. Enter an identifier; it must start with “music”, but should then be followed with a reverse domain name style, similar to your bundle identifier (e.g. <code>music.com.&lt;your-org&gt;.Name-That-Tune</code>). Click <em>Continue</em>, then <em>Register</em>, then <em>Done</em>.
+</p>
+<p>Now that you have an identifier, you can create a key. Under <em>Keys</em>, select <em>All</em>, then click the Plus button (<em>+</em>) in the upper-right corner to create a new key. Enter a unique description for the key, and check the <em>MusicKit</em> checkbox under <em>Key Services</em>.
+</p>
+<div class="note">
+<p><em>Note:</em> If you only have one Music ID, it will be selected for you automatically, but if you have more than one, you’ll have to specify which Music ID should be associated with this key. To do that, click <em>Configure</em>, select the appropriate ID, and click <em>Continue</em>.
+</p></div>
+
+<p>Click <em>Continue</em>, review the information, and click <em>Confirm</em>. Click <em>Download</em>, and then <em>Done</em>.
+</p>
+<p>The key will be downloaded as a file with a <em>.</em><em>p8</em> extension. You can open this file in any text editor to see your private key. But before you leave the site, make note of the <em>Key ID</em> and your <em>Team ID</em>, as you’ll be using those in a minute.
+</p><div class="image-80"><img src="graphics/img174.png"  alt="" title="" /></div>
+<p>To get your Team ID, click <em>Account</em> at the top of the page, then <em>Membership</em>. Your Team ID will be listed there.
+</p><div class="image-70"><img src="graphics/img175.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Creating a developer token</h3>
+
+<p>The developer token uses the JWT (JSON Web Token) standard. If you want to read more about JWT, you can find information at <a href="https://jwt.io">jwt.io</a>. There, you can find quite a few different ways to create tokens in a variety of programming languages, but in this case you’re going to use Python and the command line to create yours.
+</p>
+<div class="note">
+<p><em>Note</em>: Thanks to Darren Baptiste for his post on GitHub where he shared how to create this token using Python: <a href="http://bit.ly/2vsHjw5">http://bit.ly/2vsHjw5</a>.
+</p></div>
+
+<p>First, you’re going to need the Python package manager, so go to <a href="https://pip.pypa.io/en/stable/installing/">https://pip.pypa.io/en/stable/installing/</a> and download the <em>get-pip.py</em> file. While you may already have a version of <code>pip</code> installed, you need to perform this step to ensure it is current. Run Terminal and change to the directory where you downloaded the file: <code>cd ~/Downloads</code>.
+</p>
+<p>Run the file you downloaded: <code>sudo python get-pip.py</code>. Enter your macOS password when prompted. Use the package manager to install the Python JWT library: <code>sudo pip install pyjwt</code>. Install the Cryptography package: <code>sudo pip install cryptography</code>.
+</p>
+<p>In the downloadable content for this chapter, there is a <em>scripts</em> folder that contains a file named <em>music</em><em>_</em><em>token.py</em>. Open that file with a text editor. Open the <em>.</em><em>p8</em> file you downloaded when you created your MusicKit Private Key. Copy the text between the “begin” and “end” tags and paste it into the <em>music</em><em>_</em><em>token.py</em> file between the tags.
+</p><pre class="code-block">secret = <span class="hljs-string">"""-----BEGIN PRIVATE KEY-----
+    Paste your key here
+-----END PRIVATE KEY-----"""</span></pre>
+<p>Copy in the Key ID and Team ID you made note of earlier:
+</p><pre class="code-block">keyId = <span class="hljs-string">"9876543210"</span>
+teamId = <span class="hljs-string">"0123456789"</span></pre>
+<p>Your <i>key</i> does not expire, but your <i>token</i> will have an expiration built in. The expiration must not be longer than 6 months. The <em>music</em><em>_</em><em>token.py</em> script will take care of setting the “issued at” time and the “expiration time”. Now you’re ready to run the script and get your precious developer token!
+</p>
+<p>Back in Terminal, in the directory where the <em>music</em><em>_</em><em>token.py</em> file is located, type <code>python music_token.py</code>. This will run the encryption step and print out your token and an example <code>curl</code> statement you can use to test it out. If you want to skip testing with <code>curl</code>, feel free; you’ll be using the token in your own project very soon!
+</p>
+<h3 class="segment-chapter">Securing your developer token</h3>
+
+<p>Because your developer token is like a secret key that you use to unlock access to the Apple servers, you want to keep it protected. You may also want the ability to revoke your key and issue a new one without waiting for a new version of your app to be approved. The best way to accomplish both of these is to host your key on a secure server and download it in your app.
+</p>
+<h2 class="segment-chapter">Asking for permission</h2>
+
+<p>Open the starter project for this chapter, and set your team in the signing settings for both the main app and the MessagesExtension targets. To start, you can run on the simulator, but the project will work better on a device, and actual music playback will require a physical device.
+</p>
+<p>Like other frameworks that allow you to access the user’s data, MusicKit requires you to ask the user for permission. You’re going to add an authorization manager class that will handle all the permissions aspects of the MusicKit API.
+</p>
+<p>Open <em>AuthorizationManager.swift</em>, and add the following code:
+</p><pre class="code-block"><span class="hljs-keyword">import</span> StoreKit
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AuthorizationManager</span> </span>{
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">authorize</span><span class="hljs-params">(
+    completionIfAuthorized 
+      authorizedCompletion: @escaping <span class="hljs-params">()</span></span></span> -&gt; <span class="hljs-type">Void</span>,
+    ifUnauthorized
+      unauthorizedCompletion: @escaping () -&gt; <span class="hljs-type">Void</span>) {
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-type">SKCloudServiceController</span>.requestAuthorization {
+      authorizationStatus <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">switch</span> authorizationStatus {
+      <span class="hljs-keyword">case</span> .authorized:
+        <span class="hljs-comment">// 3</span>
+        <span class="hljs-type">DispatchQueue</span>.main.async {
+          authorizedCompletion()
+        }
+      <span class="hljs-keyword">case</span> .restricted, .denied:
+        <span class="hljs-comment">// 4</span>
+        <span class="hljs-type">DispatchQueue</span>.main.async {
+          unauthorizedCompletion()
+        }
+      <span class="hljs-keyword">default</span>:
+        <span class="hljs-keyword">break</span>
+      }
+    }
+  }
+}</pre>
+<p>Here’s what this does:
+</p>
+<ol>
+<li>
+<p>This adds a static <code>authorize</code> method to the <code>AuthorizationManager</code> class. The method takes two closures: one for successful authorization, and one for an unsuccessful authorization attempt.
+</p></li>
+
+<li>
+<p>The <code>SKCloudServiceController</code> class in <code>StoreKit</code> has a <code>requestAuthorization</code> method. This method takes care of all the details for you. If the user has not previously been prompted, it will prompt the user and return the result to you. If the user has previously responded to the prompt, this will return immediately with the results.
+</p></li>
+
+<li>
+<p>If permission is <code>authorized</code>, this calls the completion closure on the main thread.
+</p></li>
+
+<li>
+<p>If the permission is <code>denied</code> (the user didn’t give permission) or <code>restricted</code> (the device is restricting access to the music library), this calls the other closure on the main thread.
+</p></li>
+</ol>
+
+<p>This method requires an entry in your Info.plist file to explain why you’re asking for this permission. Open the Info.plist file <i>for the application, not the extension</i>, and add a new entry. Set the key to <em>Privacy - Media Library Usage Description</em> and enter a value, such as “This allows you to listen to the selected song so you can guess which one it is”. When the system asks the user for permission, the prompt will show this description so your user knows why you’re asking for access.
+</p>
+<p>In <em>MessagesViewController.swift</em>, at the top of the class in <code>willBecomeActive(with:)</code>, replace this line:
+</p><pre class="code-block">presentViewController(<span class="hljs-keyword">for</span>: conversation,
+                      with: presentationStyle)</pre>
+<p>...with this code:
+</p><pre class="code-block"><span class="hljs-type">AuthorizationManager</span>.authorize(
+  completionIfAuthorized:
+    { <span class="hljs-keyword">self</span>.presentViewController(<span class="hljs-keyword">for</span>: conversation, 
+                                 with: <span class="hljs-keyword">self</span>.presentationStyle)
+    },
+  ifUnauthorized:
+    { <span class="hljs-keyword">self</span>.addController(<span class="hljs-keyword">self</span>.authErrorViewController) }
+)</pre>
+<p>This uses the <code>authorize</code> method you wrote above and shows your <code>authErrorViewController</code> if the user denies authorization.
+</p>
+<h2 class="segment-chapter">Getting a list of songs</h2>
+
+<p>If you run the app as it is now, you’ll notice that there aren’t any real song titles listed. The first thing you want to do is to add a method to the <code>Song</code> class that will pull the top 40 songs from Apple Music. But there are two pieces of information that you’ll need to do this: the developer token and the storefront country code.
+</p>
+<h3 class="segment-chapter">Getting the developer token</h3>
+
+<p>The best way to get the developer token is to download it from a server, instead of hardcoding it in the app. You’re not going to set up a real server for this example, but I want to emphasize that you should download this value from somewhere. So like all good developers, you’re going to fake it. The starter project has a class in <em>AuthorizationManager.swift</em> named <code>MockURLProtocol</code>.
+</p>
+<p>Find this line:
+</p><pre class="code-block"><span class="hljs-keyword">static</span> <span class="hljs-keyword">var</span> fakeResponse = <span class="hljs-string">""</span> <span class="hljs-comment">// Your developer token here</span></pre>
+<p>Place the developer token you generated earlier inside the quotes.
+</p>
+<p>Later, when your code asks the server for the token, instead of going to a real server this class will intercept the request and serve up a response. Of course, you wouldn’t want to ship this code with an app, but it is useful for testing or for simulating an API before it’s finished.
+</p>
+<p>Next, you’ll add an <code>AsyncOperation</code> subclass to handle downloading the developer token. <code>AsyncOperation</code> is an <code>Operation</code> subclass that was included in the starter project. It’s used to manage dependencies for asynchronous operations. For more on this topic, check out the video series “iOS Concurrency with GCD and Operations” <a href="http://bit.ly/2uzqoFf">http://bit.ly/2uzqoFf</a>, available on raywenderlich.com.
+</p>
+<p>Underneath the <code>MockURLProtocol</code> class in <em>AuthorizationManager.swift</em>, add this code:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DownloadDeveloperTokenOperation</span>: <span class="hljs-title">AsyncOperation</span> </span>{
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">var</span> developerToken: <span class="hljs-type">String</span>?
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-type">URLProtocol</span>.registerClass(<span class="hljs-type">MockURLProtocol</span>.<span class="hljs-keyword">self</span>)
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">let</span> task = <span class="hljs-type">URLSession</span>.shared
+      .dataTask(with: developerTokenServerUrl) {
+        data, response, error <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> data = data <span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">self</span>.state = .finished
+          <span class="hljs-keyword">return</span>
+        }
+        <span class="hljs-comment">// 4</span>
+        <span class="hljs-keyword">self</span>.developerToken =
+          <span class="hljs-type">String</span>(data: data, encoding: .utf8)
+        <span class="hljs-comment">// 5</span>
+        <span class="hljs-keyword">self</span>.state = .finished
+    }
+    task.resume()
+  }
+}</pre>
+<p>Here’s what this does:
+</p>
+<ol>
+<li>
+<p>You need a place to store the token after you download it. Think of this as the “output” of the operation.
+</p></li>
+
+<li>
+<p>Here is where you’re telling the system to use your <code>MockURLProtocol</code> when loading network requests.
+</p></li>
+
+<li>
+<p>Then you create a normal <code>dataTask</code>, passing in the URL of your “server”.
+</p></li>
+
+<li>
+<p>Once you get data back, store the downloaded token for later use.
+</p></li>
+
+<li>
+<p>The <code>AsyncOperation</code> doesn’t finish until you tell it to. This is useful for running an async task inside the <code>Operation</code>. Since your <code>dataTask</code> is now done, set the state to <code>.finished</code> so any other operations that are waiting on this one can begin.
+</p></li>
+</ol>
+
+<h3 class="segment-chapter">Getting the storefront country code</h3>
+
+<p>You faked the download of the developer token, but you’ll download the storefront country code for real. A storefront is a country-specific view into the iTunes store. When the user is logged in, they have a default storefront set. You need to get the country code for that storefront as you’ll use it to compose the URL to Apple’s servers.
+</p>
+<p>Fortunately, the <code>StoreKit</code> framework has a method you can use. Add this class right under the <code>DownloadDeveloperTokenOperation</code> you just added in <em>AuthorizationManager.swift</em>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RequestCountryCodeOperation</span>: <span class="hljs-title">AsyncOperation</span> </span>{
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">var</span> countryCode: <span class="hljs-type">String</span>?
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-type">SKCloudServiceController</span>().requestStorefrontCountryCode {
+      result, error <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">self</span>.countryCode = result
+      <span class="hljs-keyword">self</span>.state = .finished
+    }
+  }
+}</pre>
+<p>Taking each commented line in turn:
+</p>
+<ol>
+<li>
+<p>Just as before, you create a subclass of <code>AsyncOperation</code> to do this piece of work.
+</p></li>
+
+<li>
+<p>Again, you need a place to store the data you’re requesting, so you add a variable for it here.
+</p></li>
+
+<li>
+<p>The <code>StoreKit</code> framework has a class, <code>SKCloudServiceController</code>, with a method <code>requestStorefrontCountryCode(completionHander:)</code> that will get the country code for the user. There are other MusicKit endpoints to get more information about different storefronts. They’re outside the scope of this chapter, but if you need more information, see the Apple Music API Reference at <a href="http://apple.co/2vshzjh">http://apple.co/2vshzjh</a>.
+</p></li>
+</ol>
+
+<h3 class="segment-chapter">Controlling access</h3>
+
+<p>Now that you have a way to download the data, you need something to coordinate access to it. You don’t want any callers to try to access the MusicKit API until both pieces of data are available. <code>Operation</code> objects are really good for that.
+</p>
+<p>Add the following code at the bottom of the <code>AuthorizationManager</code> class:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+fileprivate <span class="hljs-keyword">static</span> <span class="hljs-keyword">let</span> downloadDeveloperTokenOperation =
+  <span class="hljs-type">DownloadDeveloperTokenOperation</span>()
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">let</span> requestCountryCodeOperation =
+  <span class="hljs-type">RequestCountryCodeOperation</span>()
+<span class="hljs-comment">// 2</span>
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">let</span> musicAPIQueue: <span class="hljs-type">OperationQueue</span> = {
+  <span class="hljs-keyword">let</span> queue = <span class="hljs-type">OperationQueue</span>()
+  <span class="hljs-comment">// 3</span>
+  queue.addOperation(downloadDeveloperTokenOperation)
+  queue.addOperation(requestCountryCodeOperation)
+  <span class="hljs-keyword">return</span> queue
+}()
+<span class="hljs-comment">// 4</span>
+<span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">withAPIData</span><span class="hljs-params">(
+  completion: @escaping <span class="hljs-params">(String, String)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-comment">// 5</span>
+  <span class="hljs-keyword">let</span> operation = <span class="hljs-type">BlockOperation</span> {
+    <span class="hljs-comment">// 6</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> developerToken =
+      downloadDeveloperTokenOperation.developerToken,
+      <span class="hljs-keyword">let</span> countryCode = requestCountryCodeOperation.countryCode 
+    <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-comment">// 7</span>
+    completion(developerToken, countryCode)
+  }
+  <span class="hljs-comment">// 8</span>
+  operation.addDependency(downloadDeveloperTokenOperation)
+  operation.addDependency(requestCountryCodeOperation)
+  <span class="hljs-comment">// 9</span>
+  musicAPIQueue.addOperation(operation)
+}</pre>
+<p>Let’s take this line-by-line:
+</p>
+<ol>
+<li>
+<p>First, you create instances of the operations to download the developer token and country code.
+</p></li>
+
+<li>
+<p><code>Operation</code> objects are controlled by an <code>OperationQueue</code>, so create one here.
+</p></li>
+
+<li>
+<p>Add your two operations to the queue.
+</p></li>
+
+<li>
+<p>The objects you’ve created so far are private. To allow callers to access the data, create a method with a completion closure.
+</p></li>
+
+<li>
+<p>Create a new type of <code>Operation</code> — a <code>BlockOperation</code> — to call the closure that was passed in.
+</p></li>
+
+<li>
+<p>Double check that the information you need has been downloaded.
+</p></li>
+
+<li>
+<p>Call the completion closure with the data.
+</p></li>
+
+<li>
+<p>But, before you let the <code>BlockOperation</code> run, you add the download operations as dependencies. This will ensure that the download tasks finish (or have previously finished) before running the <code>BlockOperation</code>.
+</p></li>
+
+<li>
+<p>Finally, you add the <code>BlockOperation</code> to the queue.
+</p></li>
+</ol>
+
+<p>This makes sure that if any of your code requests to use the API before the developer token and country code have finished downloading, it will wait in the queue until that data is available, and then proceed.
+</p>
+<h3 class="segment-chapter">The actual data</h3>
+
+<p>After all that build-up, you’re finally to the point you’ve been waiting for: getting some actual songs from Apple! You’re going to add a method to the <code>Song</code> class to get the top 40 songs, but that method is going to pass back some errors. To start, add this code to the top of <em>Song.swift</em>:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">MusicError</span>: <span class="hljs-title">Error</span> </span>{
+    <span class="hljs-keyword">case</span> invalidUrl
+    <span class="hljs-keyword">case</span> noData
+    <span class="hljs-keyword">case</span> jsonDecoding
+    <span class="hljs-keyword">case</span> networkError(innerError: <span class="hljs-type">Error</span>?)
+}</pre>
+<p>This is just an error type to specify what happened if something goes wrong.
+</p>
+<p>Create an extension to <code>Song</code> at the bottom of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Song</span> </span>{
+}</pre>
+<p>Now, add this code to that extension:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">top40Songs</span><span class="hljs-params">(
+  completion: @escaping <span class="hljs-params">([Song]?, Error?)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-type">AuthorizationManager</span>.withAPIData {
+    developerToken, countryCode <span class="hljs-keyword">in</span>
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">let</span> urlString = <span class="hljs-string">""</span><span class="hljs-string">"
+      https://api.music.apple.com/\
+      v1/catalog/<span class="hljs-subst">\(countryCode)</span>/charts?types=songs&amp;\
+      chart=most-played&amp;limit=40
+      "</span><span class="hljs-string">""</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> url = <span class="hljs-type">URL</span>(string: urlString) <span class="hljs-keyword">else</span> {
+      completion(<span class="hljs-literal">nil</span>, <span class="hljs-type">MusicError</span>.invalidUrl)
+      <span class="hljs-keyword">return</span>
+    }
+    <span class="hljs-keyword">var</span> request = <span class="hljs-type">URLRequest</span>(url: url)
+    <span class="hljs-comment">// 4</span>
+    request.setValue(<span class="hljs-string">"Bearer <span class="hljs-subst">\(developerToken)</span>"</span>,
+      forHTTPHeaderField: <span class="hljs-string">"Authorization"</span>)
+    <span class="hljs-comment">// 5</span>
+  }
+}</pre>
+<p>This is just a part of the method, but here is what you have so far:
+</p>
+<ol>
+<li>
+<p>This adds a new static method to the <code>Song</code> class to get top 40 songs.
+</p></li>
+
+<li>
+<p>This code is going to need to access the developer token and country code information, so you use the method on <code>AuthorizationManager</code> that you created to coordinate this access.
+</p></li>
+
+<li>
+<p>This URL has several parts. <code>https://api.music.apple.com/</code> is the server where you access the data. <code>v1/catalog/{country code}/</code> is how most requests that aren’t asking for user-specific information begin. The country code is the one you just downloaded. <code>charts</code> tells the server you’re interested in “top” songs, while <code>types=songs</code> specifies that you’re only interested in songs, not albums or music videos. <code>chart=most-played</code> specifies the name of the chart you want to get data for. <code>limit=40</code> specifies that you want 40 results. Note that different calls have different values for <code>default</code> and <code>max</code> for this parameter, so check the documentation for more details on that. <a href="http://apple.co/2vW3MCt">http://apple.co/2vW3MCt</a>
+</p></li>
+
+<li>
+<p>Each request to the server has to include the <code>Authorization</code> header with your developer token, so set that here.
+</p></li>
+</ol>
+
+<p>Add this code under step <code>// 5</code>:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> task = <span class="hljs-type">URLSession</span>.shared.dataTask(with: request) {
+  data, <span class="hljs-number">_</span>, error <span class="hljs-keyword">in</span>
+  <span class="hljs-comment">// 6</span>
+  <span class="hljs-keyword">let</span> completeOnMain: ([<span class="hljs-type">Song</span>]?, <span class="hljs-type">Error</span>?) -&gt; <span class="hljs-type">Void</span> = {
+    songs, error <span class="hljs-keyword">in</span>
+    <span class="hljs-type">DispatchQueue</span>.main.async {
+      completion(songs, error)
+    }
+  }
+  <span class="hljs-comment">// 7</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> error = error {
+    completeOnMain(<span class="hljs-literal">nil</span>, 
+                   <span class="hljs-type">MusicError</span>.networkError(innerError: error))
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-comment">// 8</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> data = data <span class="hljs-keyword">else</span> {
+    completeOnMain(<span class="hljs-literal">nil</span>, <span class="hljs-type">MusicError</span>.noData)
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-comment">// 9</span>
+}
+task.resume()</pre>
+<p>Breaking this down:
+</p>
+<ol>
+<li>
+<p>In the code above, you built your request. Here, you’re creating a <code>dataTask</code> to execute it.
+</p></li>
+
+<li>
+<p>This block performs a little trick to clean up the code. Several places in the code that follows will call back to the completion closure. But you always want to make sure that you call it on the main thread. Instead of repeating the Dispatch boilerplate, you create this wrapper closure that does that work and call it instead.
+</p></li>
+
+<li>
+<p>If the download resulted in an error, pass that back to the completion handler.
+</p></li>
+
+<li>
+<p>If there is no error, there should be data. To be safe, check for that condition as well and pass an error back if no data was found.
+</p></li>
+</ol>
+
+<p>Next, you’ll take a look at how to parse the response from the server.
+</p>
+<h3 class="segment-chapter">JSON parsing</h3>
+
+<p>Here is what the structure of the data returned for this call looks like:
+</p><pre class="code-block">{
+  <span class="hljs-attr">"results"</span>: {
+    <span class="hljs-attr">"songs"</span>: [
+      {
+        <span class="hljs-attr">"chart"</span>: <span class="hljs-string">"most-played"</span>,
+        <span class="hljs-attr">"data"</span>: [
+          {
+            <span class="hljs-attr">"attributes"</span>: {
+              <span class="hljs-attr">"artistName"</span>: <span class="hljs-string">"LINKIN PARK"</span>,
+              <span class="hljs-attr">"artwork"</span>: {
+                ...
+                <span class="hljs-attr">"url"</span>: <span class="hljs-string">".../{w}x{h}bb.jpg"</span>,
+              },
+              ...
+              <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Iridescent"</span>,
+              <span class="hljs-attr">"url"</span>: <span class="hljs-string">"https:...?i=528969719"</span>
+            },
+            <span class="hljs-attr">"href"</span>: <span class="hljs-string">"/v1/.../528969719"</span>,
+            <span class="hljs-attr">"id"</span>: <span class="hljs-string">"528969719"</span>,
+            <span class="hljs-attr">"type"</span>: <span class="hljs-string">"songs"</span>
+          },
+          { ... },
+          { ... }
+        ],
+        <span class="hljs-attr">"href"</span>: <span class="hljs-string">"/v1/...chart=most-played&amp;limit=40"</span>,
+        <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Most Played Songs on Apple Music"</span>,
+        <span class="hljs-attr">"next"</span>: <span class="hljs-string">"/v1/...chart=most-played&amp;offset=40"</span>
+      }
+    ]
+  }
+}</pre>
+<p>You want to use the new <code>Decodable</code> protocol to deserialize the data from JSON into your objects, but most of the data you want is a little buried in there. You could mirror the beginning part of that hierarchy in dummy structures, but there’s another way.
+</p>
+<p>First, you use <code>JSONSerialization</code> to convert from the JSON string to a dictionary. Then you drill down in that dictionary a bit to get to the piece that you want (the array of songs under the <code>data</code> key). You serialize that part of the structure back to JSON and then use the <code>JSONDecoder</code> to parse it. But, before you can parse it, you need to fix your <code>Decodable</code> conformance to handle this structure.
+</p>
+<p>Remove the <code>Decodable</code> protocol from the <code>Song</code> struct at the top of this file and add this extension at the bottom:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Song</span>: <span class="hljs-title">Decodable</span> </span>{
+  <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">CodingKeys</span>: <span class="hljs-title">String</span>, <span class="hljs-title">CodingKey</span> </span>{
+    <span class="hljs-keyword">case</span> id
+    <span class="hljs-keyword">case</span> attributes
+  }
+  
+  <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">AttributesKeys</span>: <span class="hljs-title">String</span>, <span class="hljs-title">CodingKey</span> </span>{
+    <span class="hljs-keyword">case</span> title = <span class="hljs-string">"name"</span>
+    <span class="hljs-keyword">case</span> artist = <span class="hljs-string">"artistName"</span>
+    <span class="hljs-keyword">case</span> artwork
+  }
+  
+  <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">ArtworkKeys</span>: <span class="hljs-title">String</span>, <span class="hljs-title">CodingKey</span> </span>{
+    <span class="hljs-keyword">case</span> url
+  }
+  
+}</pre>
+<p>You now have a lot of compilation errors. Don’t worry; you’ll fix them shortly.
+</p>
+<p>To help visualize this, take a look at the part of JSON that you’re parsing:
+</p><pre class="code-block">{
+  <span class="hljs-attr">"attributes"</span>: { ... },
+  <span class="hljs-attr">"href"</span>: <span class="hljs-string">"/v1/catalog/us/songs/528969719"</span>,
+  <span class="hljs-attr">"id"</span>: <span class="hljs-string">"528969719"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"songs"</span>
+},
+{ ... }</pre>
+<p>The pieces of this that you’ll need are the values inside <code>attributes</code> and the <code>id</code>, so the <code>CodingKeys</code> enum contains those two keys. Here’s what the <code>attributes</code> piece looks like broken out:
+</p><pre class="code-block"><span class="hljs-string">"attributes"</span>: {
+  <span class="hljs-attr">"artistName"</span>: <span class="hljs-string">"LINKIN PARK"</span>,
+  <span class="hljs-attr">"artwork"</span>: {
+    ...
+    <span class="hljs-attr">"url"</span>: <span class="hljs-string">"https://example.mzstatic.com/.../{w}x{h}bb.jpg"</span>,
+  },
+  <span class="hljs-attr">"discNumber"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">"durationInMillis"</span>: <span class="hljs-number">296575</span>,
+  <span class="hljs-attr">"genreNames"</span>: [ ... ],
+  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Iridescent"</span>,
+  <span class="hljs-attr">"playParams"</span>: { ... },
+  <span class="hljs-attr">"releaseDate"</span>: <span class="hljs-string">"2010-09-08"</span>,
+  <span class="hljs-attr">"trackNumber"</span>: <span class="hljs-number">12</span>,
+  <span class="hljs-attr">"url"</span>: <span class="hljs-string">"https://itunes.apple.com/us/album/iridescent/id528969611?i=528969719"</span>
+},</pre>
+<p>Out of that, you’re going to use <code>name</code>, <code>artistName</code>, and <code>url</code> under the <code>artwork</code> structure. So, you construct your <code>CodingKey</code> enums to handle that structure.
+</p>
+<p>Since you changed the structure of <code>CodingKeys</code>, you’re probably seeing errors in the <code>init</code> and <code>queryItems</code> code at the top of the class. Fix those by replacing <code>CodingKeys</code> with <code>AttributesKeys</code> for the <code>title</code>, <code>artist</code>, and <code>artworkUrl</code> lines and change <code>artworkUrl</code> to simply <code>artwork</code>.
+</p>
+<p>Then, replace the method <code>init(title:)</code> with this implementation:
+</p><pre class="code-block"><span class="hljs-keyword">init</span>(id: <span class="hljs-type">String</span>, title: <span class="hljs-type">String</span>, 
+     artist: <span class="hljs-type">String</span>, artworkUrl: <span class="hljs-type">URL</span>) {
+  <span class="hljs-keyword">self</span>.title = title
+  <span class="hljs-keyword">self</span>.artist = artist
+  <span class="hljs-keyword">self</span>.id = id
+  <span class="hljs-keyword">self</span>.artworkUrl = artworkUrl
+}</pre>
+<p>Finally, in the <code>Decodable</code> extension, add the following <code>init</code> method:
+</p><pre class="code-block"><span class="hljs-keyword">init</span>(from decoder: <span class="hljs-type">Decoder</span>) <span class="hljs-keyword">throws</span> {
+  <span class="hljs-keyword">let</span> topContainer =
+    <span class="hljs-keyword">try</span> decoder.container(keyedBy: <span class="hljs-type">CodingKeys</span>.<span class="hljs-keyword">self</span>)
+  <span class="hljs-keyword">let</span> id = <span class="hljs-keyword">try</span> topContainer.decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .id)
+
+  <span class="hljs-keyword">let</span> attributes =
+    <span class="hljs-keyword">try</span> topContainer.nestedContainer(keyedBy:
+      <span class="hljs-type">AttributesKeys</span>.<span class="hljs-keyword">self</span>, forKey: .attributes)
+  <span class="hljs-keyword">let</span> title =
+    <span class="hljs-keyword">try</span> attributes.decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .title)
+  <span class="hljs-keyword">let</span> artist =
+    <span class="hljs-keyword">try</span> attributes.decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .artist)
+
+  <span class="hljs-keyword">let</span> artwork =
+    <span class="hljs-keyword">try</span> attributes.nestedContainer(keyedBy:
+      <span class="hljs-type">ArtworkKeys</span>.<span class="hljs-keyword">self</span>, forKey: .artwork)
+  <span class="hljs-keyword">let</span> artworkUrlTemplate =
+    <span class="hljs-keyword">try</span> artwork.decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .url)
+  <span class="hljs-keyword">let</span> urlString =
+    artworkUrlTemplate
+      .replacingOccurrences(of: <span class="hljs-string">"{w}"</span>, with: <span class="hljs-string">"150"</span>)
+      .replacingOccurrences(of: <span class="hljs-string">"{h}"</span>, with: <span class="hljs-string">"150"</span>)
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> url = <span class="hljs-type">URL</span>(string: urlString) <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">throw</span> <span class="hljs-type">DecodingError</span>.dataCorrupted(
+      <span class="hljs-type">DecodingError</span>.<span class="hljs-type">Context</span>(
+        codingPath: [<span class="hljs-type">ArtworkKeys</span>.url],
+        debugDescription: <span class="hljs-string">"Artwork URL not in URL format"</span>))
+  }
+
+  <span class="hljs-keyword">self</span>.<span class="hljs-keyword">init</span>(id: id, title: title, artist: artist, 
+            artworkUrl: url)
+}</pre>
+<p>This method goes through the JSON structure and pulls out the data for your struct. Notice that the URL for the album artwork isn’t really a valid URL, but more like a URL template that allows you to specify the size of the image you want. You take the template and replace the width and height tokens with a fixed value of 150. Then you take the string and turn it into a URL.
+</p>
+<p>Now that the <code>Song</code> struct is capable of handling our JSON data, you can finish the <code>top40Songs</code> method.
+</p>
+<p>Add this code under step  <code>// 9</code> of <code>top40Songs</code>:
+</p><pre class="code-block"><span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> jsonData =
+  <span class="hljs-comment">// 10</span>
+  <span class="hljs-keyword">try</span>? <span class="hljs-type">JSONSerialization</span>.jsonObject(with: data),
+  <span class="hljs-keyword">let</span> dataDictionary = jsonData <span class="hljs-keyword">as</span>? [<span class="hljs-type">String</span>: <span class="hljs-type">Any</span>],
+  <span class="hljs-keyword">let</span> results = dataDictionary[<span class="hljs-string">"results"</span>] <span class="hljs-keyword">as</span>? [<span class="hljs-type">String</span>:<span class="hljs-type">Any</span>],
+  <span class="hljs-keyword">let</span> songsArray = results[<span class="hljs-string">"songs"</span>] <span class="hljs-keyword">as</span>? [[<span class="hljs-type">String</span>: <span class="hljs-type">Any</span>]],
+  <span class="hljs-keyword">let</span> songsItem = songsArray.first,
+  <span class="hljs-keyword">let</span> songsDictionary = songsItem[<span class="hljs-string">"data"</span>],
+  <span class="hljs-comment">// 11</span>
+  <span class="hljs-keyword">let</span> songsData = <span class="hljs-keyword">try</span>? <span class="hljs-type">JSONSerialization</span>.data(
+    withJSONObject: songsDictionary),
+  <span class="hljs-comment">// 12</span>
+  <span class="hljs-keyword">let</span> songs = <span class="hljs-keyword">try</span>? <span class="hljs-type">JSONDecoder</span>().decode([<span class="hljs-type">Song</span>].<span class="hljs-keyword">self</span>,
+                                        from: songsData) <span class="hljs-keyword">else</span> {
+    completeOnMain(<span class="hljs-literal">nil</span>, <span class="hljs-type">MusicError</span>.jsonDecoding)
+    <span class="hljs-keyword">return</span>
+}
+completeOnMain(songs, <span class="hljs-literal">nil</span>)</pre>
+<p>Here’s what this code is doing:
+</p>
+<ol>
+<li>
+<p>First, you create a dictionary with the JSON data, parsing through the “<code>results</code>”, “<code>songs</code>”, and “<code>data</code>” hierarchy.
+</p></li>
+
+<li>
+<p>Then, you take the subset that you want to look at, and turn it back into JSON data.
+</p></li>
+
+<li>
+<p>Finally, you use the <code>JSONDecoder</code>, along with the code you wrote above, to turn your JSON data into an array of <code>Song</code> instances and pass that array back to the completion closure.
+</p></li>
+</ol>
+
+<p>Now that the <code>top40Songs</code> method is finished, you can call it and use the data it returns instead of your hard-coded and unimaginative song titles.
+</p>
+<p>In <code>SongListViewController</code>, replace the whole declaration of <code>private var songs</code> with:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> songs: [<span class="hljs-type">Song</span>] = [] {
+  <span class="hljs-keyword">didSet</span> {
+    tableView.reloadData()
+  }
+}
+
+<span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewDidLoad</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.viewDidLoad()
+
+  <span class="hljs-type">Song</span>.top40Songs { songs, error <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> songs = songs {
+      <span class="hljs-keyword">self</span>.songs = songs
+    }
+  }
+}</pre>
+<p>This starts with an empty <code>songs</code> array, asks <code>top40Songs</code> for the songs, and reloads the table when they’ve finished downloading.
+</p>
+<p>Build and run, and you’ll see the Messages app launch with a list of the songs:
+</p><div class="image-40"><img src="graphics/img176.png"  alt="" title="" /></div>
+<div class="note">
+<p><em>Note:</em> If you have run the app before in the simulator, you may get a crash due to an unhandled exception in <code>UICollectionView</code>. If this happens, select <em>Hardward</em><em>\</em><em>Erase All Content and Settings...</em> from the <em>Simulator</em> menu.
+</p></div>
+
+<p>Select one of the songs, and the app will create a quiz with that song and three others (chosen at random from the list) to send as a message. Your recipient of the message will play the song and then tap on the button for the correct title.
+</p>
+<p>The iMessage app sends the data by transforming it into a URL. Both the <code>Quiz</code> class and the <code>Song</code> class have methods to convert their instances to and from an array of query items. The <code>MessagesViewController</code> class uses those methods to construct a URL, adds it to a new message, and inserts that message into the conversation. Then the app on the recipient’s phone will take the URL of the message and turn it back into instances of <code>Quiz</code> and <code>Song</code>. Your next step will be to get the play button to start playing the song that was sent.
+</p>
+<h2 class="segment-chapter">Music playback</h2>
+
+<p>There are two ways to play music once you have a song: using the system player and using an application player. If you use the system music player, your app acts like a remote control for the Music app, setting items on the playback queue and starting or stopping playback. Anything you do with the system player impacts what the user will see in Control Center and in the Music app. If you use an application player, the system will stop playing (if currently playing) and your application will play, but changes you make won’t have any impact on the playback queue of the Music app.
+</p>
+<h3 class="segment-chapter">Capabilities</h3>
+
+<p>Before you try to play music or add anything to the user’s music library, you need to find out what capabilities you have. Back in the <em>AuthorizationManager.swift</em>, you’ll add a new operation and queue to manage this information.
+</p>
+<p>Add this class above the <code>DownloadDeveloperTokenOperation</code> class:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RequestCapabilitiesOperation</span>: <span class="hljs-title">AsyncOperation</span> </span>{
+  <span class="hljs-keyword">var</span> capabilities: <span class="hljs-type">SKCloudServiceCapability</span>?
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-type">SKCloudServiceController</span>()
+      .requestCapabilities { result, error <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">self</span>.capabilities = result
+        <span class="hljs-keyword">self</span>.state = .finished
+    }
+  }
+}</pre>
+<p>Then, under <code>authorize</code> in the <code>AuthorizationManager</code> class, add this code:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">let</span> capabilitiesOperation =
+  <span class="hljs-type">RequestCapabilitiesOperation</span>()
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">let</span> capabilitesQueue: <span class="hljs-type">OperationQueue</span> = {
+  <span class="hljs-keyword">let</span> queue = <span class="hljs-type">OperationQueue</span>()
+  queue.addOperation(capabilitiesOperation)
+  <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Add subscription operation</span>
+  <span class="hljs-keyword">return</span> queue
+}()
+<span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">withCapabilities</span><span class="hljs-params">(completion:
+  @escaping <span class="hljs-params">(SKCloudServiceCapability)</span></span></span> -&gt; <span class="hljs-type">Void</span>) {
+  <span class="hljs-keyword">let</span> operation = <span class="hljs-type">BlockOperation</span> {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> capabilities =
+      capabilitiesOperation.capabilities <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    completion(capabilities)
+  }
+  operation.addDependency(capabilitiesOperation)
+  capabilitesQueue.addOperation(operation)
+}</pre>
+<p>This is very similar to the code you added before, but with a new queue to coordinate access to a new piece of information. The capabilities returned will indicate if you can play back music for the user, and if not, if they’re eligible for a subscription.
+</p>
+<h3 class="segment-chapter">Subscribing</h3>
+
+<p>As of this writing, Apple Music has “well past 20 million” subscribers, maybe as high as 40 million, or more. Whatever the number, there are a lot! But not every user of your app will be an Apple Music subscriber. For your MusicKit-enabled app, you’ll want to offer your users an easy way to sign up. Plus, if you participate in Apple’s affiliate program (<a href="https://www.apple.com/itunes/affiliates/">https://www.apple.com/itunes/affiliates/</a>), you can make some money when users sign up.
+</p>
+<p>You’ll check for this state and show a system subscription view. In <code>capabilitiesQueue</code>, replace the <code>TODO</code> with the following:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">let</span> subscribeOperation = <span class="hljs-type">BlockOperation</span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> capabilities =
+    capabilitiesOperation.capabilities <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">if</span> capabilities.<span class="hljs-built_in">contains</span>(.musicCatalogPlayback) == <span class="hljs-literal">false</span>,
+    capabilities.<span class="hljs-built_in">contains</span>(.musicCatalogSubscriptionEligible) {
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-type">DispatchQueue</span>.main.async {
+      <span class="hljs-comment">// 4</span>
+      <span class="hljs-keyword">let</span> signupController = <span class="hljs-type">SKCloudServiceSetupViewController</span>()
+      <span class="hljs-comment">// 5</span>
+      signupController.load(options:
+      [.action: <span class="hljs-type">SKCloudServiceSetupAction</span>.subscribe]) {
+        isLoaded, error <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">guard</span> error == <span class="hljs-literal">nil</span> <span class="hljs-keyword">else</span> {
+          <span class="hljs-built_in">print</span>(<span class="hljs-string">"Error loading subscription view:"</span> +
+            <span class="hljs-string">" <span class="hljs-subst">\(error!.localizedDescription)</span>"</span>)
+          <span class="hljs-keyword">return</span>
+        }
+        <span class="hljs-comment">// 6</span>
+        <span class="hljs-keyword">if</span> isLoaded {
+          signupController.show(<span class="hljs-literal">true</span>)
+        }
+      }
+    }
+  }
+}
+<span class="hljs-comment">// 7</span>
+subscribeOperation.addDependency(capabilitiesOperation)
+queue.addOperation(subscribeOperation)</pre>
+<p>Taking it line-by-line:
+</p>
+<ol>
+<li>
+<p>You create a new block operation to perform this check.
+</p></li>
+
+<li>
+<p>You present the subscription view if <code>capabilities</code> <i>does not</i> contain the <code>musicCatalogPlayback</code> capability, but <i>does</i> contain the <code>musicCatalogSubscriptionEligible</code> capability.
+</p></li>
+
+<li>
+<p>Because you’re about to present a view controller, you’ll do this next part on the main queue.
+</p></li>
+
+<li>
+<p>The system view controller to use is <code>SKCloudServiceSetupViewController</code>.
+</p></li>
+
+<li>
+<p>First call <code>load</code>. You can specify some options, such as to show a specific song in the subscription view.
+</p></li>
+
+<li>
+<p>Once the view controller is loaded, you can present it like any other view controller. Because this class (<code>AuthorizationManager</code>) is not a view controller, I’ve included an extension in the project that will let you show it from here in a new <code>UIWindow</code>. Take a look at the extension in <em>UIViewController+extensions.swift</em> if you want to see how it’s done.
+</p></li>
+
+<li>
+<p>You don’t want this block operation to run until the <code>capabilitiesOperation</code> has finished, so you add the dependency here and then add this operation to the queue.
+</p></li>
+</ol>
+
+<h3 class="segment-chapter">Adding the player</h3>
+
+<p>Next, you’ll add playback and manage the state of the play/pause button. The play button is connected to the <code>playPauseButton</code> outlet. Open <em>SongSelectionViewController.swift</em> and add this import line:
+</p><pre class="code-block"><span class="hljs-keyword">import</span> MediaPlayer</pre>
+<p>Then, add the following under the <code>bottomMargin</code> declaration:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> musicPlayerController: <span class="hljs-type">MPMusicPlayerController</span>
+  = <span class="hljs-type">MPMusicPlayerController</span>.systemMusicPlayer</pre>
+<p>You’ll use the system player to playback music.
+</p>
+<p>At the end of <code>viewDidLoad</code>, add this code:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+musicPlayerController.setQueue(with: [quiz.song.id])
+<span class="hljs-comment">// 2</span>
+musicPlayerController.prepareToPlay()
+<span class="hljs-comment">// 3</span>
+musicPlayerController.beginGeneratingPlaybackNotifications()
+<span class="hljs-comment">// 4</span>
+<span class="hljs-type">NotificationCenter</span>.<span class="hljs-keyword">default</span>.addObserver(
+  forName: .<span class="hljs-type">MPMusicPlayerControllerPlaybackStateDidChange</span>,
+  object: musicPlayerController, queue: <span class="hljs-type">OperationQueue</span>.main) {
+    [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] (<span class="hljs-number">_</span>) <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+
+    <span class="hljs-comment">// 5</span>
+    <span class="hljs-keyword">self</span>.playPauseButton.isEnabled = <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">switch</span> <span class="hljs-keyword">self</span>.musicPlayerController.playbackState {
+    <span class="hljs-keyword">case</span> .playing:
+      <span class="hljs-keyword">self</span>.playPauseButton.setImage(
+        #imageLiteral(resourceName: <span class="hljs-string">"Pause"</span>), <span class="hljs-keyword">for</span>: .normal)
+    <span class="hljs-keyword">default</span>:
+      <span class="hljs-keyword">self</span>.playPauseButton.setImage(
+        #imageLiteral(resourceName: <span class="hljs-string">"Play"</span>), <span class="hljs-keyword">for</span>: .normal)
+    }
+}
+
+<span class="hljs-comment">// 6</span>
+<span class="hljs-type">AuthorizationManager</span>.withCapabilities {
+  [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] (capabilities) <span class="hljs-keyword">in</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-comment">// 7</span>
+  <span class="hljs-keyword">self</span>.playPauseButton.isEnabled =
+    capabilities.<span class="hljs-built_in">contains</span>(.musicCatalogPlayback)
+}</pre>
+<p>Here’s what you added:
+</p>
+<ol>
+<li>
+<p>This will overwrite the current playback queue with the correct song for the quiz. Note that you use the ID of the song to tell the player what to play.
+</p></li>
+
+<li>
+<p>It can take a little time once you request playback to start before the player actually starts playing. To help reduce that time, you tell the player to get ready, so by the time the user taps the play button, it might be ready to play.
+</p></li>
+
+<li>
+<p>You want to be notified when the playback state changes. To get those, you have to tell the player to start generating notifications.
+</p></li>
+
+<li>
+<p>Add an observer for the state change notification.
+</p></li>
+
+<li>
+<p>When the state changes, you set the image of the button to play or pause to reflect the current state.
+</p></li>
+
+<li>
+<p>Here, you use the capabilities method you added earlier to gain access to that setting.
+</p></li>
+
+<li>
+<p>You only enable the play button if the capabilities shows you that you can play back music.
+</p></li>
+</ol>
+
+<p>The call to <code>beginGeneratingPlaybackNotifications</code> should be balanced, so below <code>viewDidLoad</code>, add this <code>deinit</code> code:
+</p><pre class="code-block"><span class="hljs-keyword">deinit</span> {
+  musicPlayerController.endGeneratingPlaybackNotifications()
+}</pre>
+<p>The last step in getting the player to play is to replace the <code>TODO</code> in <code>playPauseTapped</code> with this:
+</p><pre class="code-block">playPauseButton.isEnabled = <span class="hljs-literal">false</span>
+<span class="hljs-keyword">if</span> musicPlayerController.playbackState == .playing {
+    musicPlayerController.pause()
+} <span class="hljs-keyword">else</span> {
+    musicPlayerController.play()
+}</pre>
+<p>In the time between the first tap on the button and the change to the playback state, you don’t want the user to be able to tap the button again. Therefore, the first thing you do is disable the button. Then, if the player is playing, you pause it, and if it’s not playing, you tell it to play.
+</p>
+<p>Build and run; once you select a song you should be able to tap the play button to hear it.
+</p>
+<div class="note">
+<p><em>Note</em>: If you’re running on the simulator, this is where things will start to break down for you. The code to get a list of songs should work fine, but there is no Music app on the simulator, so playback will not work.
+</p></div>
+
+<h2 class="segment-chapter">Handling errors</h2>
+
+<p>Note that there are two possible sources of information about errors: the HTTP status code, and an <code>errors</code> array in the body of the response. There may also be situations that you might think of as an error that don’t indicate an error in either of those.
+</p>
+<p>For example, if you request multiple resources by ID that aren’t found, you may get a status code of <code>200</code> (OK) and an empty <code>data</code> array. For robust error handling, you’ll need to check for all of these conditions.
+</p>
+<p>For more information, see the documentation here: <a href="http://apple.co/2hUlyjL">http://apple.co/2hUlyjL</a>.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>The WWDC session “Introducing MusicKit” at <a href="https://developer.apple.com/videos/play/wwdc2017/502/">https://developer.apple.com/videos/play/wwdc2017/502/</a> covers the basics of MusicKit playback — basically what you already covered in this chapter.
+</p>
+<p>Now you have all the data you need to add more information to the app. You can show how much time it took for the user to pick their answer (using <code>musicPlayerController.currentPlaybackTime</code>), download the album artwork to show in the <code>SongAnswerViewController</code>, limit the list of top 40 songs by genre, change the list from using charts to searching the whole catalog (https://api.music.apple.com/v1/catalog/{storefront}/search), or even search the user’s heavy rotation (https://api.music.apple.com/v1/me/history/heavy-rotation) for music. For that last one, you’ll need the user token. To see some of these in action, check out the finished project for this chapter.
+</p>
+<p>The Apple Music API Reference has information about all the endpoints you can call and each of the parameters you can use for them. You can find that at <a href="https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/index.html">https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/index.html</a>.
+</p></body></html>

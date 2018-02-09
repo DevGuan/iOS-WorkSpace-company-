@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 2: What’s New In Foundation</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 2: What’s New In Foundation</h1>
+
+<p>Each year at WWDC, when Apple announces the latest version of the iOS SDK, developers and the tech media have a tendency to focus on the shiny new big-ticket items and often overlook credible changes to iOS stalwarts such as <code>Foundation</code>.
+</p>
+<p>This year was no different, and while everyone was purring over <code>ARKit</code> and <code>CoreML</code>, the <code>Foundation</code> team delivered two big-ticket items of their own, and that’s what you’ll explore throughout this chapter.
+</p>
+<p>The first is <code>Codable</code> — a composition of protocols that allow for easy encoding and decoding of data, and two concrete implementations for handling JSON and plist formats. The charm of <code>Codable</code> is the fact that you can adopt it without writing a single-line of code. Simply declare conformance on your class or struct and the compiler will take care of the rest. And if the defaults don’t work for you, you can customize it <i>all the way down</i><i>!</i>
+</p>
+<p>Next up are some pretty big changes to Key-Value Observing (KVO). Not only can you declare keypaths with a wonderful new syntax, but you can now pass a closure as an observer instead of being forced to rely on the hideous <code>observeValue(forKeyPath:of:change:context:)</code> and a bunch of switches to figure out which object and what keypath you are being notified about!
+</p>
+<p>You’ll be introduced to both these new features in <code>Foundation</code> as you work through this chapter, but not independently — oh no! Instead, you shall use both in the same sample project, providing you with a good understanding of how each one works, and how they can be used together.
+</p>
+<p>So read on; I think you’ll be pleasantly surprised just how easy it is to work with these new features.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Throughout this chapter, you’ll be working with JSON data provided by <a href="http://newsapi.org">newsapi.org</a>. But before you can start, you’ll need to grab yourself an API key. Don’t worry though, it’s a quick and painless process that you’ll have done in a jiffy!
+</p>
+<p>First, open your browser and head on over to <a href="http://newsapi.org">newsapi.org</a>. Once the page had loaded, click the big green <em>GET API KEY</em> button located on the far right of the navigation bar:
+</p><div class="image-90"><img src="graphics/img27.png"  alt="" title="" /></div>
+<p>On the registration page that follows, provide your email address, a password, agree to the terms and conditions, and hit <em>Submit</em>. If all goes well you’ll be taken to your account page where you can find your API key:
+</p><div class="image-40"><img src="graphics/img28.png"  alt="" title="" /></div>
+<p>Go ahead and copy your API key. You’re gonna need it shortly!
+</p>
+<h3 class="segment-chapter">Headlines — a newsworthy app</h3>
+
+<p>Everyone loves news, right? There are newspapers, TV channels broadcasting news 24 hours a day, and you even have access to news on-demand using your mobile phone. But news can be overwhelming, and sometimes all you want are the headlines — snippets of information that provide just enough context to satisfy your hunger.
+</p>
+<p>That’s where <em>Headlines</em> comes in. It’s an iOS app that displays the latest headlines from over 70 news sources. Consider it the ultimate drug for the news junkie!
+</p>
+<p>There is a small problem though. The app isn’t quite finished. Would you believe the previous developer left to take up a role as an anchorman? Oh, the irony.
+</p>
+<p>It’s fallen on your shoulders to complete the app. Are you up for the challenge?
+</p>
+<p>Locate and open <em>Headlines.xcodeproj</em> with Xcode 9. Once Xcode has finished launching, open <em>Services/NewsAPI.swift</em> and locate the <code>key</code> property of the private <code>API</code> enum. Replace the value of the string with the API key you copied earlier, so it looks something like this:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">let</span> key = <span class="hljs-string">"7ff55d453a844be8b7aca4fd4792ca09"</span></pre>
+<p>With that done, you can now build and run.
+</p><div><img src="graphics/img29.png"  alt="" title="" /></div>
+<p>Granted, it’s a little sparse, but there’s more going on here than first meets the eye. When this view controller is initially loaded, the app requests a list of news sources from NewsAPI, and for the time being dumps the response to the console. You <i>did</i> notice all that gobbledygook in the console, right?
+</p>
+<p>So the first order of the day is to decode that JSON into the relevant model objects, and then display them using this view controller. It’s time to get cracking!
+</p>
+<h2 class="segment-chapter">Decoding Sources</h2>
+
+<p>As there is a lack of formatting in the API response, it’s unlikely you’re able to make heads or tails of the JSON dumped to the console. The following is a pretty-printed snippet from the JSON response, showing just enough for you to understand the structure, and how the keys map to the properties in the <code>Source</code> model object.
+</p><pre class="code-block">{
+  <span class="hljs-attr">"status"</span>: <span class="hljs-string">"ok"</span>,
+  <span class="hljs-attr">"sources"</span>: [
+    {
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"abc-news-au"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"ABC News (AU)"</span>,
+      <span class="hljs-attr">"description"</span>: <span class="hljs-string">"..."</span>,
+      <span class="hljs-attr">"url"</span>: <span class="hljs-string">"http://www.abc.net.au/news"</span>,
+      <span class="hljs-attr">"category"</span>: <span class="hljs-string">"general"</span>,
+      <span class="hljs-attr">"language"</span>: <span class="hljs-string">"en"</span>,
+      <span class="hljs-attr">"country"</span>: <span class="hljs-string">"au"</span>,
+      <span class="hljs-attr">"urlsToLogos"</span>: {
+        <span class="hljs-attr">"small"</span>: <span class="hljs-string">""</span>,
+        <span class="hljs-attr">"medium"</span>: <span class="hljs-string">""</span>,
+        <span class="hljs-attr">"large"</span>: <span class="hljs-string">""</span>
+      },
+      <span class="hljs-attr">"sortBysAvailable"</span>: [
+        <span class="hljs-string">"top"</span>
+      ]
+    },
+    ...
+  ]
+}</pre>
+<p>You can see that the top-level object is a dictionary, and there’s a nested array of dictionaries named <code>sources</code>. Each source has a number of keys, but you’re only interested in a handful of them. In this section you’ll get your hands dirty learning how to decode this JSON into instances of <code>Source</code>.
+</p>
+<p>Open <em>Source.swift</em> and update the class definition to include the <code>Codable</code> protocol:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Source</span>: <span class="hljs-title">Codable</span></span></pre>
+<p><code>Codable</code> is a protocol composition of both <code>Encodable</code> and <code>Decodable</code>. If your stored properties are themselves <code>Encodable</code> and <code>Decodable</code>, and your JSON keys match your property names 1:1, then this is all you need to do, as the compiler will generate the necessary methods required by the two protocols for you at compile time. Seriously, how cool is that!?
+</p>
+<p>However, since <code>Source</code> has a property named <code>overview</code> that maps to the JSON key <code>description</code> — and there’s a very good reason for this you’ll learn about later in this chapter — you can explicitly provide the key mappings using an enum that conforms to the <code>CodingKey</code> protocol.
+</p>
+<p>Add the following to the top of <code>Source</code>, just below the property definitions:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">CodingKeys</span>: <span class="hljs-title">String</span>, <span class="hljs-title">CodingKey</span> </span>{
+  <span class="hljs-keyword">case</span> id
+  <span class="hljs-keyword">case</span> name
+  <span class="hljs-keyword">case</span> overview = <span class="hljs-string">"description"</span>
+  <span class="hljs-keyword">case</span> category
+}</pre>
+<p>Here you define an enum of type <code>String</code>, which conforms to <code>CodingKey</code>. If you didn’t provide this enum, the compiler would generate an enumeration named <code>CodingKeys</code> for you automatically. By naming this enum identically, the compiler will acknowledge you’ve provided your own implemention and look to use that instead.
+</p>
+<p>As the type of the enum is <code>String</code>, you can provide each case with a value, and that value will be used as the corresponding JSON key when encoding and decoding. In this instance, you set the value of the case <code>overview</code> (<i>the property</i>) to <code>description</code> (<i>the JSON key</i>).
+</p>
+<p>The thinking behind this is to provide static type checking for your JSON keys, as opposed to simply using strings everywhere. And we all know that to be a bad idea, right?
+</p>
+<p>Finally, open <em>Article.swift</em>. You will come back to this class later in the chapter, but for now update the class definition to include the <code>Codable</code> protocol as well.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Article</span>: <span class="hljs-title">Codable</span></span></pre>
+<h3 class="segment-chapter">Nested elements and container objects</h3>
+
+<p>When consuming data from an external API, you’ll often find inconsistencies between the structure of the types you’re modelling locally and those modelled by the provider of the API. In many cases, a logical group of data within your app is shared out among several nested objects or arrays within the JSON responses.
+</p>
+<p>One way to plug this structural discrepancy is to create one or more container types that can be used as an intermediate step in the decoding process. Depending on how it’s modelled, you can either query this container for its child types, or use the container as the data source of an initializer for the type that is then used throughout the rest of the app.
+</p>
+<p>You’ll create an ephemeral container type matching the structure of the top-level dictionary of the sources JSON, which can then be queried for the sources themselves.
+</p>
+<p>Open <em>NewsAPI.swift</em> and add the following just above the private <code>API</code> enum declaration:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Response</span>: <span class="hljs-title">Codable</span> </span>{
+  <span class="hljs-keyword">let</span> sources: [<span class="hljs-type">Source</span>]?
+  <span class="hljs-keyword">let</span> articles: [<span class="hljs-type">Article</span>]?
+}</pre>
+<p>Here you create a struct that can be used to handle the response from both API requests: sources and articles. If you remember from the JSON snippet shown earlier, the top-level dictionary includes some metadata and an array of dictionaries keyed as <code>sources</code>.
+</p>
+<p>The metadata is irrelevant within the scope of this chapter so you don’t declare any properties. If the decoding process finds a key in the JSON for which there’s no matching property it’s simply discarded.
+</p>
+<p>Luckily, the articles JSON is almost identical to sources, except the array is keyed as <code>articles</code>. Since both properties are optionals within <code>Response</code> the decoding process will only look to set them if they’re present in the JSON. This means you can reuse the <code>Response</code> struct across requests that return sources, articles or both, and only the property matching the current request will be set. Nice!
+</p>
+<p>Still within <em>NewsAPI.swift</em>, locate <code>fetchSources()</code> and replace the contents of the fetch-closure with:
+</p><pre class="code-block"><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> sources = <span class="hljs-keyword">try</span>! <span class="hljs-type">JSONDecoder</span>().decode(
+    <span class="hljs-type">Response</span>.<span class="hljs-keyword">self</span>, from: data).sources {
+  <span class="hljs-keyword">self</span>.sources = sources
+}</pre>
+<p>Here you create a <code>JSONDecoder</code> and ask it to decode the data from the API response into an instance of <code>Response</code>. You place it within an <code>if-let</code> statement, since <code>sources</code> is an optional so it needs unwrapping. If that’s successful, you then set <code>self.sources</code> to the array of sources from the response.
+</p>
+<div class="note">
+<p><em>Note</em>: You’re using <code>try!</code> here since <code>decode</code> throws, but in production you’d definitely want to use <code>try</code> and handle any errors. See <a href="https://developer.apple.com/videos/play/wwdc2017/212/">https://developer.apple.com/videos/play/wwdc2017/212</a> for examples on how to handle errors thrown by <code>Codable</code>.
+</p></div>
+
+<p>If you were to build and run now, nothing would have changed other than the JSON response is no longer dumped to the console. You’ve decoded the JSON array into instances of <code>Source</code>, but you haven’t notified the consumer — the sources view controller — that its data is ready to be consumed.
+</p>
+<p>You’ll tackle this now using Key-Value Observing.
+</p>
+<h2 class="segment-chapter">May I make an observation?</h2>
+
+<p>You could use the delegate pattern, or update <code>NewsAPI</code> so its methods accept a completion handler, but both of those options tightly couple the API service to the view controller. Instead, you’re going to use KVO to observe when the <code>sources</code> array changes and then respond accordingly. This allows you to loosely couple the <code>NewsAPI</code> and the view controllers consuming its data.
+</p>
+<p>As KVO is a technology built around the Objective-C runtime, you do have to jump through a few hoops to get everything working. But by the end of this section you’ll agree that the extra effort is worth it!
+</p>
+<p>Open <em>Source.swift</em> and update the class definition so it inherits from <code>NSObject</code>:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Source</span>: <span class="hljs-title">NSObject</span>, <span class="hljs-title">Codable</span></span></pre>
+<p>Next, open <em>NewsAPI.swift</em> and make the same change:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NewsAPI</span>: <span class="hljs-title">NSObject</span></span></pre>
+<p>In order to use key-value observing with a Swift class, it needs to inherit from <code>NSObject</code>, hence why you’ve made these two changes. This is due to the KVO APIs being declared on <code>NSObject</code> and not natively part of Swift.
+</p>
+<p>The final part to making a class KVO-compliant is to mark any observable properties as requiring dynamic dispatch. Update the <code>sources</code> property declaration inside <em>NewsAPI.swift</em> so it matches the following:
+</p><pre class="code-block"><span class="hljs-meta">@objc</span> <span class="hljs-keyword">dynamic</span> <span class="hljs-keyword">private</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> sources: [<span class="hljs-type">Source</span>] = []</pre>
+<p>Here you add the <code>objc</code> attribute to let the compiler know this property is available to use from within Objective-C, along with the <code>dynamic</code> modifier to inform the compiler that no optimizations should take place, as the property needs to be dynamically dispatched through the Objective-C runtime so the getter and setter can be replaced at runtime. This is a fundamental building block of KVO.
+</p>
+<div class="note">
+<p><em>Note</em>: If you’re interested in learning more about how KVO works and KVO-Swift interoperability, or if any of the above sentence makes no sense, then I highly recommend reading through <a href="http://apple.co/2w5dUsA">apple.co/2w5dUsA</a>, <a href="http://apple.co/2uT8InZ">apple.co/2uT8InZ</a>, <a href="http://apple.co/2x7jI1F">apple.co/2x7jI1F</a>, and <a href="http://apple.co/2vFWxOc">apple.co/2vFWxOc</a>.
+</p></div>
+
+<p>Next, open <em>SourceListController.swift</em> and add the following property declaration to the top of the class:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> token: <span class="hljs-type">NSKeyValueObservation</span>?</pre>
+<p>Here you declare a property to store the token returned when calling <code>observe(_:changeHandler:)</code> on a class derived from <code>NSObject</code>. It’s important to retain this token as long as you want to observe the keypath, otherwise the observer is released immediately and will never be called. Having a reference to the token also allows you to invalidate the observer when you’re finished with it.
+</p>
+<p>Still in <em>SourceListController.swift</em>, add the following to <code>viewDidLoad()</code> right between the call to <code>super</code> and the call to <code>fetchSources()</code> on <code>NewsAPI</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+token = <span class="hljs-type">NewsAPI</span>.service.observe(\.sources) { <span class="hljs-number">_</span>, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">self</span>.tableView.reloadData()
+  }
+}</pre>
+<p>Here’s the play-by-play of what’s happening above:
+</p>
+<ol>
+<li>
+<p>Call <code>observe(_:changeHandler:)</code> on the <code>service</code> singleton of <code>NewsAPI</code>, passing <code>\.sources</code> as the keypath. Note the sexy new syntax! This will call the closure passed as the change handler whenever the value of <code>sources</code> changes — that’s the value, not the contents of the array! You store the returned token in the property you set up in the previous step since you want the observer to be around as long as the view controller.
+</p></li>
+
+<li>
+<p>The observer is called on a background queue, but since you’re going to update the UI, you use GCD to dispatch back to the main queue.
+</p></li>
+
+<li>
+<p>Ask the table view to reload its data. As the table view is already wired up to use <code>sources</code> as its data source, it will re-query the array and update accordingly.
+</p></li>
+</ol>
+
+<p>And that’s all there is to configuring KVO on the <code>sources</code> array of <code>NewsAPI</code>, and having the table view refresh automatically whenever it changes.
+</p>
+<p>Build and run. You should now see a list of news sources displayed once the API call has succeeded and the returned JSON decoded into instances of <code>Source</code>.
+</p><div><img src="graphics/img30.png"  alt="" title="" /></div>
+<p>If you tap a source you’ll see... <i>another empty view controller</i><i>!</i> Well, that just won’t do. This view controller is supposed to display the most recent articles from the selected source. Roll up those sleeves, grab yourself a fresh mug of Yorkshire tea and let’s do this!
+</p>
+<h2 class="segment-chapter">Decoding articles</h2>
+
+<p>Here is a pretty-printed snippet from the articles JSON response so you can get an understanding of the structure and how its keys map to the properties of the <code>Article</code> model object:
+</p><pre class="code-block">{
+  <span class="hljs-attr">"status"</span>: <span class="hljs-string">"ok"</span>,
+  <span class="hljs-attr">"source"</span>: <span class="hljs-string">"the-next-web"</span>,
+  <span class="hljs-attr">"sortBy"</span>: <span class="hljs-string">"latest"</span>,
+  <span class="hljs-attr">"articles"</span>: [
+    {
+      <span class="hljs-attr">"author"</span>: <span class="hljs-string">"Neil C. Hughes"</span>,
+      <span class="hljs-attr">"title"</span>: <span class="hljs-string">"..."</span>,
+      <span class="hljs-attr">"description"</span>: <span class="hljs-string">"..."</span>,
+      <span class="hljs-attr">"url"</span>: <span class="hljs-string">"..."</span>,
+      <span class="hljs-attr">"urlToImage"</span>: <span class="hljs-string">"..."</span>,
+      <span class="hljs-attr">"publishedAt"</span>: <span class="hljs-string">"2017-08-16T13:46:53Z"</span>
+    },
+    ...
+  ]
+}</pre>
+<p>Just as with the previous JSON response, there is a top-level dictionary and a nested array of dictionaries named <code>articles</code>. Luckily, the <code>Response</code> container type you created earlier is already set up to handle this JSON and can be reused once <code>Article</code> is completely <code>Codable</code> ready.
+</p>
+<p>You need the <code>Article</code> class to conform to <code>Codable</code> as it’s the model class representing an article, and you want the articles in the JSON response to be decoded into instances of this class. You need to have it descend from <code>NSObject</code> so that the class can be represented in Objective-C, and that’s important because, later, you’ll once again use KVO to observe changes to an array storing instances of this class. Open <em>Article.swift</em> and update the class definition:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Article</span>: <span class="hljs-title">NSObject</span>, <span class="hljs-title">Codable</span></span></pre>
+<p>Looking at the JSON snippet and the class definition, you may have already noticed that there isn’t a 1:1 relationship between the property names and the JSON keys, so just like before you’ll need to override the <code>CodingKeys</code> enumeration to provide the custom mappings.
+</p>
+<p>Still in <em>Article.swift</em>, add the following just below the property declarations:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">CodingKeys</span>: <span class="hljs-title">String</span>, <span class="hljs-title">CodingKey</span> </span>{
+  <span class="hljs-keyword">case</span> author
+  <span class="hljs-keyword">case</span> title
+  <span class="hljs-keyword">case</span> snippet = <span class="hljs-string">"description"</span>
+  <span class="hljs-keyword">case</span> sourceURL = <span class="hljs-string">"url"</span>
+  <span class="hljs-keyword">case</span> imageURL = <span class="hljs-string">"urlToImage"</span>
+  <span class="hljs-keyword">case</span> published = <span class="hljs-string">"publishedAt"</span>
+}</pre>
+<p>I mentioned earlier that there was a good reason why you remapped <code>description</code> to <code>overview</code> in <code>Source</code>, and the same applies here. As both model classes now descend from <code>NSObject</code> due to the KVO requirements, having a property named <code>description</code> creates a conflict with a method of the same name already defined on <code>NSObject</code>. Luckily you can use the custom key mapping feature of <code>Codable</code> to work around this conflict and keep the compiler happy — happy compiler, happy developer! :]
+</p>
+<p>Now that <code>Article</code> is both KVO- and <code>Codable</code>-ready, you need to update the <code>articles</code> member of <code>NewsAPI</code> to use dynamic dispatch since this is what you’ll be observing to keep the articles table view up-to-date.
+</p>
+<p>Open <code>NewsAPI.swift</code> and update the <code>articles</code> property declaration so it matches the following:
+</p><pre class="code-block"><span class="hljs-meta">@objc</span> <span class="hljs-keyword">dynamic</span> <span class="hljs-keyword">private</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> articles: [<span class="hljs-type">Article</span>] = []</pre>
+<p>Remember that <code>@objc</code> tells the compiler to make this property available to Objective-C code, and <code>dynamic</code> tells the compiler <i>not</i> to make any optimizations such as inlining the implementation, and instead to dynamically dispatch the property through the Objective-C runtime so the getter and setter can be replaced at runtime.
+</p>
+<p>While you’re working in <code>NewsAPI</code>, add the following to the closure in <code>fetchArticles(for:)</code>:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> decoder = <span class="hljs-type">JSONDecoder</span>()
+decoder.dateDecodingStrategy = .iso8601
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> articles = <span class="hljs-keyword">try</span>! decoder.decode(
+    <span class="hljs-type">Response</span>.<span class="hljs-keyword">self</span>, from: data).articles {
+  <span class="hljs-keyword">self</span>.articles = articles
+}</pre>
+<p>Here you create an instance of <code>JSONDecoder</code>, set its date decoding strategy to interpret dates using the ISO 8601 standard, ask it to decode the articles API JSON response into an instance of <code>Response</code>, and then attempt to unwrap the <code>articles</code> optional. If this succeeds, you set <code>self.articles</code> to the unwrapped value, which in turn will trigger any observers of this property. There aren’t any at the moment, so you’ll add one now!
+</p>
+<p>Open <em>ArticleListController.swift</em> and add the following property declaration to the top of the class:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> token: <span class="hljs-type">NSKeyValueObservation</span>?</pre>
+<p>You’ll use this property to store the token provided by the observer. Remember it’s important to retain a reference to the token as long you need to keep observing, otherwise the observer will be released and never called. As <code>ArticleListController</code> is a detail view controller and will be reused, you’ll also use this token to invalidate the observer each time the user navigates back to the master view controller to choose a different news source.
+</p>
+<p>Add the following just below the call to <code>super</code> in <code>viewDidAppear(animated:)</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> source = source <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+<span class="hljs-comment">// 2</span>
+token = <span class="hljs-type">NewsAPI</span>.service.observe(\.articles) { <span class="hljs-number">_</span>, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-type">DispatchQueue</span>.main.async {
+    <span class="hljs-comment">// 4</span>
+    <span class="hljs-keyword">self</span>.tableView.reloadData()
+  }
+}
+<span class="hljs-comment">// 5</span>
+<span class="hljs-type">NewsAPI</span>.service.fetchArticles(<span class="hljs-keyword">for</span>: source)</pre>
+<p>Here’s the breakdown of what’s happening above:
+</p>
+<ol>
+<li>
+<p>Use <code>guard</code> to make sure a <code>source</code> has been passed from the sources view controller, otherwise exit early. A valid <code>source</code> is required by <code>fetchArticles(for:)</code>, so without one, execution can’t continue.
+</p></li>
+
+<li>
+<p>Call <code>observe(_:changeHandler:)</code> on the <code>service</code> singleton of <code>NewsAPI</code>, this time passing <code>\.articles</code> as the keypath, and store the returned token in <code>token</code>. This will cause the closure passed as the change handler to be called whenever the value of <code>articles</code> changes.
+</p></li>
+
+<li>
+<p>The observer is called on a background queue, but since you’re going to update the UI, you use GCD to dispatch back to the main queue.
+</p></li>
+
+<li>
+<p>Ask the table view to reload its data. The table view is already set up to use <code>articles</code> as its data source so will re-query the array and update itself accordingly.
+</p></li>
+
+<li>
+<p>Finally, call <code>fetchArticles(for:)</code> on the <code>NewsAPI</code> singleton, which will hit the NewsAPI articles API, decode the returned JSON, and then update <code>articles</code> causing the observer to be called and the table view to update. Magic!
+</p></li>
+</ol>
+
+<p>When a user has finished perusing the news articles from the current and navigates back to the sources view controller, you’ll need to do a little housekeeping.
+</p>
+<p>Inside <em>ArticleListController.swift</em>, add the following to <code>viewDidDisappear(animated:)</code>, just below the call to <code>super</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+token?.invalidate()
+<span class="hljs-comment">// 2</span>
+<span class="hljs-type">NewsAPI</span>.service.resetArticles()</pre>
+<p>Here’s what’s happening above:
+</p>
+<ol>
+<li>
+<p>You invalidate the observation token and as a result release the observer. It’s important to invalidate any observers that are no longer required to avoid them being called unexpectedly, since a single keypath can have many observers, and you create a new one each time the view is shown.
+</p></li>
+</ol>
+
+<ol>
+<li>
+<p>You reset <code>articles</code> to an empty array. This is needed since there is a delay between submitting the API request, receiving the response, decoding it, and updating the table view. If you didn’t reset the array, then articles from the previously chosen source would be displayed temporarily, leading to a poor user experience.
+</p></li>
+</ol>
+
+<p>Build and run. Scroll through the list of sources until you find <em>BBC News</em> and tap it. You should now see a list of articles displayed:
+</p><div><img src="graphics/img31.png"  alt="" title="" /></div>
+<p>NewsAPI is an aggregator and as such, despite their best efforts, there are some inconsistencies in their data. The reason I asked you to select <em>BBC News</em> is because I know they provide values for each of the keys in the JSON, but if you continue to select different news sources — <em>ABC News (AU)</em> is a good choice — the app will eventually crash and you’ll see the following printed in the console:
+</p><pre class="code-block">fatal error: &apos;try!&apos; expression unexpectedly raised an error: Swift.DecodingError.valueNotFound(Foundation.Date, Swift.DecodingError.Context(codingPath: [Headlines.NewsAPI.(Response in _0829A67BC5D743BCE8668E6276E9747D).CodingKeys.articles, Foundation.(_JSONKey in _12768CA107A31EF2DCE034FD75B541C9)(stringValue: &quot;Index 5&quot;, intValue: Optional(5)), Headlines.Article.CodingKeys.published], debugDescription: &quot;Expected Date value but found null instead.&quot;...</pre>
+<p>The errors <code>Codable</code> throws are extremely helpful, and you can see from the above exactly what the issue is: <code>Expected Date value but found null instead</code>, and which key caused the error: <code>Headlines.Article.CodingKeys.published</code>.
+</p>
+<p>Not all news sources consistently provide publication dates or authors, and you’ve not yet configured <code>Article</code> to handle <code>null</code> values when being decoded, so you’ll look at that in the next section.
+</p>
+<div class="note">
+<p><em>Note</em>: As you select different sources, you may run into another crash where the error printed to the console mentions <code>&quot;Expected to decode Double but found a string/data instead&quot;</code> or <code>&quot;Expected date string to be ISO8601-formatted.&quot;</code>. Don’t worry, this is yet another issue of aggregating various news sources into a single output and is one that you’ll fix later in this section.
+</p></div>
+
+<h3 class="segment-chapter">Much ado about null</h3>
+
+<p>Open <em>Article.swift</em> and add a <code>?</code> to both <code>author</code> and <code>published</code> to turn them into optionals:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> author: <span class="hljs-type">String</span>?
+...
+<span class="hljs-keyword">let</span> published: <span class="hljs-type">Date</span>?</pre>
+<p>Surprisingly, this is all you need to do to handle <code>null</code> values with <code>Codable</code>. The compiler is smart enough when generating the default implementations of the protocol methods to only try and set an optional property if the corresponding value is present, since you’ve explicitly stated it <i>could</i> be <code>null</code> by using optionals.
+</p>
+<p>But before you can build and run, there is another change you need to make. Since <code>published</code> is now an optional you need to update <code>ArticleCell</code> to account for the change. <code>ArticleCell</code> is the custom <code>UITableViewCell</code> class used to display articles in the table view.
+</p>
+<p>Open <em>ArticleCell.swift</em> and locate the following line in <code>render(article:using:)</code>:
+</p><pre class="code-block">publishedLabel.text = formatter.string(from: article.published)</pre>
+<p>Replace it with this snippet:
+</p><pre class="code-block"><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> published = article.published {
+  publishedLabel.text = formatter.string(from: published)
+} <span class="hljs-keyword">else</span> {
+  publishedLabel.text = <span class="hljs-literal">nil</span>
+}</pre>
+<p>Here you attempt to unwrap <code>published</code>, and if it’s successful you set the text of the label to a textual representation of the date, formatted using an instance of <code>DateFormatter</code> that’s passed to the enclosing method. If the unwrapping fail you set the text of the label to <code>nil</code>. You use <code>nil</code> instead of an empty string because the table view cells are self-sizing, and you want the label to collapse its height and not affect the size of the cell, which won’t happen with an empty string.
+</p>
+<p>Build and run, this time choosing <em>ABC News (AU)</em> as the source. Scroll through the articles and you should see some with dates and some without:
+</p><div><img src="graphics/img32.png"  alt="" title="" /></div>
+<p>Notice how the cells without dates have collapsed the space where the date should be, preserving the overall look of the cell. Nice work!
+</p>
+<div class="note">
+<p><em>Note</em>: Don’t worry if all your headlines include dates when selecting <em>ABC News (AU)</em>. This simply means it was a <code>null</code> author that caused the crash earlier, and in this section, you’ve addressed both cases. This new source frequently excluded dates when the chapter was written, but as these feeds change hourly it’s not guaranteed to be that way now. Such is the risk when working with live APIs. Feel free to select a few other news sources, and I’m confident you’ll quickly come across a cell without a date.
+</p></div>
+
+<h3 class="segment-chapter">If it wasn’t for those pesky newlines</h3>
+
+<p>Another issue you’ll come across when working with the data from NewsAPI is that some publishers put extraneous newline characters in their article descriptions. I can only assume these serve some sort of formatting purpose, but they have no place in the Headlines app and therefore need to be removed.
+</p>
+<p>You could do this clean-up retrospectively, once the decoding has taken place, but since part of the charm of <code>Codable</code> is that you can provide your own implementation for any of the methods generated by the compiler, you can actually do it <i>as part</i> of the decoding process!
+</p>
+<p>Open <em>Article.swift</em> and add the following initializer to the bottom of the class:
+</p><pre class="code-block"><span class="hljs-keyword">required</span> <span class="hljs-keyword">init</span>(from decoder: <span class="hljs-type">Decoder</span>) <span class="hljs-keyword">throws</span> {
+
+}</pre>
+<p>This is the single method declared by the <code>Decodable</code> protocol. Remember that <code>Codable</code> is a protocol composition of both <code>Decodable</code> and <code>Encodable</code>. As you’re providing the implementation and not relying on the compiler-generated one, you assume responsibility for decoding the entire object and therefore need to implement the initializer in its entirety.
+</p>
+<p>You’re passed an instance of <code>Decoder</code>, but you don’t use this directly to decode the JSON objects. Instead, you ask the decoder for containers that, surprisingly, contain those objects. There are three types of container: a <i>keyed container</i> for dictionaries, an <i>unkeyed container</i> for arrays, and a <i>single value container</i>. In this instance, since you’re dealing with a JSON dictionary, you’re only interested in the keyed container type.
+</p>
+<p>Add the following to the top of the initializer:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> container = <span class="hljs-keyword">try</span> decoder.container(keyedBy: <span class="hljs-type">CodingKeys</span>.<span class="hljs-keyword">self</span>)</pre>
+<p>Here you ask the decoder for a container, keyed by the <code>CodingKeys</code> enumeration. It’s worth remembering that encoding and decoding is a recursive process, so as long as your your model layer mirrors the structure of the JSON, the container that’s returned here should be the one you’re expecting. Therefore the JSON keys should match those in <code>CodingKeys</code>.
+</p>
+<p>You can now begin using the container to decode the values it contains into their corresponding types.
+</p>
+<p>Add the following just below the statement you added in the previous step:
+</p><pre class="code-block">title = <span class="hljs-keyword">try</span> container.decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .title)
+sourceURL = <span class="hljs-keyword">try</span> container.decode(<span class="hljs-type">URL</span>.<span class="hljs-keyword">self</span>, forKey: .sourceURL)
+imageURL = <span class="hljs-keyword">try</span> container.decode(<span class="hljs-type">URL</span>.<span class="hljs-keyword">self</span>, forKey: .imageURL)</pre>
+<p>Containers can decode a variety of types including <code>String</code>, <code>Float</code>, <code>Int</code>, and <code>Bool</code>, but can also decode any type that is itself <code>Decodable</code>. You see this in action here because while <code>KeyedDecodingContainer</code> — the type of container you’re using — provides a method to decode strings, it also provides a generic implementation for anything conforming to <code>Decodable</code>, which you’re using to decode URLs. This is how <code>Codable</code> provides support for both native Swift types and your own custom types.
+</p>
+<p>That takes care of the values you know are <i>always</i> present, but what about <code>author</code> and <code>published</code> that can be <code>null</code>? The process is the same, except you use <code>decodeIfPresent(_:forKey:)</code> instead.
+</p>
+<p>Add the following to the bottom of the initializer:
+</p><pre class="code-block">author = <span class="hljs-keyword">try</span> container.decodeIfPresent(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, 
+    forKey: .author)
+published = <span class="hljs-keyword">try</span> container.decodeIfPresent(<span class="hljs-type">Date</span>.<span class="hljs-keyword">self</span>, 
+    forKey: .published)</pre>
+<p>Decoding this way means these properties will only be set if their corresponding value is present in the container, otherwise they’ll be <code>nil</code>.
+</p>
+<p>Finally, you can now remove those pesky newline characters from the articles description.
+</p>
+<p>Add the following just below the code you added in the prior step:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> rawSnippet = <span class="hljs-keyword">try</span> container.decode(
+    <span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .snippet)
+snippet = rawSnippet.deletingCharacters(
+    <span class="hljs-keyword">in</span>: <span class="hljs-type">CharacterSet</span>.newlines)</pre>
+<p>Here you decode <code>description</code> from the container into a temporary <code>String</code> variable, using the <code>snippet</code> key to handle the mapping between JSON key and property name. You then delete any newline characters from the temporary string and use that to set <code>snippet</code>.
+</p>
+<p>Build and run. Everything should appear just as it did before, but you can rest safe in the knowledge that there are no extraneous newline characters in Headlines data. See if there’s anything interesting going on in the world by tapping <em>Bloomberg</em>...
+</p>
+<p>Uh oh! So much for that short rest.
+</p>
+<h3 class="segment-chapter">Damned dirty dates</h3>
+
+<p>When you selected <em>Bloomberg</em> and the app crashed, you’ll have seen the following printed to the console:
+</p><pre class="code-block">fatal error: &apos;try!&apos; expression unexpectedly raised an error: Swift.DecodingError.dataCorrupted(Swift.DecodingError.Context(codingPath: [Headlines.NewsAPI.(Response in _0829A67BC5D743BCE8668E6276E9747D).CodingKeys.articles, Foundation.(_JSONKey in _12768CA107A31EF2DCE034FD75B541C9)(stringValue: &quot;Index 0&quot;, intValue: Optional(0)), Headlines.Article.CodingKeys.published], debugDescription: &quot;Expected date string to be ISO8601-formatted.&quot;...</pre>
+<p>This error message is once again incredibly useful. It provides the source of the crash: the failed decoding of <code>Headlines.Article.CodingKeys.published</code>, and the reason: the date is expected to be ISO8601-formatted. This is because you explicitly told the decoder that dates would be in the ISO 8601, but in this case it’s come across one that isn’t.
+</p>
+<p>For most news sources this works just fine; the date is interpreted as ISO 8601 and the decoding process uses <code>ISO8601DateFormatter</code> to decode it. What’s different about Bloomberg is their dates include milliseconds — <code>2017-08-19T21:22:30.028Z</code> instead of <code>2017-08-19T21:22:30Z</code> — and Apple’s <code>ISO8601DateFormatter</code> can’t handle them, despite milliseconds being a perfectly valid part of the ISO 8601 specification.
+</p>
+<p>You can see this for yourself by visiting the following URL, making sure to append your API key:
+</p>
+<ul>
+<li>
+<p><code>https://newsapi.org/v1/articles?source=bloomberg&amp;apiKey=</code>
+</p></li>
+</ul>
+
+<p>The easiest way to fix this is to provide the decoder with a custom date handler, and delete the milliseconds before converting the string to a date.
+</p>
+<p>Open <em>NewsAPI.swift</em> and add the following to the top of <code>fetchArticles(for:)</code>:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> formatter = <span class="hljs-type">ISO8601DateFormatter</span>()
+<span class="hljs-keyword">let</span> customDateHandler: (<span class="hljs-type">Decoder</span>) <span class="hljs-keyword">throws</span> -&gt; <span class="hljs-type">Date</span> = { decoder <span class="hljs-keyword">in</span>
+  
+}</pre>
+<p>Here you’ve created an instance of <code>ISO8601DateFormatter</code> that you’ll use within the following closure to decode dates. As the closure will be called multiple times — once for each date the decoder finds — and it’s far more efficient to create just one formatter and reuse it. The closure is passed an instance of <code>Decoder</code> and expects you to return an instance of <code>Date</code>.
+</p>
+<p>Add the following to the closure:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">var</span> string = <span class="hljs-keyword">try</span> decoder.singleValueContainer()
+    .decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>)
+<span class="hljs-comment">// 2</span>
+string.deleteMillisecondsIfPresent()
+<span class="hljs-comment">// 3</span>
+<span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> date = formatter.date(from: string) 
+    <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-type">Date</span>() }
+<span class="hljs-comment">// 4</span>
+<span class="hljs-keyword">return</span> date</pre>
+<p>Here’s the play-by-play of what’s happening above:
+</p>
+<ol>
+<li>
+<p>Remember that encoding and decoding is recursive, so the decoder that’s passed to the closure doesn’t represent the entire JSON object, but only the value that contains the date. Calling <code>singleValueContainer()</code> returns an instance of <code>SingleValueDecodingContainer</code>, which you use to decode the date into a string.
+</p></li>
+
+<li>
+<p><code>deleteMillisecondsIfPresent()</code> is provided by an extension on <code>String</code>. It looks at the length of the string and if it equals 24, which is the length of an ISO8601-formatted date, including milliseconds, it removes characters 20-23.
+</p></li>
+
+<li>
+<p>Use the date formatter from the previous step to create a date from the string. If it can’t, fail gracefully by simply returning today’s date.
+</p></li>
+
+<li>
+<p>Return the date to the decoding process.
+</p></li>
+</ol>
+
+<p>With your custom date handler implemented, you simply need to tell the decoding process to use it.
+</p>
+<p>Replace the contents of the closure passed to <code>API.articles(source).fetch(_:)</code> with the following:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-keyword">let</span> decoder = <span class="hljs-type">JSONDecoder</span>()
+<span class="hljs-comment">// 2</span>
+decoder.dateDecodingStrategy = .custom(customDateHandler)
+<span class="hljs-comment">// 3</span>
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> articles = <span class="hljs-keyword">try</span>! decoder.decode(
+    <span class="hljs-type">Response</span>.<span class="hljs-keyword">self</span>, from: data).articles {
+  <span class="hljs-keyword">self</span>.articles = articles
+}</pre>
+<p>Here’s what’s happening above:
+</p>
+<ol>
+<li>
+<p>Just like you did earlier, you create an instance of <code>JSONDecoder</code> so that you can configure its date handling manually.
+</p></li>
+
+<li>
+<p>This time you set the date decoding strategy to <code>.custom</code> and pass your custom date handler.
+</p></li>
+
+<li>
+<p>Ask the decode to decode the article’s API JSON response into an instance of <code>Response</code>, and then attempt to unwrap the <code>articles</code> optional. If this succeeds you set <code>self.articles</code> to the unwrapped value.
+</p></li>
+</ol>
+
+<p>Build and run, and choose <em>Bloomberg</em> as the news source:
+</p><div><img src="graphics/img33.png"  alt="" title="" /></div>
+<p>The app should no longer crash, and you’ll now see a properly formatted date displayed on each cell.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>With very little effort, you’ve been able to decode two separate streams of JSON into the app’s data layer using just a few lines of code and the magic of <code>Codable</code>. You’ve learned how to create custom mappings between your JSON keys and type properties, how to handle <code>null</code> values, how to massage data as part of the decoding process, and finally how to handle inconsistent dates.
+</p>
+<p>On top of that you’ve also learned how you can use Key-Value Observing to decouple the data layer from the user interface, and observe changes in that data layer and have the interface update automatically.
+</p>
+<p>I highly recommend you watch <em>What’s New in Foundation</em>: <a href="http://apple.co/2v3RjsV">http://apple.co/2v3RjsV</a>, for more information on these and other changes to <code>Foundation</code>, as well as read these two articles by Greg Heo on the inner workings of <code>Encodable</code> and <code>Decodable</code>: <a href="http://bit.ly/2vUAJgd">http://bit.ly/2vUAJgd</a>, <a href="http://bit.ly/2weXPke">http://bit.ly/2weXPke</a>.
+</p>
+<p>Your <code>Codable</code>-fu is strong. Go forth and decode!
+</p></body></html>

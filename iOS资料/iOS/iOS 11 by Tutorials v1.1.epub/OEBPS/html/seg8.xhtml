@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 3: What’s New in Xcode 9</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 3: What’s New in Xcode 9</h1>
+
+<p>Xcode 9 brings with it a few major updates to Xcode, one of the most significant being refactoring support for Swift. Xcode’s source editor has been completely rewritten in Swift, and because of this, scrolling, search and refactoring are extremely fast. Xcode now also has support for editing Markdown files as well. You can now build wirelessly to your device, and you can also open multiple simulators at the same time.
+</p>
+<p>And if <i>that</i> wasn’t enough, there is also GitHub account integration, a new source code navigator, much smarter fix-its, improvements to breakpoints, and the ability to run Xcode bots without the need to run a separate instance of Xcode Server.
+</p>
+<p>In the first section of this chapter, you’ll learn about all of the improvements to Xcode’s source editor. In the second section, you’ll learn about GitHub integration and the new Source Code navigator. The remaining sections will be shorter and will quickly cover a variety of topics.
+</p>
+<p>There is a lot to explore, so let’s dive right in!
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>You’ll explore the new features of Xcode with the ApplesToOranges app. It’s an app that lets you compare fruits by calories. Say you wanted to know how many oranges it would take to equal the same amount of calories in five apples? With this app you can find out!
+</p>
+<p>Open <em>ApplesToOranges.xcodeproj</em> from the starter folder of this chapter, and build and run the app. There are three tabs in the app. The first lets you convert from fruits to fruits, the second tab lets you specify the input in calories instead of fruits and the third tab is a basic settings tab that lets you edit the number of calories in each fruit.
+</p><div class="image-100"><img src="graphics/img34.png"  alt="" title="Delicious!" /></div>
+<p>You’ll start off by learning all of the cool new things you can do with Xcode’s brand new source editor.
+</p>
+<h2 class="segment-chapter">Source editor improvements</h2>
+
+<p>Knowing and taking advantage of the various features of your editor is a key skill of a productive developer. This year, there have been a lot of improvements — not only in features, but also in performance, since the source editor has been completely rewritten in Swift.
+</p>
+<h3 class="segment-chapter">Code structure</h3>
+
+<p>Start off by expanding all of the groups in the project navigator, and select <em>CaloriesInputViewController.swift</em> under the <em>Controllers</em> group.
+</p>
+<p>Hold down the <em>Command</em> key and move your mouse over various parts of the code; for example, hover over the <code>class</code>, <code>func</code> and <code>var</code> keywords. Notice how different parts of the code structure highlight as you move over them:
+</p><div class="image-80"><img src="graphics/img35.png"  alt="" title="" /></div>
+<p>This can be pretty useful if you want to quickly see where a corresponding closing brace or closing parenthesis is.
+</p>
+<p><em>Command-hover</em> over <code>Double</code> in the first line of <code>reloadData()</code>, which will allow you to more easily see where its closing parenthesis is:
+</p><div class="image-80"><img src="graphics/img36.png"  alt="" title="" /></div>
+<p>Find the following <code>if</code> statement towards the end of the file:
+</p><pre class="code-block"><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> calories = <span class="hljs-type">Double</span>(updatedText) {</pre>
+<p>With nested if-statements, it may be a bit difficult to tell at first glance where the closing brace is. If you hold down <em>Command</em> and hover over the <code>if</code> keyword or over the opening brace, Xcode will visually select the structure for you.
+</p>
+<h3 class="segment-chapter">Actions menu</h3>
+
+<p>Now if you <em>Command-click</em> on the same <code>if</code> keyword, you’ll see a context menu pop up with various actions you can take:
+</p><div class="image-85"><img src="graphics/img37.png"  alt="" title="" /></div>
+<p>You don’t need to add an <code>else-if</code> statement right now, but click on the <em>Add “else if” Statement</em> option anyway, just to see what Xcode does. Then press <em>Command-Z</em> to undo.
+</p>
+<p>For another example, locate the following method:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">flashBackground</span><span class="hljs-params">(of view: UIView,
+                             withColor color: UIColor)</span></span> {</pre>
+<p>You’ll get different options depending whether you click the <code>func</code> keyword instead of the method name itself. <em>Command-click</em> on <code>func</code>:
+</p><div class="image-95"><img src="graphics/img38.png"  alt="" title="" /></div>
+<p>Now <em>Command-click</em> on the <code>flashBackground</code> method name and note that you don’t see the <em>Fold</em>, <em>Add Parameter</em> or <em>Add Return Type</em> options.
+</p>
+<p>And if you <em>Command-click</em> on <code>private</code>, the actions menu won’t appear at all.
+</p>
+<p>If you like keyboard shortcuts, you can use <em>Command-Shift-A</em> to bring up the actions menu based on the position of your text cursor. Click on <code>func</code> to position your cursor on it and press <em>Command-Shift-A</em> to try it out.
+</p>
+<h3 class="segment-chapter">Where’s my “jump to definition” shortcut?</h3>
+
+<p>Over the years you’ve become used to <em>Command-clicking</em> to jump to the declaration of a variable or method, but now the new actions menu has hijacked that shortcut! Of course, you can choose <em>Jump to Definition</em> from the menu, but you’d still prefer to do it without the extra step.
+</p>
+<p>You can jump directly if you hold down Control while Command-clicking: <em>Control-Command-click</em>. And since Control-clicking is the same as right-clicking, you can also use <em>Command-right-click</em>. And while we’re on the topic, the keyboard shortcut is <em>Control-Command-J</em>. The J is for “Just Jump already!”
+</p>
+<h3 class="segment-chapter">I want my Command-click shortcut back!</h3>
+
+<p>If you’re still not satisfied with the above options, there is a preference that you can set to go back to the previous behavior of just Command-clicking.
+</p>
+<p>In the Preferences dialog on the <em>Navigation</em> tab, you’ll see a dropdown for <em>Command-click on Code</em>. From there, you can select the <em>Jumps to Definition</em> option:
+</p><div class="image-90"><img src="graphics/img39.png"  alt="" title="" /></div><div class="image-90"><img src="graphics/img40.png"  alt="" title="" /></div>
+<p>If you select this option, you can use <em>Command-right-click</em> for the actions menu.
+</p>
+<h3 class="segment-chapter">Refactoring is back</h3>
+
+<p>Refactoring is back, and it’s better than ever! It’s been a long wait, but you’ll love how smooth and fast refactoring is now.
+</p>
+<p>You’ll use this shiny new functionality to rename a class. Towards the top of <code>CaloriesInputViewController</code>, locate the following line:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> fruitsTableViewController:
+  <span class="hljs-type">FruitsDisplayTableViewController</span>!</pre>
+<p>The word “Display” in <code>FruitsDisplayTableViewController</code> feels superfluous, so you’ll remove it. <em>Command-click</em> on <code>FruitsDisplayTableViewController</code> and select <em>Rename</em>. Xcode will then show anywhere the class is used including in <code>Main.storyboard</code>:
+</p><div class="image-95"><img src="graphics/img41.png"  alt="" title="" /></div>
+<p>Rename the class to <em>FruitsTableViewController</em> and press <em>Enter</em>. And with that, you’re done! Even the filename has been renamed.
+</p>
+<p>If you just want to rename a local variable you can use the same steps, but it’s faster to use the <em>Edit All in Scope</em> option. The shortcut for <em>Edit All in Scope</em> is <em>Command-Control-E</em>. There isn’t a shortcut for <em>Rename</em>, but you can set a custom one in Preferences.
+</p>
+<h3 class="segment-chapter">New fix-its</h3>
+
+<p>When implementing a protocol, wouldn’t it be nice if Xcode could insert the required methods for you? Now it can!
+</p>
+<p>Open <em>SettingsTableViewController.swift</em> and locate the following line in <code>textFieldEditingDidEnd</code>:
+</p><pre class="code-block"><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> index = <span class="hljs-type">FruitStore</span>.fruits.index(
+  <span class="hljs-keyword">where</span>: { $<span class="hljs-number">0</span>.name == fruit.name }) {</pre>
+<p>Wouldn’t it be nice if you could write it in the following way?
+</p><pre class="code-block"><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> index = <span class="hljs-type">FruitStore</span>.fruits.index(of: fruit) {</pre>
+<p>Replace it with the shorter version and note the compiler error:
+</p><pre class="code-block">Cannot invoke &apos;index&apos; with an argument list of type &apos;(of: Fruit)&apos;</pre>
+<p>This is because <code>Fruit</code> does not yet implement <code>Equatable</code>. No problem, you’ll go ahead and add it.
+</p>
+<p>Open <em>Fruit.swift</em>, and at the very bottom of the file add the following extension:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Fruit</span>: <span class="hljs-title">Equatable</span> </span>{
+
+}</pre>
+<p>You’ll now see the following compile error:
+</p><pre class="code-block">Type &apos;Fruit&apos; does not conform to protocol &apos;Equatable&apos;</pre>
+<p>Note that there is a small dot to the left of the error. That’s an indication that this includes a fix-it, otherwise, it would have been a tiny exclamation point.
+</p>
+<p>Click on the red dot and you’ll see Xcode’s offer to add the protocol stub for you:
+</p><div class="image-95"><img src="graphics/img42.png"  alt="" title="" /></div>
+<p>Click on <em>Fix</em> and Xcode will enter the method signature for you.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Fruit</span>: <span class="hljs-title">Equatable</span> </span>{
+  <span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> ==<span class="hljs-params">(lhs: Fruit, rhs: Fruit)</span></span> -&gt; <span class="hljs-type">Bool</span> {
+    [code]
+  }
+}</pre>
+<p>Replace the <em>code</em> placeholder with the following:
+</p><pre class="code-block"><span class="hljs-keyword">return</span> lhs.name == rhs.name</pre>
+<p>You should end up with the following:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Fruit</span>: <span class="hljs-title">Equatable</span> </span>{
+  <span class="hljs-keyword">static</span> <span class="hljs-function"><span class="hljs-keyword">func</span> ==<span class="hljs-params">(lhs: Fruit, rhs: Fruit)</span></span> -&gt; <span class="hljs-type">Bool</span> {
+    <span class="hljs-keyword">return</span> lhs.name == rhs.name
+  }
+}</pre>
+<p>And you’re done! The code will now compile successfully.
+</p>
+<p>There are many other new fix-its as well, such as adding missing overrides, adding remaining case statements and many more.
+</p>
+<h3 class="segment-chapter">Parentheses and quoting around selection</h3>
+
+<p>Sometimes you’d like to enclose a boolean condition in parentheses for readability.
+</p>
+<p>Open <em>FruitsInputViewController</em> and locate the following line:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> containWord = countTextField.text == <span class="hljs-string">"1"</span> ?
+  <span class="hljs-string">"Contains"</span> : <span class="hljs-string">"Contain"</span></pre>
+<p>Select <code>countTextField.text == &quot;1&quot;</code> with your mouse and type an opening parenthesis <em>(</em> on the keyboard. In previous versions of Xcode, this would have replaced the highlighted text with an open parenthesis, but now it encloses the selected text within a pair of parentheses for you. This behavior also works with square brackets and quotes, such as <em>[</em> and <em>&quot;</em>.
+</p>
+<h3 class="segment-chapter">Command +/-</h3>
+
+<p>The ⌘+ and ⌘- shortcuts are almost universal in macOS applications to either Zoom in or out, or to increase or decrease the font size. However, support for this has been lacking in Xcode... until now! No longer do you have to go into preferences to change your font size.
+</p>
+<p>Try it out! When you’re done being mesmerized, use <em>Control-Command-0</em> to reset.
+</p><div class="image-20"><img src="graphics/img43.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Code folding</h3>
+
+<p>Did you miss being able to fold methods and comments in Swift? The wait is over! Position your cursor within a method and press <em>Command-Option-Left</em> to collapse it.
+</p>
+<p>You can also collapse comments. Press <em>Command-Up</em> to move your cursor to the top of the file, then press <em>Command-Option-Left</em> to collapse the copyright text.
+</p><div class="image-75"><img src="graphics/img44.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">New editor options</h3>
+
+<p>You can now adjust the line spacing in the <em>Fonts </em><em>&amp;</em><em> Colors</em> tab of preferences:
+</p><div class="image-95"><img src="graphics/img45.png"  alt="" title="Choose between Tight, Normal and Relaxed" /></div>
+<p>The Tight Spacing option in Xcode 9 is still more relaxed than the default spacing in Xcode 8. With the Tight Spacing option, you’re able to see approximately 96 lines in the editor, whereas in Xcode 8 you would have seen 104 in the same amount of space. Since you’re wondering, it’s 84 lines with Normal Spacing, and 75 with Relaxed.
+</p>
+<p>You can also update the cursor to an <em>Underline Cursor</em> or a <em>Block Cursor</em> in case you’re an eccentric:
+</p><div class="image-95"><img src="graphics/img46.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Trailing newlines by default</h3>
+
+<p>You’ll never again forget to include the trailing newline, as Xcode now adds one by default. In fact, you can’t even delete the last newline. Try it!
+</p>
+<p>You can close the ApplesToOranges project for now, but leave Xcode open. Next, you’ll learn about GitHub integration and the new source control navigator.
+</p>
+<h2 class="segment-chapter">Source control improvements</h2>
+
+<p>Xcode 9 brings GitHub account integration and a new source control navigator. You can search for and clone GitHub projects without leaving Xcode. You can also create branches, merge branches and push code to GitHub all from within Xcode.
+</p>
+<h3 class="segment-chapter">GitHub account integration</h3>
+
+<p>If you haven’t yet added your GitHub account to Xcode, do this now since you’ll be using it to clone a GitHub repository from within Xcode.
+</p>
+<p>Open Preferences and go to the <em>Accounts</em> tab. Click on the <em>+</em> button at the bottom left, then select <em>GitHub</em> and click on <em>Continue</em>. Enter your login credentials and click <em>Sign In</em>. Close Preferences once you’re done.
+</p><div class="image-50"><img src="graphics/img47.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Clone a repository</h3>
+
+<p>In Xcode’s menu bar, click on <em>Source Control</em> and select <em>Clone...</em>. In the search bar, enter <em>alamofire</em> and select the first result that comes up:
+</p><div class="image-95"><img src="graphics/img48.png"  alt="" title="" /></div>
+<p>From this view, you can also star a repository, as well as view the README file.
+</p>
+<p>With the first result selected, click <em>Clone</em>. Select a directory to save it to and click <em>Clone</em>. Now press <em>Command-2</em> to open up the new <em>source control navigator</em>. Select the <em>master</em> branch and you’ll see the commits for the master branch in the main editor:
+</p><div class="image-95"><img src="graphics/img49.png"  alt="" title="" /></div>
+<p>While you can <em>Double-click</em> on any commit to view the changes for that commit, it’s nicer to view the changes in the assistant editor. Hold down <em>Option</em> and <em>Double-click</em> on a commit to open it up in the assistant editor:
+</p><div class="image-95"><img src="graphics/img50.png"  alt="" title="" /></div>
+<p>You can select different commits in the main editor and the details will show up in the assistant editor. If the assistant editor doesn’t automatically update, you might have to change the mode of the assistant editor from <em>Manual</em> to <em>Commit</em>:
+</p><div class="image-50"><img src="graphics/img51.png"  alt="" title="" /></div>
+<p>When you’re done browsing, use <em>Command-Enter</em> to close the assistant editor.
+</p>
+<h3 class="segment-chapter">Searching and filtering</h3>
+
+<p>You can search for and filter commits in various ways such as <em>Last 24 Hours</em>, <em>Last 7 Days</em> or <em>Last 30 Days</em>. You can also filter by author, commit message or revision.
+</p>
+<p>Type <em>changelog</em> in the search field. As you type, you’ll see that you can select the <em>Message:</em> or <em>Author:</em> prefix to limit the scope of the search.
+</p><div class="image-35"><img src="graphics/img52.png"  alt="" title="" /></div>
+<p>For now, simply press <em>Enter</em>, which will search both. You can modify the scope later by clicking on the <em>ALL</em> dropdown and selecting <em>Message</em>, <em>Author</em> or <em>Revision</em>:
+</p><div class="image-35"><img src="graphics/img53.png"  alt="" title="" /></div>
+<p>Next, you’ll search by a SHA. Right-click on any commit and select <em>Copy Identifier</em>:
+</p><div class="image-50"><img src="graphics/img54.png"  alt="" title="" /></div>
+<p>Clear the existing search text and paste the copied SHA into the search field. In the search results, you’ll only see the commit with that revision.
+</p>
+<p>Note that when searching by revision, Xcode will only search from the beginning of the SHA. This isn’t the case with message and author search where you can start from the middle, so if you type <em>“angelog”</em> you’ll still see results for <em>changelog</em>. However, fuzzy search won’t work in this case, so typing <em>chalog</em> won’t yield any results.
+</p>
+<p>One handy option to note in the right-click context menu is the <em>View on GitHub...</em> option, which will open that specific commit on github.com in your default browser.
+</p>
+<h3 class="segment-chapter">Branching and merging</h3>
+
+<p>You’ll now make a minor “throwaway” update to <em>README.md</em> on a branch, and then you’ll merge that branch into master — right from within Xcode.
+</p>
+<p>Right-click on <em>master</em> and select <em>Branch from “master”...</em>:
+</p><div class="image-90"><img src="graphics/img55.png"  alt="" title="" /></div>
+<p>Enter <em>readme-update</em> for the name and click <em>Create</em>. Xcode will also check out the newly created branch for you. Use <em>Command-Shift-O</em> to open the <em>Open Quickly</em> search, and type in <em>readme</em>. Hit <em>Enter</em> to open up README.md.
+</p>
+<p>Anywhere in the file, type in <em># Test Heading</em> on a line by itself:
+</p><div class="image-95"><img src="graphics/img56.png"  alt="" title="" /></div>
+<p>Select <em>Source Control</em><em>\</em><em>Commit...</em>. Type <em>Test commit</em> for the message.
+</p><div class="image-80"><img src="graphics/img57.png"  alt="" title="" /></div>
+<p>Next, select the <em>readme-update</em> branch in the Source Control navigator and you should see your latest commit at the top.
+</p>
+<p>Now you’ll merge this branch into <em>master</em>. Right-click on the <em>master</em> branch and select <em>Merge “readme-update” into “master”...</em>:
+</p><div class="image-85"><img src="graphics/img58.png"  alt="" title="" /></div>
+<p>Click on <em>Merge</em> on the confirmation prompt, and click on <em>Merge</em> on the next view as well. Xcode has also switched you back to the <em>master</em> branch, so now you can <em>Right-click</em> on the <em>readme-update</em> branch and select <em>Delete</em>.
+</p>
+<p>That’s all for the new GitHub integration and source control features. For more on using Xcode’s integrated Git support, check out our “How To Use Git Source Control with Xcode 9” tutorial at <a href="https://www.raywenderlich.com/153084/">raywenderlich.com</a>. Close the cloned Xcode project, and re-open the <em>ApplesToOranges</em> project.
+</p>
+<h2 class="segment-chapter">Breakpoint improvements</h2>
+
+<p>Xcode 9 makes it much easier to use edited breakpoints. Edited breakpoints show a modified breakpoint symbol, code completion works in breakpoint text fields and you can search for breakpoints based on the text of the conditions you’ve set.
+</p>
+<h3 class="segment-chapter">Editing breakpoints</h3>
+
+<p>First, you’ll introduce a bug. Instead of using the local <code>fruits</code> variable, which contains alphabetically sorted fruits, you’ll use <code>FruitStore.fruits</code>. Open <em>FruitsInputViewController.swift</em> and change the following line in <code>reloadData()</code>:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> selectedFruit = fruits[selectedRow]</pre>
+<p>To the following:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> selectedFruit = <span class="hljs-type">FruitStore</span>.fruits[selectedRow]</pre>
+<p>Build and run <em>ApplesToOranges</em>. Coincidentally, Bananas are at the same index in both arrays so the initial view is correct. In the picker view, select apples. Note that it shows 5 apples as equal to 24.4 apples in the table view, which seems fishy.
+</p>
+<p>You’d like to diagnose the issue without building and running the app again. In <code>reloadData()</code>, add a breakpoint on the <code>let totalCalories</code> line since you want to inspect <code>selectedFruit</code> after it’s been set.
+</p>
+<p><em>Right-click</em> on the breakpoint, and select <em>Edit Breakpoint</em>. Leave <em>Condition</em> blank, and click on <em>Add Action</em>. In the dropdown, select <em>Debugger Command</em> and type <code>po selectedFruit</code>. Did you note the new autocomplete functionality? Now type a single period, and select <em>name</em> in the autocomplete dropdown. Finally, add a checkmark to <em>Automatically continue after evaluating actions</em>:
+</p><div class="image-80"><img src="graphics/img59.png"  alt="" title="" /></div>
+<p>Click outside the window to exit the breakpoint editor, and note that the breakpoint now has a small white triangle within in, indicating that it has been edited.
+</p>
+<p>Hover your mouse over the breakpoint, and you’ll see that it says <em>This breakpoint has an action and will automatically continue</em>:
+</p><div class="image-50"><img src="graphics/img60.png"  alt="" title="" /></div>
+<p>Back in the simulator, select Bananas from the picker and you’ll see “Banana” printed to the console. But when you select Apples, you’ll see “Pineapple” printed!
+</p><div class="image-60"><img src="graphics/img61.png"  alt="" title="" /></div>
+<p>Fixing this bug is left as an exercise for the reader. :]
+</p>
+<h3 class="segment-chapter">Searching breakpoints</h3>
+
+<p>You can now filter breakpoints by the text you’ve entered into any of its text fields. Add a breakpoint on the line above the existing breakpoint, just so that you have another breakpoint to filter against.
+</p>
+<p>Select the breakpoint navigator (<em>⌘8</em>) and click in the <em>Filter</em> field at the bottom. Type in <em>selected</em> and note that you can only see the edited breakpoint. Delete <em>selected</em> and you’ll see both of them.
+</p>
+<p>You can also use the tiny filter buttons at the bottom to show only modified or active breakpoints:
+</p><div class="image-35"><img src="graphics/img62.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Folder and group synchrony</h2>
+
+<p>If you like to keep your folders and groups in sync, you’re going to love this change. In Xcode 9, moving a file from one Xcode group to another Xcode group will also physically move it to that folder as well!
+</p>
+<p>Open a Finder window and navigate to the <em>ApplesToOranges</em> directory. Ensure that you see the folders in list view, and expand the <em>Models</em> and <em>Views</em> folders.
+</p><div class="image-65"><img src="graphics/img63.png"  alt="" title="" /></div>
+<p>In Xcode, move <em>FruitStore.swift</em> to the <em>Views</em> group and note that the file has also moved in the Finder. Move it back and you’ll see the same happen in the Finder as well.
+</p>
+<p>Next, you’ll create a new group. Select <em>AppDelegate.swift</em>, right-click on it, and select <em>New Group from Selection</em>. Name the group <em>App Delegate</em> and note that the directory also shows up in Finder.
+</p>
+<p>On second thought, remove the space to make the group name <em>AppDelegate</em> and note that the folder is renamed in the finder window as well.
+</p>
+<h2 class="segment-chapter">Improved view debugger</h2>
+
+<p>The view debugger has been greatly improved in Xcode 9. Along with the view hierarchy, it will also show View Controllers within the hierarchy. This is especially useful when getting up to speed on a new project in order to find out what view controller is being displayed.
+</p>
+<p>With the app running click on the <em>Debug View Hierarchy</em> button:
+</p><div class="image-25"><img src="graphics/img64.png"  alt="" title="" /></div>
+<p>Note the various view controllers within the debug navigator. You can also inspect a view controller’s properties in the <em>Object Inspector</em> (⌥⌘3) pane on the right.
+</p><div class="image-95"><img src="graphics/img65.png"  alt="" title="" /></div>
+<p>You can now also debug SpriteKit and SceneKit scenes with the view debugger as well.
+</p>
+<h2 class="segment-chapter">Runtime issues checker</h2>
+
+<p>Xcode 8 already contained two runtime issue checkers: <em>Address Sanitizer</em> and <em>Thread Sanitizer</em>. Xcode 9 adds two more, <em>Undefined Behavior Sanitizer</em> which can check for various issues in C-based languages, and <em>Main Thread Checker</em>, which will make sure that you don’t have UI-updating code on a background thread. The Main Thread Checker has negligible overhead and is therefore turned on by default.
+</p>
+<p>Of course, you would <i>never</i> make this mistake yourself, but you’d still like to see the <em>Main Thread Checker</em> in action. Open <em>FruitSettingsCell.swift</em> and wrap the first line in the <code>configure</code> method in a <code>DispatchQueue.global().async</code> call so that you have the following:
+</p><pre class="code-block"><span class="hljs-type">DispatchQueue</span>.global().async {
+  <span class="hljs-keyword">self</span>.fruitNameLabel.text = <span class="hljs-string">"<span class="hljs-subst">\(fruit.emojiChar)</span> <span class="hljs-subst">\(fruit.name)</span>"</span>
+}</pre>
+<p>Build and run the app. Note that there are no warnings when the app starts. Navigate to the Settings tab and note that the runtime warning appears:
+</p><div class="image-95"><img src="graphics/img66.png"  alt="" title="" /></div>
+<p>You can also turn on the option to pause on runtime issues in the scheme editor.
+</p><div class="image-95"><img src="graphics/img67.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Simulator improvements</h2>
+
+<p>Xcode 9 brings many improvements to the simulator. You’ve already seen the shiny new bezel, but it’s not all for looks: the volume, power and ringer buttons on the bezel are functional as well. You also scale the simulator to any size by dragging any one of its corners.
+</p>
+<p>You can now also have more than one iOS Simulator running. If you build and run to a new simulator, the previous simulator will remain open. This can be useful if you’d like to run the app side-by-side on two different simulators, and can also speed up testing if you’d like to run your tests on more than one simulator.
+</p>
+<p>The simulator now also supports face-up and face-down orientations on supported devices.
+</p>
+<h2 class="segment-chapter">Xcode Server</h2>
+
+<p>Xcode now allows you to run bots on macOS without the need for a separate Xcode server. In Preferences, there is a new <em>Server </em><em>&amp;</em><em> Bots</em> tab that you can use to turn on to use various integration bots.
+</p><div class="image-90"><img src="graphics/img68.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Wireless development</h2>
+
+<p>You can now build and run to your device wirelessly. Go to <em>Devices and Simulators</em> in the <em>Window</em> menu <em>(⇧⌘2)</em>. Plug in your device and enable <em>Connect via network</em>.
+</p><div class="image-90"><img src="graphics/img69.png"  alt="" title="Enable the Connect via network option" /></div>
+<p>As long as you’re on the same Wi-Fi network, you won’t need to plug your phone in to build to it.
+</p>
+<h2 class="segment-chapter">New build system</h2>
+
+<p>Xcode 9 includes a new build system written in Swift. It improves performance and catches many project configuration problems that the current build system does not catch. It’s currently opt-in, but will become the default in a future version of Xcode.
+</p>
+<p>To enable the build system, go to <em>File</em><em>\</em><em>Project Settings</em>. In the first dropdown, choose <em>New Build System (Preview)</em> and select <em>Done</em>.
+</p><div class="image-65"><img src="graphics/img70.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>In this chapter, you’ve learned about the great new features in Xcode 9.
+</p>
+<p>Here are a few WWDC sessions that are quite relevant to your interests as a developer in Xcode 9:
+</p>
+<ul>
+<li>
+<p>Session 404: Debugging with Xcode 9 <a href="https://developer.apple.com/videos/play/wwdc2017/404/">apple.co/2wlqhOH</a>
+</p></li>
+
+<li>
+<p>Session 401: Localizing with Xcode 9 <a href="https://developer.apple.com/videos/play/wwdc2017/401/">apple.co/2uynlMw</a>
+</p></li>
+
+<li>
+<p>Session 406: Finding Bugs Using Xcode Runtime Tools <a href="https://developer.apple.com/videos/play/wwdc2017/406/">apple.co/2wllzk5</a>
+</p></li>
+
+<li>
+<p>Session 405: GitHub and the New Source Control Workflows in Xcode 9
+</p></li>
+</ul>
+
+<p><a href="https://developer.apple.com/videos/play/wwdc2017/405/">apple.co/2ufYWMk</a>
+</p></body></html>

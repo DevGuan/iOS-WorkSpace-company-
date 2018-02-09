@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 1: What’s New in Swift 4</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">What’s New in Swift 4</h1>
+
+<p>If last year’s changes for Swift 3 still cause you uncontrollable night terrors, you’re in for a pleasant surprise with Swift 4. By comparison, the changes in Swift 4 are much more modest and even bring back some old capabilities, in new and improved form. Even better, you don’t have to update right away!
+</p><div class="image-30"><img src="graphics/img19.png"  alt="" title="" /></div>
+<p>The Swift 4 compiler integrated into Xcode 9 has a “Swift 3.2” mode. This is not a separate compiler, but a mode that allows you to continue building your Swift 3 sources so you can update to Swift 4 on your schedule. Your favorite CocoaPod has not yet been updated? No problem. You can select your Swift language version on a per-target basis in your project, so you can mix Swift 3 and Swift 4 targets in the same project.
+</p>
+<div class="note">
+<p><em>Note</em>: Since Swift is an open source project, each change must go through the “Swift Evolution” process. This process involves the Swift Community working together to propose, discuss and review new ideas to help improve the language. Each proposal is numbered and made publicly available at <a href="https://github.com/apple/swift-evolution/tree/master/proposals">https://github.com/apple/swift-evolution/tree/master/proposals</a>.
+</p></div>
+
+<div class="note">
+<p>At the the beginning of each section in this chapter is the number(s) of the proposal(s) that instigated the changes — just in case you’re interested in the gory details.
+</p></div>
+
+<h2 class="segment-chapter">One-sided ranges</h2>
+
+<p><em>[</em><em>SE-0172</em><em>]</em>
+</p>
+<p>Swift 4 introduces <code>RangeExpression</code>, a new protocol to simplify how ranges can be described. It’s adopted by a number of other protocols to enable the creation of new prefix and postfix operators. As a result, you can omit the upper or lower bound of a range specification to create a one-sided range.
+</p>
+<p>This can be really useful when you want to extract the beginning or ending of a collection.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> esports = [<span class="hljs-string">"Hearthstone"</span>, <span class="hljs-string">"CS:GO"</span>, <span class="hljs-string">"League of Legends"</span>, 
+               <span class="hljs-string">"Super Smash Bros"</span>, <span class="hljs-string">"Overwatch"</span>, <span class="hljs-string">"Gigantic"</span>]
+                  
+esports[<span class="hljs-number">3</span>...]
+<span class="hljs-comment">// returns ["Super Smash Bros", "Overwatch", "Gigantic"]</span>
+
+<span class="hljs-comment">// In Swift 3, you had to write</span>
+esports[<span class="hljs-number">3</span>..&lt;esports.endIndex]
+
+esports[...<span class="hljs-number">2</span>]
+<span class="hljs-comment">// returns ["Hearthstone", "CS:GO", "League of Legends"]</span>
+
+esports[..&lt;<span class="hljs-number">2</span>]
+<span class="hljs-comment">// returns ["Hearthstone", "CS:GO"]</span></pre>
+<h3 class="segment-chapter">Infinite sequences</h3>
+
+<p>A one-sided range can be used to create an infinite sequence, one where only the beginning is defined. For example, you can build an array of tuples matching the decimal ASCII code of a character with the character itself.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> uppercase = [<span class="hljs-string">"A"</span>, <span class="hljs-string">"B"</span>, <span class="hljs-string">"C"</span>, <span class="hljs-string">"D"</span>]
+<span class="hljs-keyword">let</span> asciiCodes = <span class="hljs-built_in">zip</span>(<span class="hljs-number">65</span>..., uppercase)
+<span class="hljs-built_in">print</span>(<span class="hljs-type">Array</span>(asciiCodes))
+<span class="hljs-comment">// prints [(65, "A"), (66, "B"), (67, "C"), (68, "D")]</span></pre>
+<h3 class="segment-chapter">Pattern matching</h3>
+
+<p>A one-sided range can greatly simplify the patterns for a <code>switch</code> statement.
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gameRank</span><span class="hljs-params">(<span class="hljs-number">_</span> index: Int)</span></span> -&gt; <span class="hljs-type">String</span> {
+  <span class="hljs-keyword">switch</span> index {
+  <span class="hljs-keyword">case</span> ...<span class="hljs-number">1</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Oldie but goodie"</span>
+  <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>...:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Meh"</span>
+  <span class="hljs-keyword">default</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Awesome-sauce!"</span>
+  }
+}
+
+gameRank(<span class="hljs-number">2</span>) 
+<span class="hljs-comment">// prints "Awesome-sauce!"</span></pre>
+<p>The switch expression need not be an <code>Int</code>.
+</p><pre class="code-block"><span class="hljs-comment">/// Produce an emoji based on a numeric value</span>
+<span class="hljs-comment">/// - parameter rating: a value between 0 and 1</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sentiment</span><span class="hljs-params">(<span class="hljs-number">_</span> rating: Double)</span></span> -&gt; <span class="hljs-type">String</span> {
+  <span class="hljs-keyword">switch</span> rating {
+  <span class="hljs-keyword">case</span> ..&lt;<span class="hljs-number">0.33</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"😞"</span>
+  <span class="hljs-keyword">case</span> ..&lt;<span class="hljs-number">0.66</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"😐"</span>
+  <span class="hljs-keyword">default</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"😁"</span>
+  }
+}
+
+sentiment(<span class="hljs-number">0.5</span>) 
+<span class="hljs-comment">// returns 😐</span></pre>
+<h2 class="segment-chapter">Strings</h2>
+
+<p><em>[</em><em>SE-0162, SE-0168, SE-0178, SE-0182, SE-0183</em><em>]</em>
+</p>
+<p>Strings received a lot of love in Swift 4, and all of that attention made them more powerful and easier to use. The most significant change is that <code>String</code>s are now <code>Collection</code>s, like they were in Swift 1. This means that all the fancy things that a <code>Collection</code> can do, a <code>String</code> can do too!
+</p><pre class="code-block"><span class="hljs-keyword">let</span> text = <span class="hljs-string">"Hakuna Matata"</span>
+<span class="hljs-keyword">let</span> unicodeText = <span class="hljs-string">"👇🏿👏🏻🤝🇦🇹🇧🇿🇧🇹🇫🇯🇧🇷"</span>
+
+text.<span class="hljs-built_in">count</span>      <span class="hljs-comment">// 13</span>
+text.isEmpty    <span class="hljs-comment">// false</span>
+<span class="hljs-string">""</span>.isEmpty      <span class="hljs-comment">// true</span>
+
+<span class="hljs-comment">// `reversed()` returns a `ReversedCollection&lt;String&gt;` so</span>
+<span class="hljs-comment">// it must be converted back to `String`</span>
+<span class="hljs-type">String</span>(text.reversed()) 
+<span class="hljs-comment">// "atataM anukaH"</span></pre>
+<p>It’s easy to iterate through each character in a string, and it works properly for Unicode characters as well.
+</p><pre class="code-block"><span class="hljs-keyword">for</span> <span class="hljs-built_in">c</span> <span class="hljs-keyword">in</span> unicodeText {
+  <span class="hljs-built_in">print</span>(<span class="hljs-built_in">c</span>) <span class="hljs-comment">// prints each of 8 characters, one to a line</span>
+}</pre>
+<p>String subscripts are not primitive types such as <code>Int</code>. Instead, they must be either a <code>String.Index</code> or <code>Range&lt;String.Index&gt;</code>.
+</p><pre class="code-block"><span class="hljs-keyword">var</span> index = text.index(text.startIndex, offsetBy: <span class="hljs-number">7</span>)
+text[index]
+<span class="hljs-comment">// "M"</span>
+
+<span class="hljs-comment">// You can use prefix(upTo:) and suffix(from:) </span>
+<span class="hljs-comment">// but why not use one-sided ranges instead</span>
+
+<span class="hljs-keyword">let</span> lastWord = text[index...]
+<span class="hljs-comment">// lastWord is "Matata"</span>
+
+index = text.index(text.endIndex, offsetBy: -<span class="hljs-number">7</span>)
+<span class="hljs-keyword">let</span> firstWord = text[..&lt;index]
+<span class="hljs-comment">// firstWord is "Hakuna"</span></pre>
+<h3 class="segment-chapter">Introducing Substring</h3>
+
+<p>Swift tries to be efficient when managing the buffers associated with strings. As such, subscripting operations return a view of portion of the original string’s buffer, incrementing that buffer’s reference count. Depending on the application and its data, this has the potential to keep large, unused portions of strings in memory. While this technically isn’t a memory leak, it will look, smell and quack a lot like one.
+</p>
+<p>The Swift standard library solves this by introducing a new type: <code>Substring</code>, returned by string subscripting operations. Most APIs will continue to use <code>String</code> parameters and you must explicitly create a new <code>String</code> from the <code>Substring</code> to use them. This allows the original, larger string to go out-of-scope naturally and be deallocated.
+</p>
+<p>This is not as unpleasant as it first may seem, because the standard library also introduces a new protocol: <code>StringProtocol</code>. Most of the String API is moved into <code>StringProtocol</code>, and both <code>String</code> and <code>Substring</code> conform to this new protocol.
+</p><pre class="code-block">type(of: lastWord)
+<span class="hljs-comment">// Substring.Type</span>
+
+lastWord.uppercased()
+<span class="hljs-comment">// "MATATA"</span>
+
+<span class="hljs-keyword">let</span> lastWordAsString = <span class="hljs-type">String</span>(lastWord)
+type(of: lastWordAsString)
+<span class="hljs-comment">// String.Type</span></pre>
+<div class="note">
+<p><em>Note</em>: Option-clicking a variable name such as <code>lastWord</code> in Xcode to see its type will get the answer <code>String.Subsequence</code>. This is simply a <code>typealias</code> for <code>Substring</code>. <code>type(of: lastWord)</code> does, in fact, return <code>Substring.Type</code>.
+</p></div>
+
+<h3 class="segment-chapter">Unicode magic</h3>
+
+<p>If you wanted to access the individual Unicode values of a <code>Character</code> in Swift 3, you first had to convert it to <code>String</code>. Now, <code>Character</code> has a <code>unicodeScalars</code> property.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> <span class="hljs-built_in">c</span>: <span class="hljs-type">Character</span> = <span class="hljs-string">"🇨🇭"</span>
+<span class="hljs-type">Array</span>(<span class="hljs-built_in">c</span>.unicodeScalars)
+<span class="hljs-comment">// [127464, 127469]</span></pre>
+<p>Swift 3 didn’t like any of the following expressions, giving the wrong answer in each case. Swift 4, on the other hand, handles them correctly, giving the expected length based on what you see rather than what’s required to encode it.
+</p><pre class="code-block"><span class="hljs-string">"🇧🇿🇫🇯🇧🇷"</span>.<span class="hljs-built_in">count</span>    <span class="hljs-comment">// 3</span>
+<span class="hljs-string">"👇🏿"</span>.<span class="hljs-built_in">count</span>        <span class="hljs-comment">// 1</span>
+<span class="hljs-string">"👏🏻"</span>.<span class="hljs-built_in">count</span>        <span class="hljs-comment">// 1</span>
+<span class="hljs-string">"🇦🇹"</span>.<span class="hljs-built_in">count</span>        <span class="hljs-comment">// 1</span></pre>
+<p>And, as you saw earlier, iterating through a string shows each Unicode character correctly.
+</p>
+<h3 class="segment-chapter">Converting between <code>Range&lt;String.Index&gt;</code> and <code>NSRange</code></h3>
+
+<p>The range of a Swift string is described by <code>Range&lt;String.Index&gt;</code>. Many Foundation APIs (e.g., <code>NSRegularExpression</code>, <code>NSAttributedString</code>, <code>NSLinguisticTagger</code>) require <code>NSRange</code> instead.
+</p>
+<p>Foundation now includes new initializers on both <code>NSRange</code> and <code>Range&lt;String.Index&gt;</code>, which makes converting between the two a breeze. It’s no longer necessary to muck around with UTF-16 offsets and views.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> population = <span class="hljs-string">"1️⃣👩🏽‍🌾2️⃣🐓3️⃣👨‍👩‍👧‍👦"</span>
+population.<span class="hljs-built_in">count</span>
+<span class="hljs-comment">// 6</span>
+
+<span class="hljs-keyword">var</span> nsRange = <span class="hljs-type">NSRange</span>(population.startIndex..., 
+                      <span class="hljs-keyword">in</span>: population)
+<span class="hljs-comment">// population.startIndex... is a Range&lt;String.Index&gt;</span>
+<span class="hljs-comment">// (0, 29)</span>
+
+population.utf16.<span class="hljs-built_in">count</span>
+<span class="hljs-comment">// 29</span>
+
+<span class="hljs-keyword">let</span> display = <span class="hljs-type">NSMutableAttributedString</span>(
+        string: population, 
+        attributes: [.font: <span class="hljs-type">UIFont</span>.systemFont(ofSize: <span class="hljs-number">20</span>)])</pre>
+<p>As expected, the length of the <code>NSRange</code> matches the length of the UTF-16 view. <code>display</code> looks like this:
+</p><div class="image-30"><img src="graphics/img20.png"  alt="" title="" /></div><pre class="code-block"><span class="hljs-keyword">let</span> oneIndex = population.index(of: <span class="hljs-string">"1️⃣"</span>)!
+<span class="hljs-keyword">let</span> twoIndex = population.index(of: <span class="hljs-string">"2️⃣"</span>)!
+<span class="hljs-keyword">let</span> threeIndex = population.index(of: <span class="hljs-string">"3️⃣"</span>)!
+<span class="hljs-keyword">var</span> range = oneIndex..&lt;twoIndex
+nsRange = <span class="hljs-type">NSRange</span>(range, <span class="hljs-keyword">in</span>: population)
+display.addAttribute(.font, 
+                     value: <span class="hljs-type">UIFont</span>.systemFont(ofSize: <span class="hljs-number">40</span>), 
+                     range: nsRange)</pre>
+<p>The above finds the indices of each of the number badges, creates a range (<code>Range&lt;String.Index&gt;</code>) for the first part of the string and converts it to an <code>NSRange</code>. Then, it applies a new font attribute and now <code>display</code> looks like this:
+</p><div class="image-40"><img src="graphics/img21.png"  alt="" title="" /></div><pre class="code-block">range = twoIndex..&lt;threeIndex
+nsRange = <span class="hljs-type">NSRange</span>(range, <span class="hljs-keyword">in</span>: population)
+display.addAttribute(.font, 
+                     value: <span class="hljs-type">UIFont</span>.systemFont(ofSize: <span class="hljs-number">30</span>), 
+                     range: nsRange)</pre>
+<p>Next, this code makes the range represent the middle section of the string, converts it to <code>NSRange</code> and applies another new font attribute. Now <code>display</code> looks like this:
+</p><div class="image-40"><img src="graphics/img22.png"  alt="" title="" /></div>
+<p>It’s just as easy to go the other way and create a <code>Range&lt;String.Index&gt;</code> from an <code>NSRange</code>. Note that this initializer is failable, so the result is an optional.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> textInput = <span class="hljs-string">"You have traveled 483.2 miles."</span>
+<span class="hljs-keyword">let</span> pattern = <span class="hljs-string">"[0-9]+(\\.([0-9])?)?"</span>
+<span class="hljs-keyword">let</span> regex = <span class="hljs-keyword">try</span>! <span class="hljs-type">NSRegularExpression</span>(pattern: pattern, 
+                                     options: [])
+nsRange = <span class="hljs-type">NSRange</span>(textInput.startIndex..., <span class="hljs-keyword">in</span>: textInput)
+<span class="hljs-keyword">let</span> mileage = regex.rangeOfFirstMatch(<span class="hljs-keyword">in</span>: textInput, 
+                                      range: nsRange)
+range = <span class="hljs-type">Range</span>(mileage, <span class="hljs-keyword">in</span>: textInput)!
+textInput[range]
+<span class="hljs-comment">// "483.2"</span></pre>
+<div class="note">
+<p><em>Note</em>: These new initializers also make things like <code>UITextFieldDelegate</code>’s <code>textField(_:shouldChangeCharactersIn:replacementString:)</code> easier to write without the ugly cast to <code>NSString</code> that is so common in pre-iOS 11 code.
+</p></div>
+
+<h3 class="segment-chapter">Multi-line string literals</h3>
+
+<p>You can now create multi-line string literals, making it easy to produce precisely formatted output or to paste “pretty” inputs (e.g., JSON or HTML) directly into your source. String interpolation still works, and you can even escape newlines so that they’re not included in the resulting literal!
+</p>
+<p>The literal is delimited by &quot;&quot;&quot; and the indentation of the closing delimiter determines how much whitespace is stripped from the beginning of each line. You can use quotes in the literal without escaping them.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> firstVerse = <span class="hljs-string">""</span><span class="hljs-string">"
+  Half a league, half a league,
+    Half a league onward,
+  All in the valley of Death
+    Rode the six hundred.
+  "</span><span class="hljs-type">Forward</span>, the <span class="hljs-type">Light</span> <span class="hljs-type">Brigade</span>!
+  <span class="hljs-string">"Charge for the guns!"</span> he said:
+  <span class="hljs-type">Into</span> the valley of <span class="hljs-type">Death</span>
+    <span class="hljs-type">Rode</span> the six hundred.
+  <span class="hljs-string">""</span><span class="hljs-string">"</span></pre>
+<p><code>print(firstVerse)</code> results in:
+</p><div class="image-50"><img src="graphics/img23.png"  alt="" title="" /></div><pre class="code-block"><span class="hljs-keyword">let</span> details = <span class="hljs-string">""</span><span class="hljs-string">"
+  Note that the indentation of the
+    closing delimiter determines
+    the amount of whitespace removed.
+  You can insert <span class="hljs-subst">\(firstWord)</span> and \
+  <span class="hljs-subst">\(lastWord)</span> and escape newlines too!
+  "</span><span class="hljs-string">""</span></pre>
+<p><code>print(details)</code> looks like this:
+</p><div class="image-70"><img src="graphics/img24.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Dictionary enhancements</h2>
+
+<p><em>[</em><em>SE-0165</em><em>]</em>
+</p>
+<p>As a Swift programmer, you know how important <code>Dictionary</code> is to your daily life. Swift 4 brings a number of improvements to make it even more powerful, useful and usable.
+</p>
+<h3 class="segment-chapter">Sequence-based initializer</h3>
+
+<p>You can now create dictionaries from a sequence of key-value pairs. For example, you can create a numbered list of items.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> groceries = <span class="hljs-type">Dictionary</span>(uniqueKeysWithValues: <span class="hljs-built_in">zip</span>(
+  <span class="hljs-number">1</span>...,
+  [<span class="hljs-string">"Prosciutto"</span>, <span class="hljs-string">"Heavy Cream"</span>, <span class="hljs-string">"Butter"</span>, <span class="hljs-string">"Parmesan"</span>, 
+   <span class="hljs-string">"Small shells"</span>])
+)
+<span class="hljs-comment">// [5: "Small shells", 2: "Heavy Cream", 3: "Butter", </span>
+<span class="hljs-comment">//  1: "Prosciutto", 4: "Parmesan"]</span></pre>
+<p>Or, if you already have a stream of tuples:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> housePointTotals = [(<span class="hljs-string">"Slytherin"</span>, <span class="hljs-number">472</span>), 
+                        (<span class="hljs-string">"Ravenclaw"</span>, <span class="hljs-number">426</span>), 
+                        (<span class="hljs-string">"Hufflepuff"</span>, <span class="hljs-number">352</span>), 
+                        (<span class="hljs-string">"Gryffindor"</span>, <span class="hljs-number">312</span>)]
+<span class="hljs-keyword">let</span> banquetBegins = <span class="hljs-type">Dictionary</span>(
+      uniqueKeysWithValues: housePointTotals)
+<span class="hljs-comment">// ["Ravenclaw": 426, "Hufflepuff": 352, "Gryffindor": 312, </span>
+<span class="hljs-comment">//  "Slytherin": 472]</span></pre>
+<h3 class="segment-chapter">Merging</h3>
+
+<p><code>Dictionary</code> now includes an initializer that allows you to merge two dictionaries together. If you want to merge one dictionary into another, Swift also provides a <code>merge</code> method. Both allow you to specify a closure to resolve merge conflicts caused by duplicate keys.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> duplicates = [(<span class="hljs-string">"a"</span>, <span class="hljs-number">1</span>), (<span class="hljs-string">"b"</span>, <span class="hljs-number">2</span>), (<span class="hljs-string">"a"</span>, <span class="hljs-number">3</span>), (<span class="hljs-string">"b"</span>, <span class="hljs-number">4</span>)]
+<span class="hljs-keyword">let</span> oldest = <span class="hljs-type">Dictionary</span>(duplicates) { (current, <span class="hljs-number">_</span>) <span class="hljs-keyword">in</span>
+  current
+}
+<span class="hljs-comment">// ["b": 2, "a": 1]</span></pre>
+<p>You can take advantage of the closure to transform your input. Here’s a more powerful example that takes an array of key-value pairs and turns them into a dictionary of arrays:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> sortingHat = [
+  (<span class="hljs-string">"Gryffindor"</span>, <span class="hljs-string">"Harry Potter"</span>), (<span class="hljs-string">"Slytherin"</span>, <span class="hljs-string">"Draco Malfoy"</span>),
+  (<span class="hljs-string">"Gryffindor"</span>, <span class="hljs-string">"Ron Weasley"</span>), 
+  (<span class="hljs-string">"Slytherin"</span>, <span class="hljs-string">"Pansy Parkinson"</span>),
+  (<span class="hljs-string">"Gryffindor"</span>, <span class="hljs-string">"Hermione Granger"</span>), 
+  (<span class="hljs-string">"Hufflepuff"</span>, <span class="hljs-string">"Hannah Abbott"</span>),
+  (<span class="hljs-string">"Ravenclaw"</span>, <span class="hljs-string">"Terry Boot"</span>), (<span class="hljs-string">"Hufflepuff"</span>, <span class="hljs-string">"Susan Bones"</span>),
+  (<span class="hljs-string">"Ravenclaw"</span>, <span class="hljs-string">"Lisa Turpin"</span>), 
+  (<span class="hljs-string">"Gryffindor"</span>, <span class="hljs-string">"Neville Longbottom"</span>)
+]
+<span class="hljs-keyword">let</span> houses = <span class="hljs-type">Dictionary</span>(
+  sortingHat.<span class="hljs-built_in">map</span> { ($<span class="hljs-number">0.0</span>, [$<span class="hljs-number">0.1</span>]) },
+  uniquingKeysWith: { (current, new) <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">return</span> current + new
+})
+<span class="hljs-comment">// ["Ravenclaw": ["Terry Boot", "Lisa Turpin"],</span>
+<span class="hljs-comment">// "Hufflepuff": ["Hannah Abbott", "Susan Bones"],</span>
+<span class="hljs-comment">// "Slytherin": ["Draco Malfoy", "Pansy Parkinson"],</span>
+<span class="hljs-comment">// "Gryffindor": ["Harry Potter", "Ron Weasley",</span>
+<span class="hljs-comment">//                "Hermione Granger", "Neville Longbottom"]]</span></pre>
+<p>As you can see, you can do far more than just create a dictionary. Suppose you want to know how often each letter occurs in a string? Dictionary merging is on the case!
+</p><pre class="code-block"><span class="hljs-keyword">let</span> spell = <span class="hljs-string">"I solemnly swear I am up to no good"</span>
+<span class="hljs-keyword">var</span> frequencies: [<span class="hljs-type">Character</span>: <span class="hljs-type">Int</span>] = [:]
+<span class="hljs-keyword">let</span> baseCounts = <span class="hljs-built_in">zip</span>(
+  spell.<span class="hljs-built_in">filter</span> { $<span class="hljs-number">0</span> != <span class="hljs-string">" "</span> }.<span class="hljs-built_in">map</span> { $<span class="hljs-number">0</span> },
+  repeatElement(<span class="hljs-number">1</span>, <span class="hljs-built_in">count</span>: <span class="hljs-type">Int</span>.<span class="hljs-built_in">max</span>))
+frequencies = <span class="hljs-type">Dictionary</span>(baseCounts, uniquingKeysWith: +)
+<span class="hljs-comment">// ["w": 1, "p": 1, "n": 2, "o": 5, "I": 2, "u": 1, "t": 1,</span>
+<span class="hljs-comment">//  "d": 1, "a": 2, "r": 1, "m": 2, "s": 2, "e": 2, "l": 2,</span>
+<span class="hljs-comment">//  "g": 1, "y": 1]</span></pre>
+<p>If you have a set of defaults and wish to combine them with user settings, this is a perfect use for the <code>merge</code> method.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> defaultStyling: [<span class="hljs-type">String</span>: <span class="hljs-type">UIColor</span>] = [
+  <span class="hljs-string">"body"</span>: .black, <span class="hljs-string">"title"</span>: .blue, <span class="hljs-string">"byline"</span>: .green
+]
+<span class="hljs-keyword">var</span> userStyling: [<span class="hljs-type">String</span>: <span class="hljs-type">UIColor</span>] = [
+  <span class="hljs-string">"body"</span>: .purple, <span class="hljs-string">"title"</span>: .blue
+]
+userStyling.merge(defaultStyling) { (user, <span class="hljs-number">_</span>) -&gt; <span class="hljs-type">UIColor</span> <span class="hljs-keyword">in</span>
+  user
+}
+<span class="hljs-comment">// ["body": .purple, "title": .blue, "byline": .green]</span></pre>
+<h3 class="segment-chapter">Default value for subscript</h3>
+
+<p>Dictionary values are returned as optionals. While this is necessary, it requires you to take what might otherwise be straightforward code and wrap it up with optional bindings, forced unwraps or optional chaining. In the past, a common way to address this was to use the nil coalescing operator (<code>??</code>) to provide a default value and make the result non-optional.
+</p>
+<p>This is a sufficiently common practice that Swift 4 adds the ability to specify the default value right in the subscript.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> swift3 = banquetBegins[<span class="hljs-string">"House elves"</span>] ?? <span class="hljs-number">0</span>
+<span class="hljs-keyword">let</span> swift4 = banquetBegins[<span class="hljs-string">"House elves"</span>, <span class="hljs-keyword">default</span>: <span class="hljs-number">0</span>]
+<span class="hljs-comment">// both are 0; both are Int and not Int?</span>
+<span class="hljs-keyword">let</span> housePoints = banquetBegins[<span class="hljs-string">"Hufflepuff"</span>, <span class="hljs-keyword">default</span>: <span class="hljs-number">0</span>]
+<span class="hljs-comment">// value is 352 with or without the default. </span>
+<span class="hljs-comment">// Without, type is Int?; with, Int.</span></pre>
+<p>The default subscript provides another way to implement the frequency counter you saw earlier.
+</p><pre class="code-block">frequencies.removeAll()
+spell.<span class="hljs-built_in">filter</span> { $<span class="hljs-number">0</span> != <span class="hljs-string">" "</span> }.<span class="hljs-built_in">map</span> { 
+  frequencies[$<span class="hljs-number">0</span>, <span class="hljs-keyword">default</span>: <span class="hljs-number">0</span>] += <span class="hljs-number">1</span>
+}
+<span class="hljs-comment">// produces the same results as before</span></pre>
+<h3 class="segment-chapter">Filtering and mapping</h3>
+
+<p>In Swift 4, filtering a dictionary preserves its structure and type in the result.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> oddGroceries = groceries.<span class="hljs-built_in">filter</span> { $<span class="hljs-number">0</span>.key % <span class="hljs-number">2</span> == <span class="hljs-number">1</span> }
+<span class="hljs-comment">// [5: "Small shells", 3: "Butter", 1: "Prosciutto"]</span></pre>
+<p>This is also now true for <code>Set</code>:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> <span class="hljs-keyword">set</span>: <span class="hljs-type">Set</span> = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>, <span class="hljs-string">"d"</span>, <span class="hljs-string">"e"</span>]
+<span class="hljs-keyword">let</span> filteredSet = <span class="hljs-keyword">set</span>.<span class="hljs-built_in">filter</span> { $<span class="hljs-number">0</span>.hashValue % <span class="hljs-number">2</span> == <span class="hljs-number">0</span> }
+<span class="hljs-comment">// ["b", "d"]</span></pre>
+<p>The <code>map</code> function always returns an <code>Array</code>. Frequently, when working with a dictionary, this is precisely <i>not</i> what you want! Swift 4 adds <code>mapValue</code> to allow you to retain the dictionary’s structure and type.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> mirroredGroceries = oddGroceries.mapValues { 
+  <span class="hljs-type">String</span>($<span class="hljs-number">0</span>.reversed())
+}
+<span class="hljs-comment">// [5: "sllehs llamS", 3: "rettuB", 1: "ottuicsorP"]</span></pre>
+<h3 class="segment-chapter">Grouping</h3>
+
+<p>One of <code>Dictionary</code>’s most powerful new features is the ability is partition your data based on an arbitrary predicate, creating groups or buckets of similar data.
+</p>
+<p>The simplest example is grouping a list of names by their first letter.
+</p><pre class="code-block"><span class="hljs-keyword">let</span> names = [<span class="hljs-string">"Harry"</span>, <span class="hljs-string">"ron"</span>, <span class="hljs-string">"Hermione"</span>, <span class="hljs-string">"Hannah"</span>,
+             <span class="hljs-string">"neville"</span>, <span class="hljs-string">"pansy"</span>, <span class="hljs-string">"Padma"</span>].<span class="hljs-built_in">map</span> { $<span class="hljs-number">0</span>.capitalized }
+<span class="hljs-keyword">let</span> nameList = <span class="hljs-type">Dictionary</span>(grouping: names) { $<span class="hljs-number">0</span>.<span class="hljs-keyword">prefix</span>(<span class="hljs-number">1</span>) }
+<span class="hljs-comment">// ["H": ["Harry", "Hermione", "Hannah"], "R": ["Ron"],</span>
+<span class="hljs-comment">// "N": ["Neville"], "P": ["Pansy", "Padma"]]</span></pre>
+<p>The fact that you can specify an arbitrary predicate lets you get more creative.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Multiples</span> </span>{
+  <span class="hljs-keyword">case</span> threes, notThrees
+}
+<span class="hljs-keyword">let</span> numbers = <span class="hljs-number">1</span>...<span class="hljs-number">18</span>
+<span class="hljs-keyword">let</span> predicate: (<span class="hljs-type">Int</span>) -&gt; <span class="hljs-type">Multiples</span> =
+  { $<span class="hljs-number">0</span> % <span class="hljs-number">3</span> == <span class="hljs-number">0</span> ? .threes : .notThrees }
+<span class="hljs-keyword">let</span> multiplesOfThree = <span class="hljs-type">Dictionary</span>(grouping: numbers,
+                                  by: predicate)
+<span class="hljs-comment">// [.threes: [3, 6, 9, 12, 15, 18],</span>
+<span class="hljs-comment">// [.notThrees: [1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17]]</span>
+type(of: multiplesOfThree)
+<span class="hljs-comment">// [Multiples: [Int]]</span></pre>
+<p>In a more realistic example, you may want to form your groups based on a value buried inside a structure. Combining grouping with Swift 4’s new <code>keyPath</code> feature makes this a breeze.
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Student</span> </span>{
+  <span class="hljs-keyword">let</span> firstName: <span class="hljs-type">String</span>
+  <span class="hljs-keyword">let</span> lastName: <span class="hljs-type">String</span>
+}
+<span class="hljs-comment">// 2</span>
+<span class="hljs-keyword">let</span> classRoll = sortingHat.<span class="hljs-built_in">map</span> { $<span class="hljs-number">0.1</span>.<span class="hljs-built_in">split</span>(separator: <span class="hljs-string">" "</span>) }
+  .<span class="hljs-built_in">map</span> { <span class="hljs-type">Student</span>(firstName: <span class="hljs-type">String</span>($<span class="hljs-number">0</span>[<span class="hljs-number">0</span>]), 
+                 lastName: <span class="hljs-type">String</span>($<span class="hljs-number">0</span>[<span class="hljs-number">1</span>])) }
+<span class="hljs-comment">// 3</span>
+<span class="hljs-keyword">let</span> lastNameKeypath = \<span class="hljs-type">Student</span>.lastName
+<span class="hljs-comment">// 4</span>
+<span class="hljs-keyword">let</span> contactList = <span class="hljs-type">Dictionary</span>(grouping: classRoll) {
+  $<span class="hljs-number">0</span>[keyPath: lastNameKeypath].<span class="hljs-keyword">prefix</span>(<span class="hljs-number">1</span>)
+}</pre>
+<p>Here’s what you’re doing in the code above:
+</p>
+<ol>
+<li>
+<p>Define your structure to describe a student.
+</p></li>
+
+<li>
+<p>Use the list of students from before to create an array of <code>Student</code> values.
+</p></li>
+
+<li>
+<p>Use the new keyPath syntax to reference the <code>lastName</code> field of <code>Student</code>. You’ll learn more about keypaths in Chapter 2, “What’s New in Foundation”.
+</p></li>
+
+<li>
+<p>Use the first letter of the last name to group your students.
+</p></li>
+</ol>
+
+<h2 class="segment-chapter">Generic subscripts and associated type constraints</h2>
+
+<p><em>[</em><em>SE-0142, SE-0148</em><em>]</em>
+</p>
+<p>Working with mixed data type dictionaries in Swift 3 is rather painful due to the need to typecast each value before you can use it. Swift 4 allows subscripts to return a generic type.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Grade</span> </span>{
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> data: [<span class="hljs-type">String</span>: <span class="hljs-type">Any</span>]
+  
+  <span class="hljs-keyword">init</span>(data: [<span class="hljs-type">String</span>: <span class="hljs-type">Any</span>]) {
+    <span class="hljs-keyword">self</span>.data = data
+  }
+  
+  <span class="hljs-keyword">subscript</span>&lt;<span class="hljs-type">T</span>&gt;(key: <span class="hljs-type">String</span>) -&gt; <span class="hljs-type">T</span>? {
+    <span class="hljs-keyword">return</span> data[key] <span class="hljs-keyword">as</span>? <span class="hljs-type">T</span>
+  }
+}
+
+<span class="hljs-keyword">let</span> gradebook = <span class="hljs-type">Grade</span>(data: [<span class="hljs-string">"name"</span>: <span class="hljs-string">"Neil Armstrong"</span>,
+                             <span class="hljs-string">"exam"</span>: <span class="hljs-string">"LEM Landing"</span>,
+                             <span class="hljs-string">"grade"</span>: <span class="hljs-number">97</span>])
+<span class="hljs-keyword">let</span> who: <span class="hljs-type">String</span>? = gradebook[<span class="hljs-string">"name"</span>]
+<span class="hljs-keyword">let</span> grade: <span class="hljs-type">Int</span>?  = gradebook[<span class="hljs-string">"grade"</span>]
+<span class="hljs-comment">// No need to coerce the type with "as?"</span></pre>
+<p>This is definitely <i>not</i> the best way to implement a structure. However, if you’re using the new <code>Decodable</code> facility, this concept might simplify your custom <code>init(from:)</code>. See Chapter 2, “What’s New in Foundation” for more on <code>Decodable</code>.
+</p>
+<p>The subscript itself can now be generic as well. For example, you can implement a way to use a sequence to retrieve an array of values from a collection.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Grade</span> </span>{
+  <span class="hljs-keyword">subscript</span>&lt;<span class="hljs-type">Keys</span>: <span class="hljs-type">Sequence</span>&gt;(keys: <span class="hljs-type">Keys</span>) -&gt; [<span class="hljs-type">Any</span>]
+    <span class="hljs-keyword">where</span> <span class="hljs-type">Keys</span>.<span class="hljs-type">Element</span> == <span class="hljs-type">String</span> {
+    <span class="hljs-keyword">var</span> values: [<span class="hljs-type">Any</span>] = []
+    <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> keys {
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> value = data[key] {
+        values.append(value)
+      }
+    }
+    <span class="hljs-keyword">return</span> values
+  }
+}
+gradebook[[<span class="hljs-string">"name"</span>, <span class="hljs-string">"grade"</span>]]
+gradebook[<span class="hljs-type">Set</span>([<span class="hljs-string">"name"</span>, <span class="hljs-string">"grade"</span>])]
+<span class="hljs-comment">// both return ["Neil Armstrong", 97]</span></pre>
+<p>You can also use this feature to add new capabilities to standard library types.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Collection</span> </span>{
+  <span class="hljs-keyword">subscript</span>&lt;<span class="hljs-type">Indices</span>: <span class="hljs-type">Sequence</span>&gt;(<span class="hljs-built_in">indices</span>: <span class="hljs-type">Indices</span>) -&gt; [<span class="hljs-type">Element</span>]
+    <span class="hljs-keyword">where</span> <span class="hljs-type">Indices</span>.<span class="hljs-type">Element</span> == <span class="hljs-type">Index</span> {
+    <span class="hljs-keyword">var</span> result: [<span class="hljs-type">Element</span>] = []
+    <span class="hljs-keyword">for</span> index <span class="hljs-keyword">in</span> <span class="hljs-built_in">indices</span> {
+      result.append(<span class="hljs-keyword">self</span>[index])
+    }
+    <span class="hljs-keyword">return</span> result
+  }
+}
+<span class="hljs-keyword">let</span> words = <span class="hljs-string">"It was the best of times it was the worst of times"</span>
+  .<span class="hljs-built_in">split</span>(separator: <span class="hljs-string">" "</span>)
+words[[<span class="hljs-number">3</span>, <span class="hljs-number">9</span>, <span class="hljs-number">11</span>]]
+<span class="hljs-comment">// ["best", "worst", "times"]</span></pre>
+<p>Both of the previous examples took advantage of another new feature: associated type constraints. An associated type can now be constrained with a <code>where</code> clause. This can vastly simplify working with generics.
+</p>
+<p>For example, in the extension to <code>Grade</code>, Swift 3 requires you to specify <code>where Keys.Iterator.Element == String</code>.
+</p>
+<p>Allowing constraints on associated types can also make it easier to extend standard library types.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Sequence</span> <span class="hljs-title">where</span> <span class="hljs-title">Element</span>: <span class="hljs-title">Numeric</span> </span>{
+  <span class="hljs-keyword">var</span> product: <span class="hljs-type">Element</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>.<span class="hljs-built_in">reduce</span>(<span class="hljs-number">1</span>, *)
+  }
+}
+[<span class="hljs-number">2</span>,<span class="hljs-number">4</span>,<span class="hljs-number">6</span>,<span class="hljs-number">8</span>].product
+<span class="hljs-comment">// 384</span>
+[<span class="hljs-number">1.5</span>, <span class="hljs-number">3.0</span>, -<span class="hljs-number">2.0</span>].product
+<span class="hljs-comment">// -9 (a Double)</span></pre>
+<h2 class="segment-chapter">Limiting @objc inference</h2>
+
+<p><em>[</em><em>SE-0160</em><em>]</em>
+</p>
+<p>To make Swift code accessible from Objective-C, the Swift compiler must generate something known as a “thunk” method to convert between the Objective-C and Swift calling conventions. These thunks are only used for calls from Objective-C, not Swift. To ease the burden of interoperating with existing Objective-C code, Swift 3 (and earlier) inferred the need for these thunks in a number of cases.
+</p>
+<p>Unfortunately, experience has shown that many of these inferred thunks are unneeded, resulting in app binaries that are larger than necessary. In many cases, 6-8% of an app’s total size is comprised of this “glue” code. To eliminate this waste, Swift 4 does far less automatic inference.
+</p>
+<p>For example, classes derived from <code>NSObject</code> are no longer automatically accessible to Objective-C. You must explicitly use the <code>@objc</code> annotation to make a Swift method visible to Objective-C.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyClass</span>: <span class="hljs-title">NSObject</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">print</span><span class="hljs-params">()</span></span> { <span class="hljs-type">Swift</span>.<span class="hljs-built_in">print</span>(<span class="hljs-string">"hello"</span>) } <span class="hljs-comment">// not visible to Obj-C</span>
+  <span class="hljs-meta">@objc</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">show</span><span class="hljs-params">()</span></span> { <span class="hljs-built_in">print</span>() } <span class="hljs-comment">// visible to Obj-C</span>
+}</pre>
+<p>Apple recommends that you group all of your methods that need to be visible to Objective-C in an extension. If you add the <code>@objc</code> annotation to the extension itself, everything it contains will be accessible. If you need to exclude a single method because it can’t be represented in Objective-C, use the <code>@nonobjc</code> annotation.
+</p><pre class="code-block"><span class="hljs-meta">@objc</span> <span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">MyClass</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-number">_</span> foo: String?)</span></span> {}
+  <span class="hljs-meta">@nonobjc</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">g</span><span class="hljs-params">(<span class="hljs-number">_</span> goo: Int?)</span></span> {} 
+}</pre>
+<p>Without the <code>@nonobjc</code> above, the compiler generates an error message for <code>g(_:)</code>:
+</p><pre class="code-block">error: method cannot be in an @objc extension of a class (without @nonobjc) because the type of the parameter cannot be represented in Objective-C</pre>
+<p>If you need a class, along with all of its extensions, subclasses and their extensions, to be accessible to Objective-C, use the <code>@objcMembers</code> annotation on the class.
+</p><pre class="code-block"><span class="hljs-meta">@objc</span>Members
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MySecondClass</span>: <span class="hljs-title">NSObject</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">f</span><span class="hljs-params">()</span></span> {}
+  <span class="hljs-comment">// can't be called from ObjC but no error</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">g</span><span class="hljs-params">()</span></span> -&gt; (<span class="hljs-type">Int</span>, <span class="hljs-type">Int</span>) { 
+    <span class="hljs-keyword">return</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>)
+  }
+}</pre>
+<p>Hide your exceptions in an extension using <code>@nonobjc</code>:
+</p><pre class="code-block"><span class="hljs-meta">@nonobjc</span> <span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">MySecondClass</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">h</span><span class="hljs-params">()</span></span> -&gt; <span class="hljs-type">Int</span>? { <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> }
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">j</span><span class="hljs-params">(<span class="hljs-number">_</span> value: Double?)</span></span> {}
+}</pre>
+<h3 class="segment-chapter">Swift 4 inference</h3>
+
+<p>The rules for when Swift 4 will automatically infer <code>@objc</code> are well-defined.
+</p>
+<p>It will infer <code>@objc</code> if a declaration is an override of an <code>@objc</code> method declaration:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Super</span> </span>{
+  <span class="hljs-meta">@objc</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span></span> {}
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Sub</span>: <span class="hljs-title">Super</span> </span>{
+  <span class="hljs-comment">// inferred @objc</span>
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span></span> {}
+}</pre>
+<p>It will infer <code>@objc</code> if a declaration satisfies a requirement of an <code>@objc</code> protocol:
+</p><pre class="code-block"><span class="hljs-meta">@objc</span> <span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">MyDelegate</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">bar</span><span class="hljs-params">()</span></span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyThirdClass</span>: <span class="hljs-title">MyDelegate</span> </span>{
+  <span class="hljs-comment">// inferred @objc</span>
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">bar</span><span class="hljs-params">()</span></span> {}
+}</pre>
+<p>In this case, this inference is required because calling <code>MyDelegate.bar()</code>, whether from Objective-C or Swift, will be via an Objective-C message send, so conforming to the protocol requires an Objective-C entry point.
+</p>
+<p>For the same reason, Swift 4 will also infer <code>@objc</code> for any declaration having one or more of the following attributes:
+</p>
+<ul>
+<li>
+<p><code>@IBAction</code>
+</p></li>
+
+<li>
+<p><code>@IBOutlet</code>
+</p></li>
+
+<li>
+<p><code>@IBInspectable</code>
+</p></li>
+
+<li>
+<p><code>@GKInspectable</code>
+</p></li>
+
+<li>
+<p><code>@NSManaged</code>
+</p></li>
+</ul>
+
+<p>Finally, while <code>dynamic</code> is currently implemented using Objective-C messaging, it no longer causes an <code>@objc</code> inference. You must add the annotation explicitly.
+</p>
+<h2 class="segment-chapter">Other changes</h2>
+
+<p>There a number of other smaller changes worthy of note.
+</p>
+<h3 class="segment-chapter">Private access in extensions</h3>
+
+<p><em>[</em><em>SE-0169</em><em>]</em>
+</p>
+<p>Swift 3 introduced the awful <code>fileprivate</code> and broke a ton of code that had been properly partitioned into extensions. Swift 4 makes it better. Now, methods and variables declared <code>private</code> are accessible to extensions in the same source file. <code>fileprivate</code> is still there with its “single file scope” meaning, but its use should be much more rare.
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span> </span>{
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> firstName: <span class="hljs-type">String</span>
+  <span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> lastName: <span class="hljs-type">String</span>
+  
+  <span class="hljs-keyword">init</span>(firstName: <span class="hljs-type">String</span>, lastName: <span class="hljs-type">String</span>) {
+    <span class="hljs-keyword">self</span>.firstName = firstName
+    <span class="hljs-keyword">self</span>.lastName = lastName
+  }
+  
+  <span class="hljs-keyword">var</span> name: <span class="hljs-type">String</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"<span class="hljs-subst">\(firstName)</span> <span class="hljs-subst">\(lastName)</span>"</span>
+  }
+}
+
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">Person</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">greeting</span><span class="hljs-params">(with message: String)</span></span> -&gt; <span class="hljs-type">String</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"<span class="hljs-subst">\(message)</span>, <span class="hljs-subst">\(firstName)</span>!"</span>
+  }
+}
+
+
+<span class="hljs-keyword">let</span> dumbledore = <span class="hljs-type">Person</span>(firstName: <span class="hljs-string">"Albus"</span>,
+                        lastName: <span class="hljs-string">"Dumbledore"</span>)
+dumbledore.greeting(with: <span class="hljs-string">"Good mornafterevening"</span>)</pre>
+<h3 class="segment-chapter"><code>swapAt(_:_:)</code></h3>
+
+<p><em>[</em><em>SE-0173, SE-0176</em><em>]</em>
+</p>
+<p>In preparation for the future, Swift 4 introduces a new concept of exclusive access to memory such that only one actor can write to the memory occupied by a single object at a time. This breaks the use of swap(_:_:) for exchanging two items in a collection. Now, instead, you use swapAt(_:_:).
+</p><pre class="code-block"><span class="hljs-keyword">var</span> numbers = <span class="hljs-type">Array</span>(<span class="hljs-number">1</span>...<span class="hljs-number">5</span>)
+<span class="hljs-comment">//swap(&amp;numbers[1], &amp;numbers[3]) // Illegal in Swift 4</span>
+numbers.swapAt(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>)
+<span class="hljs-comment">// [1, 4, 3, 2, 5]</span></pre>
+<h3 class="segment-chapter"><code>NSNumber</code> bridging</h3>
+
+<p><em>[</em><em>SE-0170</em><em>]</em>
+</p>
+<p>Swift 3 didn’t check whether an integer value stored in an <code>NSNumber</code> could be expressed in the Swift scalar type to which it was cast. For example:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> n = <span class="hljs-type">NSNumber</span>(value: <span class="hljs-number">603</span>)
+<span class="hljs-keyword">let</span> v = n <span class="hljs-keyword">as</span>? <span class="hljs-type">Int8</span></pre>
+<p>...would give the value 91. This is clearly wrong and unsafe. In Swift 4, <code>v</code> will be nil. To quote from the Swift Evolution proposal, “<code>as?</code> for <code>NSNumber</code> should mean ‘Can I safely express the value stored in this opaque box called a <code>NSNumber</code> as the value I want?’.” This is equally true for <code>is</code>.
+</p><pre class="code-block"><span class="hljs-keyword">if</span> n <span class="hljs-keyword">is</span> <span class="hljs-type">Int8</span> {
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">"n must be pretty small"</span>)
+} <span class="hljs-keyword">else</span> {
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">"nope, doesn't fit. Get a bigger bucket!"</span>)
+}</pre>
+<h3 class="segment-chapter">Composing classes and protocols</h3>
+
+<p><em>[</em><em>SE-0156</em><em>]</em>
+</p>
+<p>Prior to Swift 4, there was no way to specify that an object had to be both a particular type <i>and</i> conform to a protocol. Now there is!
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">MySpecialDelegateProtocol</span> </span>{}
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MySpecialView</span>: <span class="hljs-title">UIView</span> </span>{}
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyController</span> </span>{
+  <span class="hljs-keyword">var</span> delegate: (<span class="hljs-type">UIView</span> &amp; <span class="hljs-type">MySpecialDelegateProtocol</span>)?
+}</pre>
+<p>This is also used in interesting ways in the Swift standard library. The <code>Codable</code> protocol, which you’ll learn about in Chapter 2, “What’s New in Foundation”, is actually simply a <code>typealias</code>:
+</p><pre class="code-block"><span class="hljs-keyword">public</span> <span class="hljs-keyword">typealias</span> <span class="hljs-type">Codable</span> = <span class="hljs-type">Decodable</span> &amp; <span class="hljs-type">Encodable</span></pre>
+<h2 class="segment-chapter">Migrating to Swift 4</h2>
+
+<p>Now that you know about all of the cool changes, you’re ready to migrate your project to Swift 4, right? Don’t sweat it — it’s an easy process. In Xcode 9, select <em>Edit</em><em>\</em><em>Convert</em><em>\</em><em>To Current Swift Syntax...</em> to fire off the migrator. With one exception, it’s all straightforward and simple. The migrator will ask you what style of <code>@objc</code> inference you want. The recommended choice, <em>Minimize Inference</em>, will be pre-selected in the dialog.
+</p><div class="image-50"><img src="graphics/img25.png"  alt="" title="" /></div>
+<p>If you stick with <em>Minimize Inference</em>, your builds will include a warning:
+</p><pre class="code-block">The use of Swift 3 @objc inference in Swift 4 mode is deprecated. Please address deprecated @objc inference warnings, test your code with &quot;Use of deprecated Swift 3 @objc inference&quot; logging enabled, and then disable inference by changing the “Swift 3 @objc Inference” build setting to “Default” for the “&lt;your project&gt;” target.</pre>
+<p>This is expected as you test your program. Once you are satisfied that you made all of the necessary annotations in your source, open your <em>Target</em>’s build settings and change <em>Swift 3 @objc Inference</em> to <em>Default</em>, as instructed in the warning message.
+</p><div class="image-80"><img src="graphics/img26.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>As I mentioned at the beginning, Swift is an open source language. You can see all of the proposed, implemented and rejected changes, and even submit your own ideas (though it’s gotten much harder for Swift 5), by visiting <a href="https://github.com/apple/swift-evolution">https://github.com/apple/swift-evolution</a>.
+</p>
+<p>You can find even more details about these changes and the motivations behind them by watching the WWDC 2017 video for session 402, “What’s New in Swift”. You can find it at <a href="https://developer.apple.com/videos/play/wwdc2017/402/">https://developer.apple.com/videos/play/wwdc2017/402/</a>.
+</p>
+<p>Most importantly, <em>turn the page</em> and continue on to Chapter 2, “What’s New in Foundation” to learn about the new features for data serialization and key-value observing!
+</p></body></html>

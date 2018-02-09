@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 8: Document Based Apps</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 8: Document Based Apps</h1>
+
+<p>iOS is pretty good at protecting your privacy. That’s because every app has its own sandbox other apps can’t access without permission. Thanks to that, one app’s files are kept nice and safe from the reach of others.
+</p>
+<p>However, this approach comes with a small drawback: managing files is a little more complicated. You can’t freely browse files, and you need specialized tools and processes to allow sharing files between apps on iOS.
+</p>
+<p>With iOS 11, Apple introduced a new tool for managing files: <code>UIDocumentBrowserViewController</code>. This brand-new view controller lets you create document browser apps, just like the new <em>Files</em> app on iOS 11, which lets you freely manage documents across all of your available locations.
+</p>
+<p>In this chapter you’ll create your own document browser app named <em>ColorBrowser</em> which manages custom files named with a <em>.</em><em>color</em> extension.
+</p>
+<div class="note">
+<p><em>Note</em>: The sample app in this chapter does not work well on the simulator. You will need a device running iOS 11 to build and test the app.
+</p></div>
+
+<h2 class="segment-chapter">Documents on iOS</h2>
+
+<p>Before you dive into creating the document browser, you need to understand how iOS documents work. <code>UIDocument</code> is a powerful class that runs almost every document-based app. <code>UIDocument</code> is a wrapper over a physical file. It can be on your device or even in iCloud. It can asynchronously read/write to a file, auto-save, do file versioning and much more.
+</p>
+<p>You’re not forced to use <code>UIDocument</code>, but doing so is highly recommended as it solves a lot of problems for you. For example, you can work on the same iCloud file on your iPhone and your MacBook, and <code>UIDocument</code> will take care of everything for you.
+</p><div class="image-40"><img src="graphics/img125.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Document Provider</h3>
+
+<p>The Document Provider extension lets other apps work on your files that would otherwise be sandboxed. <code>UIDocumentPickerViewController</code> is a part of that extension; it’s the visual interface that other apps will display to select documents from your app. The document provider allows other apps to import files from your app, which means that the file will be duplicated and your original file remains unchanged.
+</p><div class="image-50"><img src="graphics/img126.png"  alt="" title="Import File" /></div>
+<p>You can also allow other apps to directly open the files in your app, work on them and overwrite the original files.
+</p><div class="image-50"><img src="graphics/img127.png"  alt="" title="Open File" /></div>
+<h3 class="segment-chapter">Document Browser</h3>
+
+<p><code>UIDocumentBrowserViewController</code>, the hero of this chapter, is something else entirely. The document browser is not an extension for your app; it is a <i>type</i> of an app. Your customized <code>UIDocumentBrowserViewController</code> subclass must be the root view of your app. Simply put, it’s a custom implementation of the iOS 11 <em>Files</em> app.
+</p>
+<p>Play around with the <em>Files</em> app to get comfortable with the idea of a document browser app. You can use the document browser to open popular file extensions like <code>.txt</code>, <code>.pdf</code> or <code>.mp3</code>, but <code>UIDocumentBrowserViewController</code> shines when it comes to supporting custom file extensions.
+</p>
+<p>Imagine that you have an iOS UI design app that uses proprietary <em>.</em><em>color</em> extension files to describe RGB colors. Thanks to <code>UIDocumentBrowserViewController</code>, you can create a document browser that will manage <em>.</em><em>color</em> files on your device, iCloud or any other available location.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Go to the starter project folder for this chapter and open <em>ColorBrowser.xcodeproj</em>. Run the project.
+</p><div class="image-80"><img src="graphics/img128.png"  alt="" title="" /></div>
+<p>This is the default <code>UIDocumentBrowserViewController</code>. All you can do is browse files. You can’t open them or create new ones, since your custom <code>UIDocumentBrowserViewController</code> doesn’t know how to do that yet.
+</p>
+<p>In order for <code>UIDocumentBrowserViewController</code> to work, it needs to be the root view controller of the app. It also needs to have the <code>UISupportsDocumentBrowser</code> key set to <code>YES</code> in <em>Info.plist</em>. This is set up for you when you create a new project from the <i>Document Based App</i> Xcode template. It’s also already been configured for you in the starter project. :]
+</p>
+<h3 class="segment-chapter">Custom extensions</h3>
+
+<p>Files that use the custom <em>.</em><em>color</em> extension are simple text files consisting of RGB color values separated by commas. So, for example, a white color file would contain the text <code>255,255,255</code>. In order to support a custom <em>.</em><em>color</em> extension in your document browser app, you need to register a new Uniform Type Identifier (UTI). Then you need to associate that new file type with your app.
+</p>
+<p>Select the <em>ColorBrowser</em> project file in Xcode, then the <em>ColorBrowser</em> target, then open the <em>Info</em> tab.
+</p>
+<p>You declare custom file types within the <i>Imported UTIs</i> and <i>Exported UTIs</i> dropdowns. Imported UTIs are for extensions that already exist, but don’t belong to you, such as the Photoshop <em>.</em><em>psd</em> format. Exported UTIs are for proprietary formats, just like your custom <em>.</em><em>color</em> extension!
+</p>
+<p>Expand <em>Exported UTIs</em>, click the <em>+</em> to add a new UTI and fill out these values:
+</p>
+<ul>
+<li>
+<p><em>Description</em>: A general description of the file extension. Enter <em>RGB Color file</em>.
+</p></li>
+
+<li>
+<p><em>Identifier</em>: The identifier of your proprietary data format. Enter <em>com.razeware.colorExtension</em>.
+</p></li>
+
+<li>
+<p><em>Conforms To</em>: UTI can conform to other types, just like subclassing. For example <code>public.html</code> conforms to <code>public.text</code>, because HTML is a specialization of simple text. Enter <em>public.text</em>, because .color is also a specialization of simple text.
+</p></li>
+</ul>
+
+<p>You also need to specify the name of the extension. Expand the <em>Additional Exported UTI properties</em> section and create a dictionary called <em>UTTypeTagSpecification</em>. Inside this new dictionary, create an array called <em>public.filename-extension</em>. Add an item to the array with a value of <em>color</em>. This is the name of the file extension.
+</p>
+<p>After you’ve defined this new UTI, you must associate it with your app in the <em>Document Types</em> section. Enter the name <em>Color Extension</em>, and in the <em>Types</em> field, enter the UTI identifier you just just defined: <em>com.razeware.colorExtension</em>.
+</p>
+<p>Finally, you need to describe the role in which your app uses this document. In the <em>Additional document type properties</em> section, add a <em>CFBundleTypeRole</em> key with a string value of <em>Editor</em> and a <em>LSHandlerRank</em> key with a string value of <em>Owner</em>. The former indicates that your app can edit documents of this type; you could have set it to <em>Viewer</em> if you only wanted the app to be able to view the documents instead. The latter identifies your app as the owner of the document type.
+</p><div class="image-90"><img src="graphics/img129.png"  alt="" title="" /></div>
+<p>You can find out more about UTIs here: <a href="http://apple.co/2v0FiHO">http://apple.co/2v0FiHO</a>
+</p>
+<p>That takes care of things. You’ve now defined a custom <em>.</em><em>color</em> extension and associated it with your app!
+</p>
+<h2 class="segment-chapter">Creating files</h2>
+
+<p>At the moment, nothing happens when you try to create a new file in your current browser, it just doesn’t know how to do it yet. So you need to implement some of the the <code>UIDocumentBrowserViewControllerDelegate</code> methods.
+</p>
+<p>Open <em>DocumentBrowserViewController.swift</em> and add the following to the bottom of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">DocumentBrowserViewController</span>:
+  <span class="hljs-title">UIDocumentBrowserViewControllerDelegate</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">documentBrowser</span><span class="hljs-params">(<span class="hljs-number">_</span> controller:
+    UIDocumentBrowserViewController,
+    didRequestDocumentCreationWithHandler importHandler:
+    @escaping <span class="hljs-params">(URL?, UIDocumentBrowserViewController.ImportMode)</span></span></span>
+    -&gt; <span class="hljs-type">Void</span>) {
+    <span class="hljs-comment">// 1</span>
+    <span class="hljs-keyword">let</span> url = <span class="hljs-type">Bundle</span>.main.url(forResource: <span class="hljs-string">"Untitled"</span>, 
+                              withExtension: <span class="hljs-string">"color"</span>)
+    <span class="hljs-comment">// 2</span>
+    importHandler(url, .copy)
+  }
+}</pre>
+<p>In order to create a new document, you need to provide a URL to a file template that the document browser will use. In other words, creating a file is importing a template file. You can create a blank file in the app temporary folder or simply load a template shipped with the app bundle. Here’s how:
+</p>
+<ol>
+<li>
+<p>This obtains the URL to the <em>Untitled.color</em> file shipped with the starter project. Open the file in Xcode and take a look. It’s a simple text file containing <code>150,150,150</code>, which describes a gray color.
+</p></li>
+
+<li>
+<p>You always need to call the <code>importHandler</code> closure. In this case, you specify the URL to import along with the <code>copy</code> mode, which says that you want to copy the template file without removing it. If you specified <code>move</code> here instead, that would copy the file and remove the original.
+</p></li>
+</ol>
+
+<p>Before going any further, you need to implement <code>viewDidLoad()</code>:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewDidLoad</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.viewDidLoad()
+  delegate = <span class="hljs-keyword">self</span>
+  allowsDocumentCreation = <span class="hljs-literal">true</span>
+}</pre>
+<p>Here you make this class the delegate and enable the UI to allow the user to create new documents.
+</p>
+<p>Creating a new document is an asynchronous operation, and the result can be success or failure. Therefore, you need to handle both cases. You must also handle what to do when a document is chosen by the user. Add the following to the extension at the bottom of the file:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">documentBrowser</span><span class="hljs-params">(<span class="hljs-number">_</span> controller: UIDocumentBrowserViewController, 
+                     didImportDocumentAt sourceURL: URL, 
+                     toDestinationURL destinationURL: URL)</span></span> {
+  <span class="hljs-comment">// 2</span>
+  presentDocument(<span class="hljs-type">ColorDocument</span>(fileURL: destinationURL))
+}
+  
+<span class="hljs-comment">// 3</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">documentBrowser</span><span class="hljs-params">(<span class="hljs-number">_</span> controller: UIDocumentBrowserViewController, 
+                     failedToImportDocumentAt documentURL: URL, 
+                     error: Error?)</span></span> {
+  showAlert(title: <span class="hljs-string">"Failed"</span>, text: <span class="hljs-string">"Failed to import"</span>)
+}
+  
+<span class="hljs-comment">// 4</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">documentBrowser</span><span class="hljs-params">(<span class="hljs-number">_</span> controller: UIDocumentBrowserViewController, 
+                     didPickDocumentURLs documentURLs: [URL])</span></span> {
+  presentDocument(<span class="hljs-type">ColorDocument</span>(fileURL: documentURLs[<span class="hljs-number">0</span>]))
+}</pre>
+<p>Here’s what these delegate methods do:
+</p>
+<ol>
+<li>
+<p><code>documentBrowser(_:didImportDocumentAt:toDestinationURL:)</code> is called when a new document is imported successfully.
+</p></li>
+
+<li>
+<p>This presents the new document in a <code>DocumentViewController</code>. <code>presentDocument(_:)</code> is a helper method delivered with the starter. It accepts a <code>ColorDocument</code> object. <code>ColorDocument</code> is a subclass of <code>UIDocument</code> contained in the starter and is responsible for saving and loading color files. You’ll use the <code>ColorDocument</code> later in <code>DocumentViewController</code> to preview and edit color files.
+</p></li>
+
+<li>
+<p><code>documentBrowser(_:failedToImportDocumentAt:error:)</code> is called when a new document fails to import, such as when you don’t have access to the file passed in the <code>importHandler</code> closure.
+</p></li>
+
+<li>
+<p><code>documentBrowser(_:didPickDocumentURLs)</code> is called when user picks files to open in the document browser. <code>UIDocumentBrowserViewController</code> supports opening multiple files. You don’t need that in your app, so you should use the first URL: <code>documentURLs[0]</code>.
+</p></li>
+</ol>
+
+<p>Run the app. You should be able to create new files and open them. All of your files will be imported with the same filename as the template file: <i>Untitled</i>. You can change the name of the file in the browser by holding your finger down on the file and choosing the <em>Rename</em> action.
+</p><div><img src="graphics/img130.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Displaying files</h2>
+
+<p>At the moment, <code>DocumentViewController</code> is presented, but you can’t preview the color documents or save them.
+</p>
+<p>Open <em>DocumentViewController.swift</em> and add the following to the bottom of the class:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">viewWillAppear</span><span class="hljs-params">(<span class="hljs-number">_</span> animated: Bool)</span></span> {
+  <span class="hljs-keyword">super</span>.viewWillAppear(animated)
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> document = document <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">if</span> document.documentState == .normal {
+    updateUI()
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// 2</span>
+    document.open { success <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">if</span> success {
+        <span class="hljs-keyword">self</span>.updateUI()
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">self</span>.showAlert(title: <span class="hljs-string">"Error"</span>,
+                       text: <span class="hljs-string">"Can't open document"</span>)
+      }
+    }
+  }
+}</pre>
+<p>This opens the document when the view appears. Specifically:
+</p>
+<ol>
+<li>
+<p>Here you check if the document is already loaded. If <code>documentState</code> is <code>.normal</code>, the file is already open so call <code>updateUI()</code>, which is a pre-supplied method that refreshes the UI with the current color.
+</p></li>
+
+<li>
+<p>Load the <code>UIDocument</code>. This reads the file URL that was passed to it at initialization and deserializes it. As mentioned above, <code>ColorDocument</code> contains the deserialization code.
+</p></li>
+</ol>
+
+<p>In order to support saving you need to implement <code>didTapSave(_:)</code>. Replace the method stub with the following:
+</p><pre class="code-block"><span class="hljs-meta">@IBAction</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">didTapSave</span><span class="hljs-params">(<span class="hljs-number">_</span> sender: Any)</span></span> {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> document = document  <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span>
+  }
+  <span class="hljs-comment">// 1</span>
+  document.color = <span class="hljs-type">RGBColor</span>(<span class="hljs-type">R</span>: <span class="hljs-type">Int</span>(<span class="hljs-type">RSlider</span>.value),
+                            <span class="hljs-type">G</span>: <span class="hljs-type">Int</span>(<span class="hljs-type">GSlider</span>.value),
+                            <span class="hljs-type">B</span>: <span class="hljs-type">Int</span>(<span class="hljs-type">BSlider</span>.value))
+  <span class="hljs-comment">// 2</span>
+  document.save(to: document.fileURL, <span class="hljs-keyword">for</span>: .forOverwriting) 
+  { success <span class="hljs-keyword">in</span>
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">if</span> success {
+      <span class="hljs-keyword">self</span>.showAlert(title: <span class="hljs-string">"Success"</span>, text: <span class="hljs-string">"Saved file"</span>)
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">self</span>.showAlert(title: <span class="hljs-string">"Error"</span>, 
+                     text: <span class="hljs-string">"Failed to save file"</span>)
+    }
+  }
+}</pre>
+<p>Taking this step-by-step:
+</p>
+<ol>
+<li>
+<p>Update the document values with the values read from the sliders.
+</p></li>
+
+<li>
+<p>Save the updated values to the file.
+</p></li>
+
+<li>
+<p>Indicate to the user the result of the save operation.
+</p></li>
+</ol>
+
+<p>Build and run the app. You can now preview and save colors.
+</p>
+<h2 class="segment-chapter">Opening from other apps</h2>
+
+<p>You can create and open files in your app. One thing that still doesn’t work is opening files passed to the app by the system. Go to the <em>Files</em> app and try opening a color file. It doesn’t work! The app gets opened, because you associated your app with <em>.</em><em>color</em> extension, but the <code>DocumentViewController</code> isn’t presented.
+</p>
+<p>This is because the file was opened outside of your app. The iOS interface for communicating actions happening outside of your app’s process is the <code>AppDelegate</code>. When iOS wants your app to open a file, it calls <code>application(_:open:options:)</code>. Open <em>AppDelegate.swift</em> and add this code to your <code>AppDelegate</code> class:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">application</span><span class="hljs-params">(<span class="hljs-number">_</span> app: UIApplication, open inputURL: URL,
+  options: [UIApplicationOpenURLOptionsKey: Any] = [:])</span></span> 
+  -&gt; <span class="hljs-type">Bool</span> {
+  <span class="hljs-keyword">guard</span> inputURL.isFileURL <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> }
+  
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> documentBrowserViewController = 
+    window?.rootViewController <span class="hljs-keyword">as</span>? <span class="hljs-type">DocumentBrowserViewController</span>
+  <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> }
+  
+  <span class="hljs-comment">// 2</span>
+  documentBrowserViewController.revealDocument(at: inputURL,
+    importIfNeeded: <span class="hljs-literal">true</span>) { (revealedDocumentURL, error) <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> revealedDocumentURL = revealedDocumentURL,
+        error == <span class="hljs-literal">nil</span> <span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">return</span>
+      }
+    <span class="hljs-comment">// 3</span>
+    documentBrowserViewController.presentDocument(
+      <span class="hljs-type">ColorDocument</span>(fileURL: revealedDocumentURL))
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+}</pre>
+<p>This opens documents when prompted by the system:
+</p>
+<ol>
+<li>
+<p>First, access the current <code>UIDocumentBrowserViewController</code> root controller.
+</p></li>
+
+<li>
+<p><code>revealDocument(at:importIfNeeded:completion:)</code> asynchronously prepares the document for you to use. This can either import (copy) the original file or work directly on the original file. This sets <code>importIfNeeded</code> to <code>true</code> to indicate that the document browser should try importing the file if opening directly is not an option. Opening a file directly is disabled by default; you need to allow it in your <em>Info.plist</em> file.
+</p></li>
+
+<li>
+<p>Present the <code>ColorDocument</code>.
+</p></li>
+</ol>
+
+<p>As mentioned above, you need to enable the open-in-place feature, opening documents from other apps in your app and working on them directly. Open the <em>Info.plist</em> file and find the key called <em>Supports opening documents in place</em> and set its value to <em>YES</em>.
+</p>
+<p>Build and run the app and try opening a <em>.</em><em>color</em> file from <em>Files</em> app again, this time it should open directly in your app.
+</p>
+<h2 class="segment-chapter">Customizing the document browser</h2>
+
+<p><code>UIDocumentBrowserViewController</code> has a couple of options to allow you to customize it. You can change the document browser style, tint color, add a custom action or add a new bar button item.
+</p>
+<p>Open <em>DocumentBrowserViewController.swift</em> and add the following code to the class:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">customizeBrowser</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-comment">// 1</span>
+  view.tintColor = <span class="hljs-type">UIColor</span>(named: <span class="hljs-string">"MarineBlue"</span>)
+  <span class="hljs-comment">// 2</span>
+  browserUserInterfaceStyle = .light
+  <span class="hljs-comment">// 3</span>
+  <span class="hljs-keyword">let</span> action = <span class="hljs-type">UIDocumentBrowserAction</span>(
+    identifier: <span class="hljs-string">"com.razeware.action"</span>,
+    localizedTitle: <span class="hljs-string">"Lighter Color"</span>,
+    availability: .menu) { urls <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">let</span> colorDocument = <span class="hljs-type">ColorDocument</span>(fileURL: urls[<span class="hljs-number">0</span>])
+      
+      colorDocument.open { success <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">if</span> success {
+          <span class="hljs-comment">// 4</span>
+          colorDocument.color =
+            colorDocument.color!.lighterColor(by: <span class="hljs-number">60</span>)
+          <span class="hljs-keyword">self</span>.presentDocument(colorDocument)
+        }
+      }
+  }
+  
+  <span class="hljs-comment">// 5</span>
+  action.supportedContentTypes =
+    [<span class="hljs-string">"com.razeware.colorExtension"</span>]
+  <span class="hljs-comment">// 6</span>
+  customActions = [action]
+  
+  <span class="hljs-comment">// 7</span>
+  <span class="hljs-keyword">let</span> aboutButton = <span class="hljs-type">UIBarButtonItem</span>(
+    title: <span class="hljs-string">"About"</span>,
+    style: .plain,
+    target: <span class="hljs-keyword">self</span>,
+    action: #selector(openAbout))
+  <span class="hljs-comment">// 8</span>
+  additionalTrailingNavigationBarButtonItems = [aboutButton]
+}
+
+<span class="hljs-meta">@objc</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">openAbout</span><span class="hljs-params">()</span></span> {
+  showAlert(title: <span class="hljs-string">"About"</span>,
+            text: <span class="hljs-string">"ColorBrowser 1.0.0\n By Ray Wenderlich"</span>)
+}</pre>
+<p>Here’s a breakdown:
+</p>
+<ol>
+<li>
+<p>Change the tint color to <code>MarineBlue</code>. This color was shipped along with the starter in <code>Assets.xcassets</code>.
+</p></li>
+
+<li>
+<p>Change the style of the document browser. There are three styles: <code>dark</code>, <code>light</code> and <code>white</code>. You can’t change colors of the document browser beyond the tint color and the style.
+</p></li>
+
+<li>
+<p>When you hold your finger on a file in the browser, you’ll see various actions. Here, you create a custom action by using <code>UIDocumentBrowserAction</code>.
+</p></li>
+
+<li>
+<p>Your custom action opens an existing document with a color that’s lighter by 60 points for each of the red, green and blue components.
+</p></li>
+
+<li>
+<p><code>supportedContentTypes</code> is an array of UTI identifiers that the custom action supports. You pass <code>com.razeware.colorExtension</code> as it was the UTI identifier you defined earlier.
+</p></li>
+
+<li>
+<p>Assign the custom action to the <code>customActions</code> array of <code>UIDocumentBrowserViewController</code> to make the action available in the browser.
+</p></li>
+
+<li>
+<p>Create a new bar button item.
+</p></li>
+
+<li>
+<p>Assign the custom bar item to the <code>additionalTrailingNavigationBarButtonItems</code> property of the document browser.
+</p></li>
+</ol>
+
+<p>To call your new method, add the following to the bottom of <code>viewDidLoad()</code>:
+</p><pre class="code-block">customizeBrowser()</pre>
+<p>Build and run to see your new effects!
+</p><div><img src="graphics/img131.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Animation controller</h2>
+
+<p><code>UIDocumentBrowserViewController</code> lets you enable an alternate presentation animation. Open <em>DocumentBrowserViewController.swift</em> and add the following property to the top of the class:
+</p><pre class="code-block"><span class="hljs-keyword">var</span> transitionController: <span class="hljs-type">UIDocumentBrowserTransitionController</span>?</pre>
+<p>Now add the following extension at the bottom of the file:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">DocumentBrowserViewController</span>:
+  <span class="hljs-title">UIViewControllerTransitioningDelegate</span> </span>{
+  
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">animationController</span><span class="hljs-params">(forPresented presented:
+    UIViewController, presenting: UIViewController,
+    source: UIViewController)</span></span>
+    -&gt; <span class="hljs-type">UIViewControllerAnimatedTransitioning</span>? {
+    <span class="hljs-keyword">return</span> transitionController
+  }
+}</pre>
+<p>This will return the <code>transitionController</code> property that you will instantiate in the next snippet. In <code>presentDocument(_:)</code>, add the following code, just before you present <code>documentViewController</code>:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+documentViewController.transitioningDelegate = <span class="hljs-keyword">self</span>
+<span class="hljs-comment">// 2</span>
+transitionController = transitionController(
+  forDocumentURL: document.fileURL)</pre>
+<p>Here’s what this does:
+</p>
+<ol>
+<li>
+<p>Set this class to be the delegate to handle the transition.
+</p></li>
+
+<li>
+<p>The <code>transitionController</code> property is used to define what is returned in the <code>animationController(forPresented:presenting:source:)</code> delegate method. <code>transitionController(forDocumentURL:)</code> is a <code>DocumentBrowserViewController</code> method that creates a <code>UIDocumentBrowserTransitionController</code>. This conforms to <code>UIViewControllerAnimatedTransitioning</code> and defines the transition that should be used when a file is opened.
+</p></li>
+</ol>
+
+<p>By returning a custom transition controller in the delegate method you enable the predefined alternate animation for opening documents.
+</p>
+<p>Run the app and open a <em>.</em><em>color</em> document to see your cool new animation.
+</p>
+<h2 class="segment-chapter">Custom activities</h2>
+
+<p>When you hold on a document in your browser and tap <em>Share</em>, it opens the list of possible activities. You can create a custom activity for this as well.
+</p>
+<p>In order to do that, you need to create a <code>UIActivity</code> subclass. You’ll build an activity that copies a string representation of a <em>.</em><em>color</em> file to your pasteboard. Open <em>CopyStringActivity.swift</em> and add the following:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CopyStringActivity</span>: <span class="hljs-title">UIActivity</span> </span>{
+  
+  <span class="hljs-keyword">let</span> colorDocument: <span class="hljs-type">ColorDocument</span>
+  
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">init</span>(colorDocument: <span class="hljs-type">ColorDocument</span>) {
+    <span class="hljs-keyword">self</span>.colorDocument = colorDocument
+  }
+  
+  <span class="hljs-keyword">override</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">var</span> <span class="hljs-title">activityCategory</span>: <span class="hljs-title">UIActivityCategory</span> </span>{
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">return</span> .action
+  }
+  
+  <span class="hljs-keyword">override</span> <span class="hljs-keyword">var</span> activityType: <span class="hljs-type">UIActivityType</span>? {
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-type">UIActivityType</span>(rawValue: <span class="hljs-string">"ColorBrowserCopy"</span>)
+  }
+  
+  <span class="hljs-comment">// 4</span>
+  <span class="hljs-keyword">override</span> <span class="hljs-keyword">var</span> activityTitle: <span class="hljs-type">String</span>? {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Copy"</span>
+  }
+  
+  <span class="hljs-comment">// 5</span>
+  <span class="hljs-keyword">override</span> <span class="hljs-keyword">var</span> activityImage: <span class="hljs-type">UIImage</span>? {
+    <span class="hljs-keyword">return</span> <span class="hljs-type">UIImage</span>(named: <span class="hljs-string">"copy_activity_icon"</span>)
+  }
+  
+  <span class="hljs-comment">// 6</span>
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">canPerform</span><span class="hljs-params">(
+    withActivityItems activityItems: [Any])</span></span> -&gt; <span class="hljs-type">Bool</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  
+  <span class="hljs-comment">// 7</span>
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">perform</span><span class="hljs-params">()</span></span> {
+    colorDocument.open { success <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">if</span> success {
+        <span class="hljs-type">UIPasteboard</span>.general.string = 
+          <span class="hljs-keyword">try</span>! <span class="hljs-keyword">self</span>.colorDocument.stringRepresentation()
+        <span class="hljs-keyword">self</span>.activityDidFinish(<span class="hljs-literal">true</span>)
+      }
+    }
+  }
+}</pre>
+<p>Going through this step-by-step:
+</p>
+<ol>
+<li>
+<p>In the constructor, assign the supplied <code>colorDocument</code> for which the activity will be used for.
+</p></li>
+
+<li>
+<p>Specify the activity type as <code>action</code>. You can also define a <code>share</code> activity.
+</p></li>
+
+<li>
+<p>Return a unique identifier for the activity type. You can use any identifier you want.
+</p></li>
+
+<li>
+<p>Return the title that will be presented below the activity in the UI.
+</p></li>
+
+<li>
+<p>Return the image that will serve as an icon for the activity.
+</p></li>
+
+<li>
+<p>This activity can be performed on all items in this app, so you return <code>true</code>.
+</p></li>
+
+<li>
+<p>This defines what happens when the user taps on the activity. You open the <code>colorDocument</code> and copy the value of <code>stringRepresentation()</code> to the pasteboard. <code>stringRepresentation()</code> is a method of <code>ColorDocument</code> shipped with the starter project. After the activity finishes you call <code>activityDidFinish(_)</code>.
+</p></li>
+</ol>
+
+<p>In order to enable <code>CopyStringActivity</code> in your browser, you need to return its instance. Go back to <em>DocumentBrowserViewController.swift</em> and add the following code to the <code>UIDocumentBrowserViewControllerDelegate</code> extension:
+</p><pre class="code-block"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">documentBrowser</span><span class="hljs-params">(<span class="hljs-number">_</span> controller:
+  UIDocumentBrowserViewController,
+  applicationActivitiesForDocumentURLs
+  documentURLs: [URL])</span></span> -&gt; [<span class="hljs-type">UIActivity</span>] {
+  <span class="hljs-keyword">let</span> colorDocument = <span class="hljs-type">ColorDocument</span>(fileURL: documentURLs[<span class="hljs-number">0</span>])
+  <span class="hljs-keyword">return</span> [<span class="hljs-type">CopyStringActivity</span>(colorDocument: colorDocument)]
+}</pre>
+<p>This returns the available custom activities; in this case, an array of one object: <code>CopyStringActivity</code>.
+</p>
+<p>Build and run the project. Tap the <em>Select</em> button in the top right and choose a file, then hit the <em>Share</em> button that appears along the bottom. From the activity menu, select the <em>Copy</em> activity and <i>voilà</i> — now you can paste the value of the color into any other iOS app!
+</p><div><img src="graphics/img132.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p><code>UIDocumentBrowserViewController</code> is a useful addition to iOS that helps to manage, share and edit your files across all kinds of cloud providers. As you’ve just experienced, one of its biggest advantages is the deep integration of custom document types.
+</p>
+<p>If you want to know more about the document browser, check out this WWDC Video, “Building Great Document-based Apps in iOS 11”: <a href="http://apple.co/2wdUjDg">http://apple.co/2wdUjDg</a>
+</p></body></html>

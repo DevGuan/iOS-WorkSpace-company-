@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 15: Dynamic Type</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 15: Dynamic Type</h1>
+
+<p>Have you ever looked at someone else’s iPhone or iPad and noticed that their text size is different from what you’re used to? Maybe they have the size turned up to make it easier for them to see. Or maybe they have smaller text to fit more content on the screen.
+</p>
+<p>This is a really thoughtful feature from Apple to allow users to customize their device to the text size that suits them best. But if your app doesn’t play along, your users won’t get the benefit of this setting.
+</p>
+<p>It’s handy for a user to be able to specify if they want smaller text, but this feature is more important than that. The sample app for this chapter, MedJournal, is an example of the important information people have come to rely on their iPhones for.
+</p>
+<p>Open the starter project, build and run, and you’ll see the main interface of the app. From anywhere in the app, if you triple tap, the app will show a blurred snapshot of the interface (the blurring process may take several seconds).
+</p>
+<div class="note">
+<p><em>Note</em>: On the Simulator, the blurring process can take as long as 60 seconds. Be patient or use a device to test this.
+</p></div>
+<div><img src="graphics/img190.png"  alt="" title="Do not adjust your television..." /></div>
+<p>You can then single tap to get back to the normal interactive app. This “feature” illustrates what the app might look like to someone with low visual acuity. As you can see, you can’t really read any of the text.
+</p>
+<p>Dynamic type is important for the millions of people without perfect vision to be able to actually see and use your app.
+</p>
+<h2 class="segment-chapter">A brief review</h2>
+
+<p>While the basic support for dynamic type has been available since iOS 7, iOS 11 introduces a number of new features to make it easier to adopt in your app. When you create a view with text, like a label, one of the properties you can set is the font. You can specify a system font, a custom font, or a font style.
+</p>
+<p>If you specify a style, the system will assign the actual font based on the user’s preferred content size. There are several styles available, such as “body”, “headline” and “footnote”. You can use these different styles to create text elements of different sizes that respond to the user’s settings.
+</p>
+<p>You don’t have to make every text element respond to changes. Usually, you only have to worry about the ones focused on content. You can set the font style in Interface Builder or in code, using <code>UIFont.preferredFont(forTextStyle:)</code>.
+</p>
+<p>In the Settings app, under <em>Display </em><em>&amp;</em><em> Brightness</em>, you’ll find a <em>Text Size</em> setting. This setting lets you choose between seven different font sizes. Under <em>General</em><em>\</em><em>Accessibility</em><em>\</em><em>Larger Text</em>, the user can turn on a switch that makes five larger sizes available.
+</p>
+<p>Beginning with iOS 10, your code can read the value of the user’s setting using the <code>preferredContentSizeCategory</code> property on <code>UIApplication</code>, or on objects conforming to the <code>UITraitCollection</code> protocol. You can also be notified when the user changes this setting while your app is running, using the <code>UIContentSizeCategoryDidChange</code> notification, or through <code>traitCollectionDidChange</code>.
+</p>
+<h2 class="segment-chapter">How dynamic type impacts layout</h2>
+
+<p>There are several layout scenarios where you should consider the length of text: displaying user-supplied content, translating text into different languages, and dynamic type.
+</p>
+<p>For example, when you’re designing your user interface, you may think that there is plenty of room on the screen to display all of your text on one line. But if the user chooses a very large font, that may no longer be true. This means that you need to think about more constraints than you may be used to.
+</p>
+<p>If you’re already in the habit of adding trailing constraints to your labels, congratulations! You’re ready to support dynamic type. But if you’re not in that habit yet, there’s good news: Xcode 9 will help you get in the habit.
+</p>
+<p>In fact, open <em>Main.storyboard</em> in the sample project and you’ll see a new warning right away: Trailing constraints are missing on some of the views.
+</p>
+<p>Select the Doctor Scene and add trailing constraints <em>&gt;= 0</em> to the superview margin for the <em>Name</em>, <em>Phone</em>, <em>Address</em>, <em>City/State/ZIP</em> (CSZ) and <em>Notes</em> labels. You should now see all the warnings have cleared.
+</p>
+<p>You may also want to think differently about the number of lines for your label. If your label has number of lines set to 1 and line break set to “truncate tail” (the default settings), two things will happen:
+</p>
+<ol>
+<li>
+<p>Your new trailing constraints will keep the label from running off the right of the screen.
+</p></li>
+
+<li>
+<p>The right side will start to truncate the text grows.
+</p></li>
+</ol>
+
+<p>That may be what you want, but if you need the text to wrap, then you’ll have to set number of lines to <em>0</em> and line break to <em>word wrap</em>.
+</p>
+<p>If the setting for text size is very large, it may make sense to adopt a different layout entirely. For example, rather than having text side-by-side, it may make more sense to stack the text vertically. You’ll see an example of that later in this chapter.
+</p><div class="image-80"><img src="graphics/img191.png"  alt="" title="Changing layout based on text size" /></div>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>Let’s convert the starter project to use dynamic type. The first thing you need to do is set a style for each label you want to be dynamic.
+</p><div class="image-60"><img src="graphics/img192.png"  alt="" title="" /></div>
+<p>In <em>Main.storyboard</em>, select the <em>Appointments Scene</em> and click on the <em>Date Label</em>. In the Attributes inspector, change the font to the <em>Body</em> text style.
+</p>
+<p>In Xcode 9, you can instruct the system to adjust the font size automatically when the user changes their preferred size. Just below the Font setting, check the <em>Automatically Adjusts Font</em> checkbox:
+</p><div class="image-60"><img src="graphics/img193.png"  alt="" title="" /></div>
+<p>Repeat both of these steps for the <em>Doctor Name Label</em> and the <em>Time Label</em>.
+</p>
+<p>Then select the <em>Medicine Scene</em> and repeat for the <em>Title</em> and <em>Detail</em> labels.
+</p>
+<p>Now, select the <em>Doctor Scene</em> and change the following:
+</p>
+<ul>
+<li>
+<p>Name Label style to <em>Headline</em>
+</p></li>
+
+<li>
+<p>Phone, Address, and CSZ Labels to <em>Footnote</em>
+</p></li>
+
+<li>
+<p>Notes Label to <em>Body</em>.
+</p></li>
+</ul>
+
+<p>Make sure the <em>Automatically Adjusts Font</em> checkbox is checked for all of the labels.
+</p>
+<h3 class="segment-chapter">Using the Accessibility Inspector</h3>
+
+<p>Build and run the app in the simulator. To change the text size and see your labels adjust, you could background the app, go to the Settings app, navigate to <em>General</em><em>\</em><em>Accessibility</em><em>\</em><em>Larger Text</em>, set a new setting, then switch back to your app — but that’s a very tedious way to change the font size!
+</p>
+<p>There’s a much better way. From Xcode, click on the <em>Xcode</em> menu, then <em>Open Developer Tool</em><em>\</em><em>Accessibility Inspector</em>. This will bring up a window that lets you view and modify the settings for the simulator.
+</p><div class="image-50"><img src="graphics/img194.png"  alt="" title="" /></div>
+<p>Make sure the simulator is selected and then click on the <em>Settings</em> button. From there, you can drag the Font size slider around. When you let go, the size of the text in your app will automatically adjust to the new setting! Try setting the value to one of the larger sizes and then triple-tapping the interface to show the blurry version.
+</p><div><img src="graphics/img195.png"  alt="" title="" /></div>
+<div class="note">
+<p><em>Note:</em> If you’re having trouble seeing the font size change in your app, first make sure you’re letting go of the slider, as the size won’t change as you drag the slider around until you let go. Second, the connection between the simulator and the Accessibility Inspector can sometimes be fragile, so try rebuilding your app after you’ve opened the Accessibility Inspector. Third, make sure the right instance of the simulator is selected.
+</p></div>
+
+<p>If you tap on a doctor to see the doctor detail view and set the font size to one of the four largest sizes, you’ll notice that you have a problem — things start to overlap.
+</p><div><img src="graphics/img196.png"  alt="" title="" /></div>
+<p>At design time, there is no overlap of the labels, and the Notes label has a constraint to position it below the profile image view. But when the user chooses a font that is large enough, you can see that you’ll need some more constraints, specifically between the Notes Label and the CSZ Label.
+</p>
+<h2 class="segment-chapter">Baseline to baseline</h2>
+
+<p>When creating constraints between labels in a vertical direction, you might create a standard spacing constraint between the bottom of the first label and the top of the second, like so:
+</p><div class="image-40"><img src="graphics/img197.png"  alt="" title="" /></div>
+<p>This constraint will work, but there is a better way to create constraints between two text elements with standard spacing baseline-to-baseline constraints, like this:
+</p><div class="image-40"><img src="graphics/img198.png"  alt="" title="" /></div>
+<p>The spacing that looks best between text that is very small, is not the same spacing that will look best between text that is very large. When you create a baseline-to-baseline constraint with standard spacing, the system will take text size into account when determining what that standard spacing should be.
+</p>
+<p>So, before you add your new constraints between the Notes Label and CSZ Label, change the existing top–bottom constraints into baseline–baseline constraints. In the Doctor Scene:
+</p>
+<ol>
+<li>
+<p>Select the <em>Name Label</em> and double click on the <em>Bottom Space to Phone Label</em> constraint in the Size inspector.
+</p></li>
+
+<li>
+<p>Change the <em>First Item</em> to <em>Phone Label.First Baseline</em>.
+</p></li>
+
+<li>
+<p>Change the <em>Second Item</em> to <em>Name Label.Last Baseline</em>.
+</p></li>
+</ol>
+
+<p>If the text spans multiple lines, the constraint will go from the baseline of the last line of text in the Name Label to the baseline of the first line of text in the Phone Label.
+</p>
+<p>Because the Constant of the constraint is already set to Standard, you don’t need to to anything more to get the system to position the labels using the best vertical spacing between them. Repeat for the <em>Phone–Address</em> and <em>Address–CSZ</em> spacing.
+</p>
+<p>You have a somewhat complicated relationship between the Notes label, the Profile Image View, and the CSZ Label. You want the Notes label to be below the Profile Image View, but if the text above it gets too tall, you also want it to always stay below the CSZ label. Here’s how you accomplish that:
+</p>
+<ol>
+<li>
+<p>Add a baseline–baseline constraint between the <em>CSZ label</em> and the <em>Notes label</em> that is <em>&gt;=</em> the Standard value.
+</p></li>
+
+<li>
+<p>Change the existing <em>Notes Top Space to Profile Image View</em> constraint priority to <em>Low</em> (250).
+</p></li>
+
+<li>
+<p>Add another <em>Notes Top Space to Profile Image View</em> constraint, but <em>&gt;=</em> the Standard value.
+</p></li>
+</ol>
+
+<p>This will keep the Notes label from overlapping the image view, and try to keep it a standard space below it, but allow the notes to move down, if necessary.
+</p>
+<p>There are only a few touch-ups left to do:
+</p>
+<ol>
+<li>
+<p>Increase the <em>horizontal compression resistance priority</em> of the <em>Profile image view</em> to <em>751</em>, to keep it from getting compressed as text gets larger.
+</p></li>
+
+<li>
+<p>Change the <em>Lines</em> of the <em>Address</em> and <em>CSZ</em> labels to <em>0</em>.
+</p></li>
+
+<li>
+<p>Change the <em>Line Break</em> of the <em>Address</em> and <em>CSZ</em> labels to <em>Word Wrap</em>.
+</p></li>
+</ol>
+
+<p>Notice that you didn’t change the Lines and Line Break properties of the Name and Phone Number labels.
+</p>
+<p>Build and run, and you can see how the Phone Number label and the Address label behave differently. Large text will clip at the edge for the phone number, but wrap to multiple lines for the address. Use whichever behavior you need in a particular situation.
+</p><div><img src="graphics/img199.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">UIFontMetrics</h2>
+
+<p>When you choose a font style, you no longer have control over the font used in your app, since the system will choose the font for you. So, if your design calls for a different font, will you find yourself left out of all the Dynamic Type goodness?
+</p>
+<p>Nope! <code>UIFontMetrics</code> is a new class that helps scale your custom fonts based on the user’s preferred size.
+</p>
+<p>That’s not all — <code>UIFontMetrics</code> has a couple of other tricks up its sleeve. You can use it to scale numbers, which is useful if you want to adjust the constant of a constraint based on the text size. And you can scale a font while specifying a maximum point size, for cases when your user interface cannot handle text larger than a certain size.
+</p>
+<h3 class="segment-chapter">Custom fonts</h3>
+
+<p>You’ll now change the font of your app to use a custom font. Select the labels in the <em>Appointments Scene</em> and change their font to a custom font, such as <em>American Typewriter 17.0</em>. At this point, you may notice a new warning:
+</p><div class="image-40"><img src="graphics/img200.png"  alt="" title="" /></div>
+<p>The Interface Builder checkbox <em>Automatically Adjusts Font</em> corresponds to the property <code>adjustFontForContentSizeCategory</code>. It’s only appropriate to set this value to <code>true</code> when using a font style, or when using <code>UIFontMetrics.scaledFont(for:)</code>.
+</p>
+<p>Since Interface Builder doesn’t know what you’re doing with these labels in code, it warns you that you should not set that checkbox to <code>true</code> if you’re not using a font style. Clear the checkbox for all three labels.
+</p>
+<p>Repeat this process for the labels in the <em>Medicine Scene</em>, setting the font to <em>American Typewriter 17.0</em> and clearing the <em>Automatically Adjusts Font</em> checkbox.
+</p>
+<p>For the <em>Doctor Scene</em>, you’re going to use a couple of different fonts:
+</p>
+<ul>
+<li>
+<p>Set the <em>Name</em> label to <em>American Typewriter Semibold 17.0</em>.
+</p></li>
+
+<li>
+<p>Set the <em>Notes</em> label to <em>American Typewriter 20.0</em>.
+</p></li>
+
+<li>
+<p>Set the other three to <em>American Typewriter 13.0</em>.
+</p></li>
+</ul>
+
+<p>Be sure to clear the checkbox on all of those views.
+</p>
+<p>Now that the custom font is set, you’ll add the code to make it adjust to the user’s preferred size. Open <em>AppointmentCell.swift</em> and add the following code before <code>setupConstraints()</code>:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">awakeFromNib</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.awakeFromNib()
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> metrics = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .body)
+  <span class="hljs-comment">// 2</span>
+  dateLabel.font = metrics.scaledFont(<span class="hljs-keyword">for</span>: dateLabel.font)
+  doctorNameLabel.font =
+    metrics.scaledFont(<span class="hljs-keyword">for</span>: doctorNameLabel.font)
+  timeLabel.font = metrics.scaledFont(<span class="hljs-keyword">for</span>: timeLabel.font)
+
+  <span class="hljs-comment">// 3</span>
+  dateLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+  doctorNameLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+  timeLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+}</pre>
+<p>Here’s what this is doing:
+</p>
+<ol>
+<li>
+<p>In this case, you can use the same <code>UIFontMetrics</code> instance for all the labels, so you create one with the <code>.body</code> style.
+</p></li>
+
+<li>
+<p>Then you tell each label to use a scaled font using the <code>UIFontMetrics</code> instance. You pass the font that was set in the storyboard as the font to scale.
+</p></li>
+
+<li>
+<p>Setting this property is the same as setting the checkbox in Interface Builder.
+</p></li>
+</ol>
+
+<p>Now, open <em>DoctorViewController.swift</em> and add this code:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">awakeFromNib</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-keyword">super</span>.awakeFromNib()
+  loadViewIfNeeded()
+  nameLabel.font = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .headline)
+    .scaledFont(<span class="hljs-keyword">for</span>: nameLabel.font)
+  phoneLabel.font = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .footnote)
+    .scaledFont(<span class="hljs-keyword">for</span>: phoneLabel.font)
+  addressLabel.font = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .footnote)
+    .scaledFont(<span class="hljs-keyword">for</span>: addressLabel.font)
+  cityStateZipLabel.font = 
+    <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .footnote)
+    .scaledFont(<span class="hljs-keyword">for</span>: cityStateZipLabel.font)
+  notesLabel.font = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .body)
+    .scaledFont(<span class="hljs-keyword">for</span>: notesLabel.font)
+
+  nameLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+  phoneLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+  addressLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+  cityStateZipLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+  notesLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+}</pre>
+<p>No surprises here; this is simply doing the same thing, and using the right style for each label.
+</p>
+<p>Finally, open <em>MedicineViewController.swift</em> and replace these lines in <code>tableView(_:cellForRowAt:)</code>:
+</p><pre class="code-block">cell.textLabel?.text = medicine.name
+cell.detailTextLabel?.text = medicine.dose</pre>
+<p>With these:
+</p><pre class="code-block"><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> textLabel = cell.textLabel {
+  textLabel.text = medicine.name
+  textLabel.font = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .body)
+    .scaledFont(<span class="hljs-keyword">for</span>: textLabel.font)
+  textLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+}
+
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> detailLabel = cell.detailTextLabel {
+  detailLabel.text = medicine.dose
+  detailLabel.font = <span class="hljs-type">UIFontMetrics</span>(forTextStyle: .body)
+    .scaledFont(<span class="hljs-keyword">for</span>: detailLabel.font)
+  detailLabel.adjustsFontForContentSizeCategory = <span class="hljs-literal">true</span>
+}</pre>
+<p>Build and run, and you’ll see the interface using your custom font, dynamically adjusted to the correct size.
+</p>
+<h3 class="segment-chapter">Scaling sizes</h3>
+
+<p>Your little app doesn’t have any size values in code, but you can simulate that situation.
+</p>
+<p>Start by opening <em>Main.storyboard</em>, selecting the Doctor Scene, and creating an outlet for the width constraint on the Profile Image View. Name the outlet <code>profileImageSizeConstraint</code>. Add this constant below the <code>IBOutlet</code>:
+</p><pre class="code-block"><span class="hljs-keyword">private</span> <span class="hljs-keyword">let</span> defaultImageSize: <span class="hljs-type">CGFloat</span> = <span class="hljs-number">128</span></pre>
+<p>And add this code to the bottom of the class:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">traitCollectionDidChange</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> previousTraitCollection: UITraitCollection?)</span></span> {
+  
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">let</span> preferredSize =
+    traitCollection.preferredContentSizeCategory
+    
+  <span class="hljs-keyword">if</span> preferredSize !=
+    previousTraitCollection?.preferredContentSizeCategory {
+    
+    <span class="hljs-comment">// 2</span>
+    setImageSize()
+  }
+}
+
+<span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">setImageSize</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-comment">// 3</span>
+  profileImageSizeConstraint.constant = 
+    <span class="hljs-type">UIFontMetrics</span>.<span class="hljs-keyword">default</span>.scaledValue(<span class="hljs-keyword">for</span>: defaultImageSize)
+}</pre>
+<p>Here’s what this does:
+</p>
+<ol>
+<li>
+<p>The system calls the view controller’s <code>traitCollectionDidChange</code> method when the preferred content size category changes. There are several other traits that can change, so you first check that it was this setting that changed.
+</p></li>
+
+<li>
+<p>Then you call your <code>setImageSize</code> method...
+</p></li>
+
+<li>
+<p>...which sets the constant on the constraint to a scaled value, passing the original value to scale. Notice that this uses the <code>default</code> instance of <code>UIFontMetrics</code>, which simply uses the <code>.body</code> font style.
+</p></li>
+</ol>
+
+<p>There are two constraint changes you have to make to avoid some constraint errors in the console when running on smaller devices (5s/6/6s/7) and at the largest text settings:
+</p>
+<ol>
+<li>
+<p>Change the priority of the width constraint on the profile image view to 999.
+</p></li>
+
+<li>
+<p>Add a trailing space constraint on the profile image view &gt;= 16 to the safe area.
+</p></li>
+</ol>
+
+<p>If you build and run, you’ll see the size of the profile image view grow as the <code>UIFontMetrics</code> class scales the constant for its constraint.
+</p>
+<h2 class="segment-chapter">Images</h2>
+
+<p>If you want to evenly scale your image based on the text size, you can use the <code>scaledValue</code> method on <code>UIFontMetrics</code> and a size constraint, as you’ve just done in the previous section. However, there is an easier way to adjust image sizes for accessibility.
+</p>
+<p>In fact, if you just want your image to be visible for people using the accessibility text size categories, there is a property you can set that will handle the resizing for you.
+</p>
+<p><code>UIImageView</code>’s <code>adjustsImageSizeForAccessibilityContentSizeCategory</code> property, when set to <code>true</code>, will cause your image size to remain the same for all seven text sizes. But if the user chooses one of the five additional accessibility text sizes, your image will be scaled up to ensure your users can see it.
+</p>
+<p>You can also set this value in Interface Builder, using the <em>Accessibility</em><em>\</em><em>Adjusts Image Size</em> checkbox in the Attributes inspector for an image view. Try it out:
+</p>
+<ol>
+<li>
+<p>Remove the <code>traitCollectionDidChange</code> and <code>setImageSize</code> methods from <em>DoctorViewController.swift</em>.
+</p></li>
+
+<li>
+<p>Open <em>Main.storyboard</em> and remove the image view width constraint.
+</p></li>
+
+<li>
+<p>Check the <em>Adjusts Image Size</em> checkbox
+</p></li>
+</ol>
+
+<p>Build and run and change the text size using the Accessibility Inspector to several different values. You should notice the following:
+</p>
+<ul>
+<li>
+<p>The image remains the same using any of the smaller text sizes.
+</p></li>
+
+<li>
+<p>The image is scaled up for the five largest text sizes.
+</p></li>
+</ul>
+
+<h2 class="segment-chapter">Modifying the layout</h2>
+
+<p>It may make sense to adjust the structure of the layout when the user’s preferred font size is very large. In fact, you may have already noticed that table cells with a system style will do this for you!
+</p>
+<p>Build and run and view the Medicine tab. Change the font to one of the five largest accessibility sizes and you’ll notice that the cell goes from a side-by-side layout to a top-to-bottom layout.
+</p>
+<p>There are a couple of checks that you can do in code to decide whether to adjust the layout:
+</p>
+<ol>
+<li>
+<p>You can check the <code>preferredContentSizeCategory.isAccessibilityCategory</code> property of <code>traitCollection</code>. This will return <code>true</code> if the user has selected one of the five larger accessibility text sizes.
+</p></li>
+
+<li>
+<p>You can use comparison operators; <code>UIContentSizeCategory</code> implements operators for comparison. For example, you could adjust your layout if <code>traitCollection.preferredContentSizeCategory &gt; .extraLarge</code>.
+</p></li>
+</ol>
+
+<p>You’ll modify the appointment cell to adjust its layout.
+</p>
+<p>Because you’re going to set the constraints in code, you’ll need to remove them from the storyboard. Open <em>Main.storyboard</em>, select one of the labels in the Appointments Scene, and clear all the constraints. To do this, click the triangle in the lower right and choose <em>Clear Constraints</em> under <em>All Views in Appointment Cell</em>.
+</p><div class="image-40"><img src="graphics/img201.png"  alt="" title="" /></div>
+<p>You have a <code>setupConstraints</code> method in <em>AppointmentCell.swift</em> from the starter project, but nothing is calling it. Add this code to <code>awakeFromNib</code>:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">awakeFromNib</span><span class="hljs-params">()</span></span> {
+  ...
+  setupConstraints()
+  updateConstraints()
+}</pre>
+<p><code>setupConstraints</code> creates three arrays of constraints: one common to both layouts, one for the regular layout, and one for the layout when larger text is selected.
+</p>
+<p><code>updateConstraints</code> is a <code>UIView</code> method that you need to override to activate the correct constraints, so add that now:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">updateConstraints</span><span class="hljs-params">()</span></span> {
+  <span class="hljs-type">NSLayoutConstraint</span>.activate(commonConstraints)
+  
+  <span class="hljs-keyword">if</span> traitCollection.preferredContentSizeCategory
+    .isAccessibilityCategory {
+    
+    <span class="hljs-type">NSLayoutConstraint</span>.deactivate(regularConstraints)
+    <span class="hljs-type">NSLayoutConstraint</span>.activate(largeTextConstraints)
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-type">NSLayoutConstraint</span>.deactivate(largeTextConstraints)
+    <span class="hljs-type">NSLayoutConstraint</span>.activate(regularConstraints)
+  }
+  
+    <span class="hljs-keyword">super</span>.updateConstraints()
+}</pre>
+<p>This uses the <code>isAccessibilityCategory</code> property to decide which constraints to activate, but you could use comparison operators here instead if you wanted.
+</p>
+<p>Although this will set up the constraints properly when the view is first shown, you also need to check when the preferred size changes. Add the following override to the class:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">traitCollectionDidChange</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> previousTraitCollection: UITraitCollection?)</span></span> {
+  
+  <span class="hljs-keyword">let</span> isAccessibilityCategory = traitCollection
+    .preferredContentSizeCategory.isAccessibilityCategory
+    
+  <span class="hljs-keyword">if</span> isAccessibilityCategory != previousTraitCollection?
+    .preferredContentSizeCategory.isAccessibilityCategory {
+    
+    setNeedsUpdateConstraints()
+  }
+}</pre>
+<p>This is similar to what you did before in <code>traitCollectionDidChange</code>, but this time you’re checking if the <code>isAccessibilityCategory</code> value is different and then calling <code>setNeedsUpdateConstraints</code>, which will trigger another call to <code>updateConstraints</code>.
+</p>
+<p>Build and run, and you’ll see the layout change when you pick one of the five larger text sizes.
+</p>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>There are a couple of sessions from WWDC 2017 that are helpful for this topic, including one that is a bit of a surprise!
+</p>
+<ul>
+<li>
+<p><em>Building Apps with Dynamic Type</em>: You would expect this sesstion to be loaded with good information on this topic, and you won’t be disappointed. <a href="http://apple.co/2uSN6qX">apple.co/2uSN6qX</a>
+</p></li>
+
+<li>
+<p><em>Localizing with Xcode 9</em>: There’s a little nugget here that shows you how to use a strings dictionary (<code>stringsdict</code> file) to create adaptive strings using <code>NSStringVariableWidthRuleType</code> and <code>variantFittingPresentationWidth</code> to present a completely different string based on the available space. This could be handy for a variety of situations! <a href="http://apple.co/2vuvUvF">apple.co/2vuvUvF</a>
+</p></li>
+</ul>
+
+<p>Although you’ve covered quite a lot of territory in this chapter, if you’re already using Auto Layout, adding support for dynamic type is really rather simple — and helpful for millions of users!
+</p></body></html>

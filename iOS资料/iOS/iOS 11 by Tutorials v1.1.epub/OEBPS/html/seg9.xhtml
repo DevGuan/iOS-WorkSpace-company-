@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" type="text/css" href="i11t.css"/>
+  <title>Chapter 4: What’s new in UIKit</title>
+</head>
+<body class="segment-chapter">
+
+<!-- metadata: nil  -->
+
+
+<h1 class="segment-chapter">Chapter 4: What’s new in UIKit</h1>
+
+<p>UIKit received a lot of love from Apple in iOS 11. Some came in the form of shiny new features like Drag and Drop and Document Browser. But as usual, incremental improvements to existing features were sprinkled throughout the framework.
+</p>
+<p>This chapter is a tour of some of the most important updates to UIKit. Here’s a look at what you’ll be working on:
+</p>
+<ul>
+<li>
+<p><em>Paste configuration</em> is a new feature that allows responder objects to control paste and simple drop operations.
+</p></li>
+
+<li>
+<p><em>Drag and Drop</em> is covered in great detail in Chapters 6 and 7. Here, you’ll learn the basics and configure a simple drag and drop within a table view.
+</p></li>
+
+<li>
+<p><em>Table view</em> now has a more robust swipe interaction API and closure-based batch updates. You’ll get an overview of additional features covered in other chapters as well.
+</p></li>
+
+<li>
+<p><em>Accessibility</em> gains some new attributed labels, drag and drop support, and a HUD-like display for hard-to-see controls.
+</p></li>
+
+<li>
+<p><em>Asset catalogs</em> now support color sets for defining your custom colors.
+</p></li>
+</ul>
+
+<p>Wait a minute — those large navigation titles with the integrated search bar seemed like a big deal. Password AutoFill and the new document browser were notable too! Aren’t <i>those</i> important UIKit updates?
+</p><div class="image-40"><img src="graphics/img71.png"  alt="" title="" /></div>
+<p>Put down the pitchforks and hear me out! iOS 11 is packed with <i>so</i> many UIKit goodies that this book has several chapters dedicated to them. Here’s a quick overview of chapters covering UIKit changes you might want to check out:
+</p>
+<ul>
+<li>
+<p><em>Chapter 5, What’s New in Layout</em> is where you’ll find info on safe areas, large navigation titles, updates to scroll view’s layout system, and layout changes for stack view and table view. This should be your next stop if you want a broader overview of UIKit updates.
+</p></li>
+
+<li>
+<p><em>Chapter 8, Document-Based Apps</em> introduces a feature that allows your users to view shared local and remote documents from your app.
+</p></li>
+
+<li>
+<p><em>Chapter 14, Password Autofill</em> is a new feature that allows apps to display keyboard autofill suggestions for credentials saved to iCloud Keychain.
+</p></li>
+
+<li>
+<p><em>Chapter 15, Dynamic Type</em> is a deep dive into dynamic type including iOS 11 updates.
+</p></li>
+</ul>
+
+<p>Clearly, there’s a lot to learn. You’ll start by exploring an app in need of some of these features.
+</p>
+<h2 class="segment-chapter">Getting started</h2>
+
+<p>You’ll be working with Green Grocer, an app that lets a produce store’s customers browse available products and create shopping lists. Adding products from the product to shopping list is only possible via copy and paste. Green Grocer is otherwise the pinnacle of iOS 10 technology.
+</p>
+<p>You’re about to make it a whole lot better with a little iOS 11 UIKit magic! Open <em>GreenGrocer.xcodeproj</em> in the starter project folder. Build and run and have a look around.
+</p>
+<p>On the <em>Products</em> tab, long press a cell, then tap <em>Copy</em>. On the <em>List</em> tab, tap <em>+</em>, then paste the copied product into the text view. Tap <em>Add</em>, and you’ll see the item in your shopping list.
+</p><div class="image-100"><img src="graphics/img72.png"  alt="" title="" /></div>
+<p>Green Grocer has gotten its fair share of poor reviews on the app store. Many people find the process of adding items to the shopping list to be cumbersome. Some appreciate the alphabetic list sorting, but others wish they could order the items as they see fit.
+</p>
+<p>You’re going to tackle these requests and more in the sections ahead. Let’s jump right in!
+</p>
+<h2 class="segment-chapter">Paste configuration</h2>
+
+<p>The new <code>UIPasteConfiguration</code> allows UIResponders to configure what types of paste operations they can accept. Additionally, UIResponders can implement <code>paste(itemProviders:)</code> to act upon pasted data.
+</p>
+<p>A key here is the use of <code>NSItemProvider</code> for conveying the pasted data. This not only enables paste operations, but simple drop operations as well.
+</p>
+<p>As you saw previously, the Add Item view of Green Grocer accepts the string representation of a product. You’re going to change it to accept the entire product object.
+</p>
+<p>Open <em>ProductTableViewCell.swift</em> and locate <code>copy(_:)</code>. Replace the <code>UIPasteboard</code> line with the following:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> data = <span class="hljs-type">NSKeyedArchiver</span>.archivedData(withRootObject: product)
+<span class="hljs-type">UIPasteboard</span>.general.setData(data,
+  forPasteboardType: <span class="hljs-type">Product</span>.productTypeId)</pre>
+<p>You call <code>archivedData(withRootObject:)</code> to encode the <code>product</code> associated with the copied cell. That data is copied to the pasteboard with <code>setData</code>, along with the custom <code>productTypeId</code> string.
+</p>
+<p>In <em>AddItemViewController.swift</em> add the following below the call to <code>super</code> in <code>viewDidLoad()</code>:
+</p><pre class="code-block">pasteConfiguration =
+  <span class="hljs-type">UIPasteConfiguration</span>(acceptableTypeIdentifiers:
+    [<span class="hljs-type">Product</span>.productTypeId])</pre>
+<p>This sets the <code>pasteConfiguration</code> property defined in the <code>UIPasteConfigurationSupporting</code> protocol, which <code>UIResponder</code> adopts. <code>acceptableTypeIdentifiers</code> takes an array of UTI strings representing data types you want to accept. You use the custom <code>productTypeId</code> to identify the <code>Product</code> object, just as you did for the copy.
+</p>
+<p>This was made possible by the fact that <code>Product</code> adopts another new protocol — <code>NSItemProviderReading</code>. This allows the object to be instantiated via data provided by an <code>NSItemProvider</code>. To learn more about how this works, check out Chapter 7, “Advanced Drag and Drop”.
+</p>
+<p>Next, add the following method to <code>AddItemViewController</code>:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">paste</span><span class="hljs-params">(itemProviders: [NSItemProvider])</span></span> {
+  <span class="hljs-comment">// 1</span>
+  itemProviders.forEach {
+    $<span class="hljs-number">0</span>.loadObject(ofClass: <span class="hljs-type">Product</span>.<span class="hljs-keyword">self</span>) { object, <span class="hljs-number">_</span> <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> product = object <span class="hljs-keyword">as</span>? <span class="hljs-type">Product</span>
+        <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+      <span class="hljs-keyword">let</span> productImage = <span class="hljs-type">UIImage</span>(named: product.photoName)
+      <span class="hljs-comment">// 2</span>
+      <span class="hljs-type">DispatchQueue</span>.main.async { [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span> <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+        <span class="hljs-keyword">self</span>.itemTextField.text = product.name
+        <span class="hljs-keyword">self</span>.productImageView.image = productImage
+      }
+    }
+  }
+}</pre>
+<p><code>paste(itemProviders:)</code> is called when a paste compatible with the <code>UIPasteConfiguration</code> occurs. Inside, you’re doing the following:
+</p>
+<ol>
+<li>
+<p>The method receives an array of <code>NSItemProvider</code> objects, provided by the pasteboard. You call <code>loadObject</code> on each to obtain the <code>product</code> it has archived. Note that while this code can handle multiple providers, you’re only expecting one product.
+</p></li>
+
+<li>
+<p>You dispatch to the main thread so that you can update the UI with the product data. This uses the product name for the text field, and displays its image in a view up top.
+</p></li>
+</ol>
+
+<p>Build and run, copy an item from the <em>Products</em> table, and paste it in <em>Add Item</em>. This time, you’ll see the product image load in addition to the name.
+</p><div><img src="graphics/img73.png"  alt="" title="" /></div>
+<p>Open <em>Photos.app</em> and copy any image. Switch back to Green Grocer and attempt to paste on the <em>Add Item</em> view. The paste menu won’t appear, because UIImage was not in the <code>pasteConfiguration</code>! However, because <code>UITextField</code> accepts <code>String</code>s, attempts to paste text will be forwarded and work as before.
+</p>
+<p>This code is also all you need for simple custom view drop operations. To learn about the drag side of that, check out Chapter 7, “Advanced Drag and Drop”. In the meantime, you’re going to explore table view drag and drop in the next section.
+</p>
+<h2 class="segment-chapter">Drag and drop basics</h2>
+
+<p>Drag and drop was one of the most exciting features announced for iOS 11, and an important one to add to your toolbox. While it truly shines on the iPad when copying data between split screened apps, this is only part of the story.
+</p>
+<p>Data can be copied, moved or even shared in place, allowing an app to modify strictly-controlled data living in another app. Controls can be spring-loaded, allowing drags to trigger actions or navigation events. All of this can be done between apps or within an app — even on the iPhone.
+</p>
+<p>During a drag, data is serialized and then presented in a system controlled preview the user physically drags. On a drop, the serialized data is copied to the destination, deserialized and then presented to the user.
+</p>
+<p>For drag and drop with custom views, you have very granular control over the animations and presentation of all phases of the interaction. Most of this happens in <code>UIDragInteractionDelegate</code> and <code>UIDropInteractionDelegate</code>, which you can learn much more about in Chapter 7.
+</p>
+<p>Table and collection views get specialized support for drag and drop. You have a bit less control over the way it looks than with custom views, but the basics are the same. Let’s dive right in and see how it works by adding the ability to reorder items on the shopping list.
+</p>
+<p>Open <em>ShoppingListViewController.swift</em> and add the following extension to the bottom of the file:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">ShoppingListViewController</span>: <span class="hljs-title">UITableViewDragDelegate</span> </span>{
+  <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tableView</span><span class="hljs-params">(
+    <span class="hljs-number">_</span> tableView: UITableView,
+    itemsForBeginning session: UIDragSession,
+    at indexPath: IndexPath)</span></span> -&gt; [<span class="hljs-type">UIDragItem</span>]
+  {
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-keyword">let</span> listItem = shoppingList[indexPath.row]
+    <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">let</span> provider = <span class="hljs-type">NSItemProvider</span>(object: listItem)
+    <span class="hljs-keyword">let</span> dragItem = <span class="hljs-type">UIDragItem</span>(itemProvider: provider)
+    <span class="hljs-keyword">return</span> [dragItem]
+  }
+}</pre>
+<p>Here’s what you’re doing:
+</p>
+<ol>
+<li>
+<p><code>UITableViewDragDelegate</code> is responsible for managing the drag interaction on a table view. <code>tableView(_:itemsForBeginning:at:)</code> is the sole required method. Its job is to provide a list of <code>UIDragItem</code> objects that represent the data to be dragged for the given <code>indexPath</code>.
+</p></li>
+
+<li>
+<p>You pull the current row’s backing <code>ListItem</code> from <code>shoppingList</code>, the table view’s data source. Note that <code>ListItem</code> already conforms to <code>NSItemProviderWriting</code>, which enables serialization. Take a look at <em>ListItem.swift</em> in the <code>NSItemProviderWriting</code> extension if you’d like to see how this is done.
+</p></li>
+
+<li>
+<p><code>NSItemProvider</code> coordinates serializing and transferring <code>listItem</code> between the source and destination. This <code>provider</code> is wrapped in a <code>UIDragItem</code>, which represents a single object being dragged. As this method is capable of managing multi-item drags, you place the <code>dragItem</code> in an array before returning.
+</p></li>
+</ol>
+
+<div class="note">
+<p><em>Note</em>: Collection views have virtually identical drag and drop APIs to those of table view. Naming is the main difference, with delegates named <code>UICollectionViewDragDelegate</code> and <code>UICollectionViewDropDelegate</code>. You will explore this in much more detail in Chapter 6.
+</p></div>
+
+<p>In <code>viewDidLoad()</code>, add the following just below the call to <code>super</code>:
+</p><pre class="code-block">tableView.dragDelegate = <span class="hljs-keyword">self</span>
+tableView.dragInteractionEnabled = <span class="hljs-literal">true</span></pre>
+<p>This sets the delegate you’ve just implemented. <code>dragInteractionEnabled</code> is set to <code>true</code> to allow drags on the iPhone. For iPad, this value defaults to <code>true</code>.
+</p>
+<p>Build and run, and select the <em>My List</em> tab. Long press a cell, and drag once the item lifts. When you release, you’ll see it neatly animate back to its origin, because you haven’t yet implemented the drop.
+</p><div><img src="graphics/img74.png"  alt="" title="" /></div>
+<p>Let’s implement that drop! Add the following to <code>ShoppingListViewController</code>:
+</p><pre class="code-block"><span class="hljs-class"><span class="hljs-keyword">extension</span> <span class="hljs-title">ShoppingListViewController</span>: <span class="hljs-title">UITableViewDropDelegate</span> </span>{
+  <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tableView</span><span class="hljs-params">(<span class="hljs-number">_</span> tableView: UITableView,
+                 performDropWith
+                 coordinator: UITableViewDropCoordinator)</span></span> {
+    <span class="hljs-comment">// 1</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> destinationIndexPath
+      = coordinator.destinationIndexPath
+      <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    
+    <span class="hljs-comment">// 2</span>
+    <span class="hljs-type">DispatchQueue</span>.main.async { [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] <span class="hljs-keyword">in</span>
+      tableView.beginUpdates()
+      <span class="hljs-comment">// 3</span>
+      coordinator.items.forEach { (item) <span class="hljs-keyword">in</span>
+        <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> sourceIndexPath = item.sourceIndexPath,
+          <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span>
+          <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+        
+        <span class="hljs-comment">// 4</span>
+        <span class="hljs-keyword">let</span> row = <span class="hljs-keyword">self</span>.shoppingList
+          .remove(at: sourceIndexPath.row)
+        <span class="hljs-keyword">self</span>.shoppingList
+          .insert(row, at: destinationIndexPath.row)
+        tableView.moveRow(at: sourceIndexPath,
+                          to: destinationIndexPath)
+      }
+      tableView.endUpdates()
+    }
+  }
+}</pre>
+<p><code>ShoppingListViewController</code> now adopts <code>UITableViewDropDelegate</code> and implements the required method <code>tableView(_:performDropWith:)</code>. This is triggered when a drop is initiated. Taking a look at your implementation:
+</p>
+<ol>
+<li>
+<p><code>destinationIndexPath</code> is the index path where the cell is being dropped. You obtain it from the <code>UITableViewDropCoordinator</code>, which is created by the system and manages animation of the drop.
+</p></li>
+
+<li>
+<p>You’ll be moving rows here, so you dispatch to the main thread. Because the <code>coordinator</code> could contain multiple items to move, you wrap this code in <code>beginUpdates</code> and <code>endUpdates</code>.
+</p></li>
+
+<li>
+<p>The <code>coordinator</code> contains an array of <code>UITableViewDropItem</code> objects, each with a reference to a <code>dragItem</code> and its <code>sourceIndexPath</code>. For the shopping list you’re only moving a single row, but this code will support dragging multiple rows.
+</p></li>
+
+<li>
+<p>You update the data source by removing the row at <code>sourceIndexPath</code> and adding it at <code>destinationIndexPath</code>. <code>moveRow</code> is then called to update the table view.
+</p></li>
+</ol>
+
+<p>You’ve defined how a drop will happen, but before this happens, you have to negotiate the drop. Add the following to that same extension:
+</p><pre class="code-block"><span class="hljs-comment">// 1</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tableView</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> tableView: UITableView,
+  canHandle session: UIDropSession)</span></span> -&gt; <span class="hljs-type">Bool</span>
+{
+  <span class="hljs-keyword">return</span> session.canLoadObjects(ofClass: <span class="hljs-type">ListItem</span>.<span class="hljs-keyword">self</span>)
+}
+
+<span class="hljs-comment">// 2</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tableView</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> tableView: UITableView,
+  dropSessionDidUpdate session: UIDropSession,
+  withDestinationIndexPath destinationIndexPath: IndexPath?)</span></span>
+  -&gt; <span class="hljs-type">UITableViewDropProposal</span>
+{
+  <span class="hljs-keyword">return</span> <span class="hljs-type">UITableViewDropProposal</span>(
+    operation: .move,
+    intent: .insertAtDestinationIndexPath)
+}</pre>
+<p>Both of these are triggered as the <code>UIDragSession</code> and <code>UIDropSession</code> negotiate how to handle a drop. Here’s a closer look:
+</p>
+<ol>
+<li>
+<p><code>tableView(_:canHandle:)</code> returns a <code>Bool</code> indicating if this table view can handle data contained in the session. <code>canLoadObjects</code> checks if the <code>session</code> contains any items capable of loading a <code>ListItem</code>. This method will thus return <code>true</code> for sessions initiated by the item provider you created with <code>ListItem</code> objects.
+</p></li>
+
+<li>
+<p><code>tableView(_:dropSessionDidUpdate:withDestinationIndexPath:)</code> is called as soon as a drag enters a droppable view, and is called continually as the drag proceeds. Its purpose is to return a <code>UITableViewDropProposal</code> that indicates what the <code>UIDropSession</code> wants to do with the incoming items. You return a proposal with the <code>move</code> operation and <code>insertAtDestinationIndexPath</code> intent, indicating you want to remove the item from the source and insert it at the destination index.
+</p></li>
+</ol>
+
+<p>Now you just need to set the drop delegate. In <code>viewDidLoad()</code>, below the call to <code>super</code>, add the following:
+</p><pre class="code-block">tableView.dropDelegate = <span class="hljs-keyword">self</span></pre>
+<p>Now the delegate methods you defined will be triggered when a drop is initiated.
+</p>
+<p>Build and run, and head to the <em>My List</em> tab. Drag an item from one spot on the list to another, and you’ll see it drop in place. Magic!
+</p><div class="image-40"><img src="graphics/img75.png"  alt="" title="" /></div>
+<p>As hinted, you can do quite a lot more with drag and drop in table views. Multiple item drags and custom drop animations would be great enhancements here.
+</p>
+<p>To learn how to make those enhancements and more, check out Chapter 6, “Beginning Drag and Drop” which covers table and collection views. If you want to drag and drop with custom views, check out Chapter 7, “Advanced Drag and Drop”.
+</p>
+<h2 class="segment-chapter">What’s new with table views</h2>
+
+<p>Drag and drop might be the most exciting addition, but table views received a few more goodies with iOS 11. You’re about to use a couple of them to improve Green Grocer.
+</p>
+<p>A top user complaint of the existing app is the number of manual steps required to get an item from the products table into the shopping list. You’ll address this by adding a swipe action to the cell that will add an item straight to the shopping list.
+</p>
+<p>This was possible prior to iOS 11 with <code>UITableViewRowAction</code>. However, iOS 11 introduced the more flexible <code>UISwipeActionsConfiguration</code>. This API allows leading and trailing actions, action button images and actions triggered by a full cell swipe.
+</p>
+<p>Open <em>ProductTableViewController.swift</em> and add the following to the class:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tableView</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> tableView: UITableView,
+  trailingSwipeActionsConfigurationForRowAt
+  indexPath: IndexPath)</span></span> -&gt; <span class="hljs-type">UISwipeActionsConfiguration</span>? {
+  <span class="hljs-comment">// 1</span>
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> product = dataStore?.products[indexPath.row]
+    <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> }
+  
+  <span class="hljs-comment">// 2</span>
+  <span class="hljs-keyword">let</span> addAction = <span class="hljs-type">UIContextualAction</span>(style: .normal,
+                                     title: <span class="hljs-string">"Add"</span>)
+  { [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] (action, view, completionHandler) <span class="hljs-keyword">in</span> <span class="hljs-comment">// 3</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span> <span class="hljs-keyword">else</span> {
+      completionHandler(<span class="hljs-literal">false</span>)
+      <span class="hljs-keyword">return</span>
+    }
+    <span class="hljs-keyword">self</span>.listController?.addItem(named: product.name)
+    completionHandler(<span class="hljs-literal">true</span>)
+  }
+  addAction.backgroundColor = <span class="hljs-type">UIColor</span>.ggGreen
+  
+  <span class="hljs-comment">// 4</span>
+  <span class="hljs-keyword">let</span> configuration =
+    <span class="hljs-type">UISwipeActionsConfiguration</span>(actions: [addAction])
+  <span class="hljs-keyword">return</span> configuration
+}</pre>
+<p>Right-to-left swipe actions are enabled when you implement <code>tableView(_:trailingSwipeActionsConfigurationForRowAt:)</code> in your <code>UITableViewDelegate</code> and return a <code>UISwipeActionsConfiguration</code>. Here’s a look at your implementation:
+</p>
+<ol>
+<li>
+<p>You obtain the <code>product</code> associated with the cell from the <code>dataStore</code>.
+</p></li>
+
+<li>
+<p>A <code>UIContextualAction</code> represents a swipe action, defining its appearance and what it does when selected. The <code>normal</code> style is used when you don’t want a <code>destructive</code> action, which would delete the cell. The <code>title</code> “Add” will be shown on the button.
+</p></li>
+
+<li>
+<p>This closure will be executed when the action is selected. The <code>completionHandler</code> accepts a <code>Bool</code> indicating whether the action was successfully performed. <code>addItem</code>, found in <em>ShoppingListViewController.swift</em>, is passed the <code>product</code> to add to the list.
+</p></li>
+
+<li>
+<p>A <code>UISwipeActionsConfiguration</code> requires one or more actions to display for a swipe. In this case, you pass the lone <code>addAction</code>.
+</p></li>
+</ol>
+
+<p>Next, you’ll add a leading edge swipe. Add the following beneath the method you just added:
+</p><pre class="code-block"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">tableView</span><span class="hljs-params">(
+  <span class="hljs-number">_</span> tableView: UITableView,
+  leadingSwipeActionsConfigurationForRowAt
+  indexPath: IndexPath)</span></span> -&gt; <span class="hljs-type">UISwipeActionsConfiguration</span>?
+{
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> product = dataStore?.products[indexPath.row]
+    <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span> }
+  
+  <span class="hljs-keyword">let</span> copyAction = <span class="hljs-type">UIContextualAction</span>(style: .normal,
+                                      title: <span class="hljs-string">"Copy"</span>)
+  { (action, view, completionHandler) <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">let</span> data =
+      <span class="hljs-type">NSKeyedArchiver</span>.archivedData(withRootObject: product)
+    <span class="hljs-type">UIPasteboard</span>.general
+      .setData(data, forPasteboardType: <span class="hljs-type">Product</span>.productTypeId)
+    completionHandler(<span class="hljs-literal">true</span>)
+  }
+  copyAction.backgroundColor = <span class="hljs-type">UIColor</span>.ggDarkGreen
+  
+  <span class="hljs-keyword">let</span> configuration =
+    <span class="hljs-type">UISwipeActionsConfiguration</span>(actions: [copyAction])
+  <span class="hljs-keyword">return</span> configuration
+}</pre>
+<p><code>tableView(_:leadingSwipeActionsConfigurationForRowAt:)</code> is just like its trailing action counterpart. You’ve created a <code>Copy</code> action that stores the product to the <code>UIPasteboard</code>. This will act as an alternate interaction to the currently implemented long press copy.
+</p>
+<p>Build and run. Try a trailing swipe and tap the resulting <em>Add</em> button. You’ll find the corresponding product added to your shopping list. Try a leading swipe, tap <em>Copy</em> and you’ll be able to paste to the <em>Add Item</em> view.
+</p><div class="image-60"><img src="graphics/img76.png"  alt="" title="" /></div>
+<h3 class="segment-chapter">Batch updates</h3>
+
+<p>Another small but very handy update to table view is the ability to perform batch updates in a closure with a completion handler. This may sound very familiar — because collection view has had this ability for some time! Let’s give it a try by updating the batched move operations used in the drag and drop section.
+</p>
+<p>Open <em>ShoppingListViewController.swift</em> and find <code>tableView(_:performDropWith:)</code>. Replace the contents of the <code>DispatchQueue.main.async</code> closure with the following:
+</p><pre class="code-block">tableView.performBatchUpdates(
+  { coordinator.items.forEach { [<span class="hljs-keyword">weak</span> <span class="hljs-keyword">self</span>] (item) <span class="hljs-keyword">in</span>
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> sourceIndexPath = item.sourceIndexPath,
+      <span class="hljs-keyword">let</span> `<span class="hljs-keyword">self</span>` = <span class="hljs-keyword">self</span>
+      <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    
+    <span class="hljs-keyword">let</span> row = <span class="hljs-keyword">self</span>.shoppingList
+      .remove(at: sourceIndexPath.row)
+    <span class="hljs-keyword">self</span>.shoppingList
+      .insert(row, at: destinationIndexPath.row)
+    tableView.moveRow(at: sourceIndexPath,
+                      to: destinationIndexPath)
+  }
+}, completion: <span class="hljs-literal">nil</span>)</pre>
+<p>You deleted <code>beginUpdates</code> and <code>endUpdates</code> and wrapped the code between them in <code>performBatchUpdates</code>. This is much clearer visually, comes with the convenience of closures, and provides you a completion closure as well.
+</p>
+<p>Build and run to confirm drag and drop still works properly on the shopping list.
+</p><div><img src="graphics/img77.png"  alt="" title="" /></div>
+<p>You can learn about a few more new table view features in Chapter 5, “What’s New in Layout”:
+</p>
+<ul>
+<li>
+<p>Automatic sizing for cell height is now on by default.
+</p></li>
+
+<li>
+<p><code>separatorInsetReference</code> is a new property that allows you to designate the point from where cell separator insets are measured. This works in combination with <code>separatorInset</code> to determine the horizontal start and end of separators.
+</p></li>
+
+<li>
+<p><code>UIRefreshControl</code> is now displayed within the navigation bar when added to a table view inside a navigation controller.
+</p></li>
+</ul>
+
+<h2 class="segment-chapter">What’s new in Accessibility</h2>
+
+<p>Accessibility is important to Apple, so it’s no surprise there are some new features in iOS 11. In this section, you’ll learn about a few notable changes.
+</p>
+<p>Green Grocer already has basic support for VoiceOver with accessibility labels and hints for various controls. To work with it, you’ll need a physical device running iOS 11. If you don’t have one, feel free to skip ahead.
+</p>
+<p>Open the <em>Settings</em> app on your device, navigate to <em>General</em><em>\</em><em>Accessibility</em><em>\</em><em>Accessibility Shortcut</em> and select <em>VoiceOver</em>. This will allow you to enable and disable VoiceOver by triple clicking your home button.
+</p><div class="image-40"><img src="graphics/img78.jpeg"  alt="" title="" /></div>
+<p>Run Green Grocer, navigate to <em>My List</em>, then tap <em>+</em> to get to the screen for adding list items. Enter an item in the text field, then triple click the home button to enable VoiceOver. Use left and right swipes to focus VoiceOver on the <em>Cancel</em> then <em>Add</em> button, and make a note of the tone used when describing them.
+</p><div class="image-50"><img src="graphics/img79.jpeg"  alt="" title="" /></div>
+<p>Open <em>AddItemViewController.swift</em> and look at <code>configureAccessibility</code>, where the text spoken was defined as follows:
+</p><pre class="code-block">addButton.accessibilityLabel = <span class="hljs-string">"Add"</span>
+addButton.accessibilityHint = <span class="hljs-string">"Add item to shopping list"</span>
+
+cancelButton.accessibilityLabel = <span class="hljs-string">"Cancel"</span>
+cancelButton.accessibilityHint = <span class="hljs-string">"Close without adding the item"</span></pre>
+<p>When you select the Cancel button, VoiceOver speaks the <code>accessibilityLabel</code> string, followed by the control type and then the <code>accessibilityHint</code>. The Add button also reads the text you had entered.
+</p>
+<p>That’s accomplished by this piece of code, also in <code>AddItemViewController</code>:
+</p><pre class="code-block"><span class="hljs-meta">@objc</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">textFieldDidChange</span><span class="hljs-params">(<span class="hljs-number">_</span> textField: UITextField)</span></span> {
+  addButton.accessibilityValue = textField.text
+}</pre>
+<p><code>accessibilityValue</code> is read after the label. <code>textFieldDidChange</code> is set to fire every time the user modifies the text field, thus keeping the <code>accessibilityValue</code> up to date.
+</p>
+<p>iOS 11 introduces attributed versions of these three attributes:
+</p>
+<ul>
+<li>
+<p><code>accessibilityAttributedLabel</code>
+</p></li>
+
+<li>
+<p><code>accessibilityAttributedHint</code>
+</p></li>
+
+<li>
+<p><code>accessibilityAttributedValue</code>
+</p></li>
+</ul>
+
+<p>These use <code>NSAttributedStrings</code> to provide additional characteristics to your accessibility attributes. A particularly handy one is <code>UIAccessibilitySpeechAttributePitch</code>, which controls the pitch of the spoken text. This can be used to convey additional information about a control without slowing things down.
+</p>
+<p>Apple suggests using a lower pitch to identify destructive operations, and higher pitch for creation. Let’s try this with Green Grocer’s Add and Cancel buttons.
+</p>
+<p>Change the contents of <code>configureAccessibility</code> to the following:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> addLabel = <span class="hljs-type">NSAttributedString</span>(string:
+  <span class="hljs-string">"Add "</span>, attributes: [<span class="hljs-type">NSAttributedStringKey</span>(
+    <span class="hljs-type">UIAccessibilitySpeechAttributePitch</span>): <span class="hljs-number">1.5</span>])
+addButton.accessibilityAttributedLabel = addLabel
+addButton.accessibilityHint = <span class="hljs-string">"Add item to shopping list"</span>
+
+<span class="hljs-keyword">let</span> cancelLabel = <span class="hljs-type">NSAttributedString</span>(string:
+  <span class="hljs-string">"Cancel "</span>, attributes: [<span class="hljs-type">NSAttributedStringKey</span>(
+    <span class="hljs-type">UIAccessibilitySpeechAttributePitch</span>): <span class="hljs-number">0.5</span>])
+cancelButton.accessibilityAttributedLabel = cancelLabel
+cancelButton.accessibilityHint = <span class="hljs-string">"Close without adding the item"</span></pre>
+<p>For both labels, you create an <code>NSAttributedString</code> with one attribute — <code>UIAccessibilitySpeechAttributePitch</code>. For <code>addLabel</code> you set the pitch to 1.5 and for <code>cancelLabel</code> you used 0.5. You use the same text as before, and add the attributed label using <code>accessibilityAttributedLabel</code>.
+</p>
+<p>Build and run, enable VoiceOver, and listen to the pronunciation of the buttons you’ve modified in <em>Add Item</em>. As promised, the Add button’s spoken text is higher pitched, and the Cancel button lower.
+</p>
+<p>Accessibility also added <code>UIAccessibilityLocationDescriptor</code> to enable VoiceOver for drag and drop operations. These descriptors define names for draggable locations within a view. For a demo of this, check out the 2017 WWDC session on Accessibility here: <a href="http://apple.co/2uh7Tt1">apple.co/2uh7Tt1</a>
+</p>
+<p>A couple of interesting changes were made to <code>UITabBar</code> as well. When the phone is rotated to landscape mode, UITabBar now displays icons side by side with their titles in a shorter bar. <code>UIBarItem.landscapeImagePhone</code> can be set to display a custom image for the iPhone landscape UITabBar. For Green Grocer, the standard image is simply resized.
+</p><div class="image-80"><img src="graphics/img80.png"  alt="" title="" /></div>
+<p>For users with limited eyesight, the smaller tab bar images pose an issue. To address this, Apple added the ability to display a pop up HUD containing a large version of the image upon long press. This feature exists in UITabBar, UIToolbar and UINavigationBar automatically.
+</p>
+<p>When using a vector image for the tab bar icon, iOS will automatically resize it for the HUD without sacrificing quality. Green Grocer already has PDF tab bar icons, so you’re going to leverage this.
+</p>
+<p>Open <em>Assets.xcassets</em> and find <em>fruitbowl-green</em> in the icons folder. Select the icon and bring up the Attributes Inspector. Check <em>Preserve Vector Data</em> near the top of the image set options. Do the same for the <em>list-green</em> image set.
+</p><div class="image-100"><img src="graphics/img81.png"  alt="" title="" /></div>
+<p>This option allows iOS to resize the assets as needed for different display purposes. In this case, you’re adding it to better support landscape iPhone display and the large HUD.
+</p>
+<div class="note">
+<p><em>Note</em>: If you don’t have vector images, you can provide the HUD with a larger image via the <code>largeContentSizeImage</code> UIBarItem property. This property is also available in Interface Builder under <em>Accessibility</em> when viewing the tab bar item in Attribute Inspector.
+</p></div>
+
+<p>Users will only see the accessibility HUD if they enable Large Text of a certain size. Open the <em>Settings</em> app, and navigate to <em>General</em><em>\</em><em>Accessibility</em><em>\</em><em>Larger Text</em>. Switch it on, and select a text size at least two notches higher than the middle of the scale.
+</p><div><img src="graphics/img82.png"  alt="" title="" /></div>
+<p>Build and run Green Grocer. Long press on either tab bar icon, and you’ll see the HUD display as a nicely scaled vector.
+</p><div class="image-30"><img src="graphics/img83.png"  alt="" title="" /></div>
+<p>You’ve probably noticed that Green Grocer does not handle Dynamic Type. This feature also received attention in iOS 11, adding support for custom fonts and more. If you are interested in learning more, check out Chapter 15, “Dynamic Type”.
+</p>
+<h2 class="segment-chapter">UIColor in asset catalogs</h2>
+
+<p>The ability to add <em>Color Sets</em> to asset catalogs is another small but welcome change this year. These work similarly to image sets, meaning you can drop them in related projects with ease. To check it out, you’ll convert Green Grocer’s custom colors to use them.
+</p>
+<p>Open <em>Assets.xcassets</em>, click the <em>+</em> and select <em>New Color Set</em>. Do this twice, as you’ll be adding two custom colors.
+</p><div class="image-30"><img src="graphics/img84.png"  alt="" title="" /></div>
+<p>Select the color in the editor, and then open the Attributes Inspector. For the two colors, copy the <em>Name</em>, <em>Red</em>, <em>Green</em> and <em>Blue</em> values from these screenshots:
+</p><div class="image-60"><img src="graphics/img85.png"  alt="" title="" /></div>
+<p>Open <em>AppAppearance.swift</em> and replace the <code>UIColor</code> extension at the top with:
+</p><pre class="code-block"><span class="hljs-keyword">let</span> ggDarkGreen = <span class="hljs-string">"ggDarkGreen"</span>
+<span class="hljs-keyword">let</span> ggGreen = <span class="hljs-string">"ggGreen"</span></pre>
+<p>These strings match the <em>name</em> values you set on your color sets. You’ll use the names to load colors rather than the previously defined UIColor properties. In the meantime, you’ll see some errors appear as the properties were being used in various places.
+</p>
+<p>Find <code>styleNavBar</code> and locate the line that sets <code>barTintColor</code>. Replace it with this:
+</p><pre class="code-block">appearanceProxy.barTintColor = <span class="hljs-type">UIColor</span>(named: ggDarkGreen)</pre>
+<p><code>init(named:)</code> loads colors from asset catalogs based on name. Simple and clean!
+</p>
+<p>You’ll also see the deleted UIColor extensions used in <code>styleTabBar</code>, <code>styleTintColor</code> and <code>styleTabBarItem</code>. Replace these instances with <code>UIColor(named:)</code> versions. Be sure to use <code>ggGreen</code> or <code>ggDarkGreen</code> where appropriate. For <code>UIColor.ggGreen</code> used in <code>styleTabBarItem</code>, you’ll need to force unwrap the named color like so:
+</p><pre class="code-block"><span class="hljs-type">UIColor</span>(named: ggGreen)!</pre>
+<p>Finally, open <em>ProductTableViewController.swift</em> and find for <code>UIColor.ggGreen</code> and <code>UIColor.ggDarkGreen</code>. As with the others change these to use <code>UIColor(named:)</code> and the appropriate color.
+</p>
+<p>Build and run, and confirm that the colors are working as before.
+</p>
+<p>These colors are also easy to use in storyboards. From the color picker, your color sets will show up under <em>Named Colors</em>. Pretty handy!
+</p><div class="image-30"><img src="graphics/img86.png"  alt="" title="" /></div>
+<h2 class="segment-chapter">Where to go from here?</h2>
+
+<p>In this chapter, you scratched the surface of drag and drop and explored several more modest changes. You also received a rundown of other UIKit updates found elsewhere in this book. Now you know what’s new with UIKit, and where to get more info.
+</p>
+<p>For more on drag and drop, be sure to check out Chapters 6 and 7. Check the bulleted list at the start of this chapter for a reference of other UIKit topics covered in this book.
+</p>
+<p>For more high-level UIKit coverage, check out the following WWDC sessions:
+</p>
+<ul>
+<li>
+<p><em>What’s New in Cococa Touch</em>: <a href="http://apple.co/2vy2mOo">apple.co/2vy2mOo</a>
+</p></li>
+
+<li>
+<p><em>Updating Your App for iOS 11</em>: <a href="http://apple.co/2syu3Tt">apple.co/2syu3Tt</a>
+</p></li>
+
+<li>
+<p><em>What’s New in Accessibility</em>: <a href="http://apple.co/2r9EASD">apple.co/2r9EASD</a>
+</p></li>
+</ul>
+</body></html>
